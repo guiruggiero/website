@@ -1,1 +1,3 @@
-# My project files
+# HomeHost internal files
+.htaccess
+.well-known/*
