@@ -1,5 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/allorus/public_html/guiruggiero
-    - /bin/cp -r * $DEPLOYPATH
