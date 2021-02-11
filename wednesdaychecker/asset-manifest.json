@@ -1,0 +1,21 @@
+{
+  "files": {
+    "app.js": "/wednesdaychecker/static/js/app.d9479be1.chunk.js",
+    "app.js.map": "/wednesdaychecker/static/js/app.d9479be1.chunk.js.map",
+    "runtime~app.js": "/wednesdaychecker/static/js/runtime~app.3472b374.js",
+    "runtime~app.js.map": "/wednesdaychecker/static/js/runtime~app.3472b374.js.map",
+    "static/js/2.7346e531.chunk.js": "/wednesdaychecker/static/js/2.7346e531.chunk.js",
+    "static/js/2.7346e531.chunk.js.map": "/wednesdaychecker/static/js/2.7346e531.chunk.js.map",
+    "favicon-16.png": "/wednesdaychecker/favicon-16.png",
+    "favicon-32.png": "/wednesdaychecker/favicon-32.png",
+    "favicon.ico": "/wednesdaychecker/favicon.ico",
+    "index.html": "/wednesdaychecker/index.html",
+    "serve.json": "/wednesdaychecker/serve.json",
+    "static/js/2.7346e531.chunk.js.LICENSE.txt": "/wednesdaychecker/static/js/2.7346e531.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime~app.3472b374.js",
+    "static/js/2.7346e531.chunk.js",
+    "static/js/app.d9479be1.chunk.js"
+  ]
+}
