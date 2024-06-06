@@ -1,0 +1,12 @@
+body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: start;
+}
+
+/* div {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+} */
