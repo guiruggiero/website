@@ -3,29 +3,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "node:fs";
 import prompt from "prompt-sync";
 
-// const {
-//     GoogleGenerativeAI,
-//     HarmCategory,
-//     HarmBlockThreshold,
-//   } = require("@google/generative-ai");
-  
 const apiKey = GEMINI_API_KEY;
 // console.log(apiKey);
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-let system_prompt = fs.readFileSync("../prompt.txt", "utf8");
-// console.log(system_prompt);
-
 const prompt_user = new prompt();
 
 // Model setup
-const model = genAI.getGenerativeModel({
-  // model: "gemini-1.5-pro",
-  model: "gemini-1.5-flash",
-  // model: "gemini-1.0-pro",
-  systemInstruction: system_prompt,
-});
+let instructions = fs.readFileSync("../prompt.txt", "utf8");
+// console.log(instructions);
 
 const generationConfig = {
   temperature: 1,
@@ -37,20 +24,27 @@ const generationConfig = {
 
 const safetySettings = {
   // https://ai.google.dev/gemini-api/docs/safety-settings
+  // https://github.com/google-gemini/generative-ai-js/blob/main/samples/node/advanced-text.js
 };
 
-async function text_input() {
-  const result = await model.generateContent("What can you do?");
-  const response = await result.response;
-  const text = response.text();
-  console.log(text);
-}
+const model = genAI.getGenerativeModel({
+  // model: "gemini-1.5-pro",
+  model: "gemini-1.5-flash",
+  // model: "gemini-1.0-pro",
+  systemInstruction: instructions,
+  generationConfig,
+  // safetySettings,
+});
+
+// async function text_input() {
+//   const result = await model.generateContent("What can you do?");
+//   const response = await result.response;
+//   const text = response.text();
+//   console.log(text);
+// }
 
 async function multi_turn() {
-  const chat = model.startChat({
-    generationConfig,
-    // safetySettings,
-  });
+  const chat = model.startChat();
 
   console.log("Starting chat. Enter 'quit' to exit.\n");
 
@@ -65,7 +59,9 @@ async function multi_turn() {
     input = prompt_user("User: ");
   }
 
-  console.log("\nChat terminated.");
+  console.log("\nChat terminated.\n");
+  // let history = await chat.getHistory()
+  // console.log(JSON.stringify(history, null, 2))
 }
 
 // text_input();
