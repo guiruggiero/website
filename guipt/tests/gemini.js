@@ -3,6 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "node:fs";
 import prompt from "prompt-sync";
 
+// Initializations
 const apiKey = GEMINI_API_KEY;
 // console.log(apiKey);
 
@@ -11,6 +12,10 @@ const genAI = new GoogleGenerativeAI(apiKey);
 const prompt_user = new prompt();
 
 // Model setup
+// const model_chosen = "gemini-1.5-pro";
+const model_chosen = "gemini-1.5-flash";
+// const model_chosen = "gemini-1.0-pro";
+
 let instructions = fs.readFileSync("../prompt.txt", "utf8");
 // console.log(instructions);
 
@@ -28,14 +33,13 @@ const safetySettings = {
 };
 
 const model = genAI.getGenerativeModel({
-  // model: "gemini-1.5-pro",
-  model: "gemini-1.5-flash",
-  // model: "gemini-1.0-pro",
+  model: model_chosen,
   systemInstruction: instructions,
   generationConfig,
   // safetySettings,
 });
 
+// Simple text generation
 // async function text_input() {
 //   const result = await model.generateContent("What can you do?");
 //   const response = await result.response;
@@ -43,6 +47,9 @@ const model = genAI.getGenerativeModel({
 //   console.log(text);
 // }
 
+// text_input();
+
+// Multi-turn chat
 async function multi_turn() {
   const chat = model.startChat();
 
@@ -60,9 +67,10 @@ async function multi_turn() {
   }
 
   console.log("\nChat terminated.\n");
+
+  // Check if context is preserved
   // let history = await chat.getHistory()
   // console.log(JSON.stringify(history, null, 2))
 }
 
-// text_input();
 multi_turn();
