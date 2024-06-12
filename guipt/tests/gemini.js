@@ -1,6 +1,7 @@
 import { GEMINI_API_KEY } from "../../../secrets/guiruggiero.mjs";
-import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "node:fs";
+import prompt from "prompt-sync";
 
 // const {
 //     GoogleGenerativeAI,
@@ -10,15 +11,20 @@ import fs from "node:fs";
   
 const apiKey = GEMINI_API_KEY;
 // console.log(apiKey);
+
 const genAI = new GoogleGenerativeAI(apiKey);
 
-let prompt = fs.readFileSync("../prompt.txt", "utf8");
-// console.log(prompt);
+let system_prompt = fs.readFileSync("../prompt.txt", "utf8");
+// console.log(system_prompt);
 
+const prompt_user = new prompt();
+
+// Model setup
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-pro",
-  // model: "gemini-1.5-flash",
-  systemInstruction: prompt,
+  // model: "gemini-1.5-pro",
+  model: "gemini-1.5-flash",
+  // model: "gemini-1.0-pro",
+  systemInstruction: system_prompt,
 });
 
 const generationConfig = {
@@ -40,33 +46,27 @@ async function text_input() {
   console.log(text);
 }
 
-// async function chat() { // TODO
-//   // The Gemini 1.5 models are versatile and work with multi-turn conversations (like chat)
-//   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
+async function multi_turn() {
+  const chat = model.startChat({
+    generationConfig,
+    // safetySettings,
+  });
 
-//   const chat = model.startChat({
-//     history: [
-//       {
-//         role: "user",
-//         parts: [{ text: "Hello, I have 2 dogs in my house." }],
-//       },
-//       {
-//         role: "model",
-//         parts: [{ text: "Great to meet you. What would you like to know?" }],
-//       },
-//     ],
-//     generationConfig: {
-//       maxOutputTokens: 100,
-//     },
-//   });
+  console.log("Starting chat. Enter 'quit' to exit.\n");
 
-//   const msg = "How many paws are in my house?";
+  let input = prompt_user("User: ");
 
-//   const result = await chat.sendMessage(msg);
-//   const response = await result.response;
-//   const text = response.text();
-//   console.log(text);
-// }
+  while (input != "quit") {
+    const result = await chat.sendMessage(input);
+    const response = await result.response;
+    const text = response.text();
+    console.log("GuiPT: " + text);
+    
+    input = prompt_user("User: ");
+  }
 
-text_input();
-// chat();
+  console.log("\nChat terminated.");
+}
+
+// text_input();
+multi_turn();
