@@ -1,5 +1,5 @@
 import { GEMINI_API_KEY } from "../../../secrets/guiruggiero.mjs";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import fs from "node:fs";
 import prompt from "prompt-sync";
 
@@ -20,23 +20,37 @@ let instructions = fs.readFileSync("../prompt.txt", "utf8");
 // console.log(instructions);
 
 const generationConfig = {
-  temperature: 1,
+  temperature: 0.7, // default 1
   topP: 0.95,
-  topK: 64,
-  maxOutputTokens: 8192,
+  topK: 40, // default 40
+  maxOutputTokens: 400,
   responseMimeType: "text/plain",
 };
 
-const safetySettings = {
-  // https://ai.google.dev/gemini-api/docs/safety-settings
-  // https://github.com/google-gemini/generative-ai-js/blob/main/samples/node/advanced-text.js
-};
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+  },
+];
 
 const model = genAI.getGenerativeModel({
   model: model_chosen,
   systemInstruction: instructions,
   generationConfig,
-  // safetySettings,
+  safetySettings,
 });
 
 // Simple text generation
