@@ -1,3 +1,5 @@
+// TODO: implement token count (chat and/or turn level?)
+
 import { GEMINI_API_KEY } from "../../../secrets/guiruggiero.mjs";
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
@@ -79,9 +81,19 @@ async function multi_turn() {
 
   console.log("Starting chat. Enter 'quit' to exit.\n");
 
-  let turn_count = 1;
   let input = prompt_user("User: ");
   const start = Timestamp.now();
+
+  // Initializations
+  let turn_count = 1;
+  // let end = Timestamp.now(); // TODO: exiting now is abandoning
+  let chat_data = {
+      start: start.toDate(),
+  };
+  let turn_data = {};
+
+  // Creates the chat document on Firestore
+  const chat_ref = await addDoc(collection(db, mode), chat_data);
 
   while (input != "quit") {
     const result = await chat.sendMessage(input);
@@ -89,8 +101,28 @@ async function multi_turn() {
     const text = response.text();
     console.log("GuiPT: " + text);
     
+    turn_data = {
+      turn: turn_count,
+      user: input,
+      model: text,
+    };
+
+    // Creates the turn document on Firestore with a specific ID
+    const turn_ref = doc(collection(db, mode, chat_ref.id, "turns"), `turn_${turn_count}`);
+    await setDoc(turn_ref, turn_data); 
+
+    turn_count++;
+
     input = prompt_user("User: ");
   }
+
+  chat_data = {
+    // end: end.toDate(),
+    turn_count: turn_count - 1,
+  };
+
+  // Updates the chat document on Firestore
+  await updateDoc(chat_ref, chat_data);
 
   console.log("\nChat terminated.\n");
 

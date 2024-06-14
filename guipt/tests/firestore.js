@@ -54,7 +54,7 @@ async function test() {
         // console.log(turn_data);
 
         // Creates the turn document on Firestore with a specific ID
-        const turn_ref = doc(collection(db, mode, chat_ref.id, "turns"), `turn_${turn_count}`); // Set specific ID
+        const turn_ref = doc(collection(db, mode, chat_ref.id, "turns"), `turn_${turn_count}`);
         await setDoc(turn_ref, turn_data); 
 
         turn_count++;
