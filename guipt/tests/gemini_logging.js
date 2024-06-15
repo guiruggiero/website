@@ -1,5 +1,3 @@
-// TODO: implement token count (chat and/or turn level?)
-
 import { GEMINI_API_KEY } from "../../../secrets/guiruggiero.mjs";
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
@@ -86,7 +84,7 @@ async function multi_turn() {
 
   // Initializations
   let turn_count = 1;
-  // let end = Timestamp.now(); // TODO: exiting now is abandoning
+  let end = Timestamp.now();
   let chat_data = {
       start: start.toDate(),
   };
@@ -100,6 +98,8 @@ async function multi_turn() {
     const response = await result.response;
     const text = response.text();
     console.log("GuiPT: " + text);
+
+    end = Timestamp.now(); // Now, exiting is abandoning the chat (after response)
     
     turn_data = {
       turn: turn_count,
@@ -117,7 +117,7 @@ async function multi_turn() {
   }
 
   chat_data = {
-    // end: end.toDate(),
+    end: end.toDate(),
     turn_count: turn_count - 1,
   };
 

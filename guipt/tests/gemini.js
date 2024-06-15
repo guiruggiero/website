@@ -85,6 +85,14 @@ async function multi_turn() {
   // Check if context is preserved
   // let history = await chat.getHistory()
   // console.log(JSON.stringify(history, null, 2))
+
+  // TODO: count tokens
+  // let tokens = await model.countTokens(history);
+  // console.log(tokens);
+  // console.log(model.totalTokens);
+  // console.log(model.promptTokens);
+  // console.log(model.completionTokens);
+  // console.log(model.totalCost);
 }
 
 multi_turn();
