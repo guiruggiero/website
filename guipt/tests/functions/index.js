@@ -1,6 +1,7 @@
-import * as functions from "firebase-functions";
+// import * as functions from "firebase-functions";
+const {onRequest} = require("firebase-functions/v2/https");
 
-export const helloWorld = functions.https.onRequest((request, response) => {
+exports.helloWorld2gen = onRequest({cors: true}, (request, response) => {
   let name = request.query.name;
   if (!name) {
     name = "undefined";
