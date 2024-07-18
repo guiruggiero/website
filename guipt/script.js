@@ -3,9 +3,9 @@ const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/gui
 let chatHistory = [];
 
 // Fetch elements
-const submitButton = document.querySelector("#submit");
-const outputElement = document.querySelector("#result");
 const inputElement = document.querySelector("input");
+const submitButton = document.querySelector("#submit");
+const outputElement = document.querySelector("#output");
 
 // UI update
 // Display text
@@ -35,7 +35,7 @@ function validateInput(input) {
     } 
 
     // Length limit
-    if (input.length > 500) { // TODO: after beta testing, reduce limit?
+    if (input.length > 500) {
         return {
             assessment: "Too long",
             message: "Error: your question is too long, please keep it under 500 characters."

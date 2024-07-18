@@ -19,7 +19,7 @@ h1 {
     color: #ECECF1;
 }
 
-.main-content {
+.content {
     display: flex;
     width: 100%;
     height: 100vh;
@@ -29,7 +29,7 @@ h1 {
     justify-content: space-between;
 }
 
-.chat-section {
+.input-section {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -37,7 +37,7 @@ h1 {
     align-items: center;
 }
 
-.input-section {
+.input-field {
     position: relative;
     width: 100%;
     max-width: 720px;
@@ -63,7 +63,7 @@ input:focus {
     outline: none;
 }
 
-.input-section #submit {
+.input-field #submit {
     position: absolute;
     right: 0;
     cursor: pointer;
@@ -78,13 +78,13 @@ input:focus {
     font-style: italic;
 }
 
-#result {
+#output {
     font-size: 22px;
     max-width: 1000px;
     min-height: 200px;
 }
 
-.info {
+.footer {
     color : rgba(255, 255, 255, .5);
     font-size: 15px;
     font-weight: 600;
