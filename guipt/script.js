@@ -18,6 +18,11 @@ function clearInput() {
     inputElement.value = "";
 }
 
+// Close virtual keyboard
+function closeKeyboard() {
+    inputElement.blur();
+}
+
 // Input handling
 // Validate input to enforce guardrails
 function validateInput(input) {
@@ -76,6 +81,7 @@ async function getMessage() {
         }
 
         // Update UI to indicate loading
+        closeKeyboard();
         clearInput();
         displayText("Thinking...");
 
@@ -125,8 +131,8 @@ async function getMessage() {
 submitButton.addEventListener("click", getMessage);
 
 // Enter key
-inputElement.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
+inputElement.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
         getMessage();
     }
 });
