@@ -1,5 +1,5 @@
 // Initializations
-const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt"; // TODO: env variable
+const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
 let chatHistory = [];
 
 // Fetches elements
