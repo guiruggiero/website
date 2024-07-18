@@ -23,11 +23,19 @@ function closeKeyboard() {
     inputElement.blur();
 }
 
-// Input handling
-// Validate input to enforce guardrails
+// Input validation
+// Sanitize potentially harmful characters
+function sanitizeInput(input){
+    input = input.replace(/<[^>]+>/g, ""); // Remove HTML tags
+    input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace
+
+    return input;
+}
+
+// Assess guardrails
 function validateInput(input) {
     // Empty input
-    if (input.length == 0) {
+    if (input.length == 0 || input == " ") {
         return {
             assessment: "Empty",
             message: ""
@@ -56,19 +64,12 @@ function validateInput(input) {
     };
 }
 
-// Sanitize potentially harmful characters
-function sanitizeInput(input){
-    input = input.replace(/<[^>]+>/g, ""); // Remove HTML tags
-    input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace
-
-    return input;
-}
-
 async function getMessage() {
     try {
         // Get and validate input
         const input = inputElement.value;
-        const validationResult = validateInput(input);
+        const sanitizedInput = sanitizeInput(input);
+        const validationResult = validateInput(sanitizedInput);
 
         // If previous message is not an error, stop but don't erase it
         if (validationResult.assessment == "Empty" && outputElement.textContent.substring(0, 5) != "Error") return;
@@ -83,16 +84,13 @@ async function getMessage() {
         // Update UI to indicate loading
         closeKeyboard();
         clearInput();
-        displayText("Thinking...");
+        displayText("...");
 
         // Handle timeout
         const timeout = 61000;
         let timeoutFunction = setTimeout(() => {
             displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
         }, timeout);
-
-        // Sanitize input
-        const sanitizedInput = sanitizeInput(input);
 
         await axios
             // Call GuiPT
