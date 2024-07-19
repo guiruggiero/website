@@ -5,88 +5,140 @@
     font-family: 'Open Sans', sans-serif;
  }
 
+/* General */
 body {
     margin: 0;
     padding: 0;
-    background-color: rgba(52,53,65,1);
-    display: flex;
-}
-
-h1 {
-    font-size: 65px;
-    font-weight: 600;
-    padding: 100px 0 50px 0;
-    color: #ECECF1;
-}
-
-.content {
-    display: flex;
-    width: 100%;
-    height: 100vh;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-content: space-between;
-}
-
-.input-section {
-    width: 100%;
+    background: rgba(52, 53, 65, 1);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    min-height: 100vh;
 }
 
-.input-field {
-    position: relative;
-    width: 100%;
-    max-width: 720px;
+    /* Top section */
+    #top {
+        height: 35vh;
+        max-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+    }
+
+        h1 {
+            font-size: 65px;
+            font-weight: 600;
+            color: #ECECF1;
+        }
+
+        #input-section {
+            align-items: center;
+            width: 90vw;
+            max-width: 720px;
+            margin: 0 auto; /* Center horizontally */
+        }
+
+            /* Input field */
+            #input-field {
+                display: flex;
+                align-items: center;
+                gap: 10px; /*  Space between input and submit */
+            }
+
+                input {
+                    border: none;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: rgba(32, 33, 35, 0.5);
+                    width: 100%;
+                    height: 50px;
+                    font-size: 22px;
+                    padding-left: 1rem;
+                    border-radius: 5px;
+                    box-shadow: rgba(0, 0, 0, 0.05) 0px 54px 55px,
+                        rgba(0, 0, 0, 0.05) 0px -12px 30px,
+                        rgba(0, 0, 0, 0.05) 0px 4px 6px,
+                        rgba(0, 0, 0, 0.05) 0px 12px 3px,
+                        rgba(0, 0, 0, 0.09) 0px -3px 5px;
+                }
+
+                input:focus {
+                    outline: none;
+                }
+
+                #submit {
+                    transform: rotate(90deg);
+                    cursor: pointer;
+                }
+
+            #instructions {
+                color : rgba(255, 255, 255, 0.5);
+                font-size: 18px;
+                font-weight: 600;
+                font-style: italic;
+            }
+
+    /* Bottom section */
+    #bottom {
+        height: 65vh;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+        #output {
+            font-size: 22px;
+            padding: 5vw;
+            flex-grow: 1; /* Allow output to take up available space */
+            text-align: left;
+            max-width: 900px;
+            margin: 0 auto; /* Center horizontally */
+        }
+
+        #footer {
+            text-align: center;
+            color : rgba(255, 255, 255, 0.5);
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+/* Responsive styles */
+/* Tablet and smaller */
+@media (max-width: 768px) {
+    #top {
+      height: 40vh;
+    }
+
+    #bottom {
+      height: 60vh;
+    }
 }
 
-input {
-    border: none;
-    background-color: rgba(255, 255, 255, .1);
-    border-color: rgba(32,33,35,.5);
-    width: 100%;
-    height: 50px;
-    font-size: 22px;
-    padding-left: 1rem;
-    border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, .05) 0px 54px 55px,
-    rgba(0, 0, 0, .05) 0px -12px 30px,
-    rgba(0, 0, 0, .05) 0px 4px 6px,
-    rgba(0, 0, 0, .05) 0px 12px 3px,
-    rgba(0, 0, 0, .09) 0px -3px 5px;
-}
+/* Phone */
+@media (max-width: 480px) {
+    #top {
+      height: 45vh;
+    }
 
-input:focus {
-    outline: none;
-}
+                input {
+                    height: 40px;
+                    font-size: 20px;
+                }
 
-.input-field #submit {
-    position: absolute;
-    right: 0;
-    cursor: pointer;
-    bottom: 15px;
-    transform: rotate(90deg);
-}
+            #instructions {
+                font-size: 15px;
+            }
 
-.instructions {
-    color : rgba(255, 255, 255, .5);
-    font-size: 18px;
-    /* font-weight: 600; */
-    font-style: italic;
-}
+    #bottom {
+      height: 55vh;
+    }
 
-#output {
-    font-size: 22px;
-    max-width: 1000px;
-    min-height: 200px;
-}
+        #output {
+            font-size: 18px;
+        }
 
-.footer {
-    color : rgba(255, 255, 255, .5);
-    font-size: 15px;
-    font-weight: 600;
-    padding: 10px;
+        #footer {
+            font-size: 12px;
+        }
 }
