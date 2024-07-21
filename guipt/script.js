@@ -1,6 +1,30 @@
+const {initializeApp} = require("firebase/app");
+const {getFirestore,
+    addDoc,
+    collection,
+    doc,
+    setDoc,
+    updateDoc,
+    Timestamp} = require("firebase/firestore/lite");
+
 // Initializations
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
 let chatHistory = [];
+let turnCount = 0;
+let chatStart, chatID;
+
+// Firebase Firestore
+const firebaseConfig = {
+    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
+    authDomain: "guiruggiero.firebaseapp.com",
+    projectId: "guiruggiero",
+    storageBucket: "guiruggiero.appspot.com",
+    messagingSenderId: "49247152565",
+    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const firestoreMode = "dev"; // "dev", "mvp", "v1"
 
 // Fetch elements
 const inputElement = document.querySelector("input");
@@ -64,8 +88,33 @@ function validateInput(input) {
     };
 }
 
-async function getMessage() {
+// Create the chat log with the first turn
+async function createLog(chatStart, turnData) {
+    const logRef = await addDoc(collection(db, firestoreMode), {
+        start: chatStart,
+        turnCount: 1,
+        turns: {1: turnData}
+    });
+
+    return logRef.id;
+};
+
+// Log subsequent turns
+async function logTurn(chatID, turnCount, turnData, chatEnd) {
+    // Pass everything again and updates/adds automatically accordingly, or just pass what needs to be updated/added?
+
+    await updateDoc(collection(db, firestoreMode, chatID), {
+        end: chatEnd,
+        turnCount: turnCount,
+        turns: {turnCount: turnData}
+    });
+};
+
+async function GuiPT() {
     try {
+        // Get start time for logs
+        chatStart = Timestamp.now().toDate();
+
         // Get and validate input
         const input = inputElement.value;
         const sanitizedInput = sanitizeInput(input);
@@ -100,7 +149,7 @@ async function getMessage() {
             }})
 
             // Successful response
-            .then((response) => {
+            .then(async (response) => {
                 // Clear timeout
                 clearTimeout(timeoutFunction);
 
@@ -109,8 +158,21 @@ async function getMessage() {
 
                 // Update UI with response
                 displayText(guiptResponse);
+                
+                // Log chat/turn
+                let chatEnd = Timestamp.now().toDate();
+                turnCount++;
+                const turnData = {
+                    user: sanitizedInput,
+                    model: guiptResponse
+                };
+                if (turnCount == 1) {
+                    chatID = await createLog(chatStart, turnData);
+                } else {
+                    await logTurn(chatID, turnCount, turnData, chatEnd);
+                }
 
-                // Save turn
+                // Save chat history
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
                 chatHistory.push({role: "model", parts: [{text: guiptResponse}]});
             })
@@ -126,11 +188,11 @@ async function getMessage() {
 
 // Events
 // Click to submit icon
-submitButton.addEventListener("click", getMessage);
+submitButton.addEventListener("click", GuiPT);
 
 // Enter key
 inputElement.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
-        getMessage();
+        GuiPT();
     }
 });
