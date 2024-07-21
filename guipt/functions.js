@@ -1,5 +1,5 @@
 const {initializeApp} = require("firebase/app");
-const {getFirestore, addDoc, collection, updateDoc, Timestamp}
+const {getFirestore, addDoc, collection, doc, updateDoc, Timestamp}
     = require("firebase/firestore/lite");
 
 // Firebase Firestore
@@ -88,16 +88,18 @@ async function createLog(chatStart, turnData) {
 
 // Log subsequent turns
 async function logTurn(chatID, turnCount, turnData, chatEnd) {
-    // Pass everything again and updates/adds accordingly
-    // or just pass what needs to be updated/added?
+    const chatRef = doc(db, firestoreMode, chatID);
 
-    await updateDoc(collection(db, firestoreMode, chatID), {
-        end: chatEnd,
-        turnCount: turnCount,
-        // turns: {`${turnCount}`: turnData} // TODO
+    await runTransaction(db, async (transaction) => {
+        // Update documents on chat collection
+        const chatDoc = transaction.get(chatRef);
+        transaction.update(chatRef, {
+            end: chatEnd,
+            turnCount: turnCount,
+        });
+
+        // Add new turn document to the subcollection
+        const turnRef = doc(chatRef, 'turns', turnCount.toString());
+        transaction.set(turnRef, turnData);
     });
-
-    // Creates the turn document on Firestore with a specific ID
-    // const turnRef = doc(collection(db, mode, chatRef.id, "turns"), `turn_${turnCount}`);
-    // await setDoc(turnRef, turnData);
-};
+}
