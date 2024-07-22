@@ -20,6 +20,7 @@ const firestoreMode = "dev"; // "dev", "mvp", "v1"
 const inputElement = document.querySelector("input");
 const submitButton = document.querySelector("#submit");
 const outputElement = document.querySelector("#output");
+const loaderElement = document.querySelector("#loader");
 
 // Display text
 function displayText(text) {
@@ -35,6 +36,16 @@ function clearInput() {
 function closeKeyboard() {
     inputElement.blur();
 };
+
+function displayLoader() {
+    loaderElement.style.display = "block";
+    outputElement.style.display = "none";
+}
+
+function hideLoader() {
+    loaderElement.style.display = "none";
+    outputElement.style.display = "block";
+}
 
 // Sanitize potentially harmful characters
 function sanitizeInput(input){
@@ -141,7 +152,7 @@ async function GuiPT() {
         // Update UI to indicate loading
         closeKeyboard();
         clearInput();
-        displayText("...");
+        displayLoader();
 
         // Handle timeout
         const timeout = 61000;
@@ -149,6 +160,7 @@ async function GuiPT() {
             displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
         }, timeout);
 
+        // eslint-disable-next-line no-undef
         await axios
             // Call GuiPT
             .post(cloudFunctionURL, null, {params: {
@@ -164,6 +176,7 @@ async function GuiPT() {
                 // Get and show GuiPT response
                 const guiptResponse = response.data;
                 displayText(guiptResponse);
+                hideLoader();
 
                 // Save chat history
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
