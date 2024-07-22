@@ -1,17 +1,6 @@
-const {initializeApp} = require("firebase/app");
-const {getFirestore,
-    addDoc,
-    collection,
-    doc,
-    setDoc,
-    updateDoc,
-    Timestamp} = require("firebase/firestore/lite");
-
-// Initializations
-const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
-let chatHistory = [];
-let turnCount = 0;
-let chatStart, chatID;
+// const {initializeApp} = require("firebase/app");
+// const {getFirestore, addDoc, collection, doc, Timestamp}
+//     = require("firebase/firestore/lite");
 
 // Firebase Firestore
 const firebaseConfig = {
@@ -22,16 +11,15 @@ const firebaseConfig = {
     messagingSenderId: "49247152565",
     appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
 };
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-const firestoreMode = "dev"; // "dev", "mvp", "v1"
+// const firebaseApp = initializeApp(firebaseConfig);
+// const db = getFirestore(firebaseApp);
+// const firestoreMode = "dev"; // "dev", "mvp", "v1"
 
 // Fetch elements
 const inputElement = document.querySelector("input");
 const submitButton = document.querySelector("#submit");
 const outputElement = document.querySelector("#output");
 
-// UI update
 // Display text
 function displayText(text) {
     outputElement.textContent = text;
@@ -47,7 +35,6 @@ function closeKeyboard() {
     inputElement.blur();
 }
 
-// Input validation
 // Sanitize potentially harmful characters
 function sanitizeInput(input){
     input = input.replace(/<[^>]+>/g, ""); // Remove HTML tags
@@ -90,40 +77,57 @@ function validateInput(input) {
 
 // Create the chat log with the first turn
 async function createLog(chatStart, turnData) {
-    const logRef = await addDoc(collection(db, firestoreMode), {
+    const chatRef = await addDoc(collection(db, firestoreMode), {
         start: chatStart,
         turnCount: 1,
         turns: {1: turnData}
     });
 
-    return logRef.id;
+    return chatRef.id;
 };
 
 // Log subsequent turns
 async function logTurn(chatID, turnCount, turnData, chatEnd) {
-    // Pass everything again and updates/adds automatically accordingly, or just pass what needs to be updated/added?
+    const chatRef = doc(db, firestoreMode, chatID);
 
-    await updateDoc(collection(db, firestoreMode, chatID), {
-        end: chatEnd,
-        turnCount: turnCount,
-        turns: {turnCount: turnData}
+    await runTransaction(db, async (transaction) => {
+        // Update documents on chat collection
+        // const chatDoc = transaction.get(chatRef);
+        transaction.get(chatRef);
+        transaction.update(chatRef, {
+            end: chatEnd,
+            turnCount: turnCount,
+        });
+
+        // Add new turn document to the subcollection
+        const turnRef = doc(chatRef, 'turns', turnCount.toString());
+        transaction.set(turnRef, turnData);
     });
-};
+}
+
+// --
+
+// Initializations
+const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
+let chatHistory = [];
+let turnCount = 0;
+let chatStart, chatID;
 
 async function GuiPT() {
     try {
         // Get start time for logs
-        chatStart = Timestamp.now().toDate();
+        // chatStart = Timestamp.now().toDate();
 
         // Get and validate input
         const input = inputElement.value;
         const sanitizedInput = sanitizeInput(input);
         const validationResult = validateInput(sanitizedInput);
 
+        // Input validation
         // If previous message is not an error, stop but don't erase it
         if (validationResult.assessment == "Empty" && outputElement.textContent.substring(0, 5) != "Error") return;
         
-        // Other guardrail issues
+        // Other guardrails
         if (validationResult.assessment != "OK") {
             if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste, erase input
             displayText(validationResult.message);
@@ -153,29 +157,28 @@ async function GuiPT() {
                 // Clear timeout
                 clearTimeout(timeoutFunction);
 
-                // GuiPT response
+                // Get and show GuiPT response
                 const guiptResponse = response.data;
-
-                // Update UI with response
                 displayText(guiptResponse);
-                
-                // Log chat/turn
-                let chatEnd = Timestamp.now().toDate();
-                turnCount++;
-                const turnData = {
-                    user: sanitizedInput,
-                    model: guiptResponse
-                };
-                if (turnCount == 1) {
-                    chatID = await createLog(chatStart, turnData);
-                } else {
-                    await logTurn(chatID, turnCount, turnData, chatEnd);
-                }
 
                 // Save chat history
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
                 chatHistory.push({role: "model", parts: [{text: guiptResponse}]});
-            })
+                
+                // Log chat/turn
+                // turnCount++;
+                // let chatEnd = Timestamp.now().toDate();
+                // const turnData = {
+                //     user: sanitizedInput,
+                //     model: guiptResponse
+                // };
+                // if (turnCount == 1) {
+                //     chatID = await createLog(chatStart, turnData);
+                //     console.log(chatID); // TODO
+                // } else {
+                //     await logTurn(chatID, turnCount, turnData, chatEnd);
+                // };
+            });
     }
     
     // Handle errors
@@ -183,16 +186,22 @@ async function GuiPT() {
         clearTimeout(timeoutFunction);
         console.error("Error: ", error);
         displayText("Error: oops, something went wrong! Can you please try again?");
-    }
-}
+    };
+};
 
-// Events
-// Click to submit icon
-submitButton.addEventListener("click", GuiPT);
+// --
 
-// Enter key
-inputElement.addEventListener("keyup", (event) => {
-    if (event.key === "Enter") {
+// Create events
+document.addEventListener("DOMContentLoaded", () => {
+    // Click to submit icon
+    submitButton.addEventListener("click", () => {
         GuiPT();
-    }
+    });
+
+    // Enter key
+    inputElement.addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+            GuiPT();
+        }
+    });
 });
