@@ -112,6 +112,7 @@ async function logTurn(chatID, turnCount, turnData, duration) {
 
 // Initializations
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
+let timeoutFunction;
 let chatHistory = [];
 let turnCount = 0;
 let chatStart, chatID;
@@ -144,7 +145,7 @@ async function GuiPT() {
 
         // Handle timeout
         const timeout = 61000;
-        let timeoutFunction = setTimeout(() => {
+        timeoutFunction = setTimeout(() => {
             displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
         }, timeout);
 

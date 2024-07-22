@@ -1,0 +1,14 @@
+{
+  "name": "guipt",
+  "version": "0.1",
+  "main": "script.js",
+  "author": "Gui Ruggiero",
+  "scripts": {
+    "lint": "eslint ./"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.7.0",
+    "eslint": "^9.7.0",
+    "globals": "^15.8.0"
+  }
+}
