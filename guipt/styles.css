@@ -10,7 +10,7 @@ body {
     background: rgba(52, 53, 65, 1);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
 }
 
     /* Top section */
@@ -129,16 +129,7 @@ body {
                 color : rgba(255, 255, 255, 0.5);
             }
 
-/* Responsive styles */
-/* Tablets */
-@media (max-width: 1200px) {
-    #bottom {
-        flex-grow: 0;
-        height: calc(100vh - 276px - 80px);
-    }
-}
-
-/* Phones */
+/* Responsive styles - phones */
 @media (max-width: 490px) {
     #top {
         height: 228px;
@@ -156,11 +147,6 @@ body {
             #instructions {
                 font-size: 15px;
             }
-
-    #bottom {
-        flex-grow: 0;
-        height: calc(100vh - 228px - 66px);
-    }
 
         #output {
             font-size: 18px;
