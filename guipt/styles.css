@@ -10,7 +10,7 @@ body {
     background: rgba(52, 53, 65, 1);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
 }
 
     /* Top section */
@@ -39,7 +39,7 @@ body {
             #input-field {
                 display: flex;
                 align-items: center;
-                gap: 10px; /*  Space between input and submit */
+                gap: 10px; /* Space between input and submit */
             }
 
                 input {
@@ -78,7 +78,7 @@ body {
     #bottom {
         display: flex;
         flex-direction: column;
-        flex-grow: 1; /* Allow to take up available space */
+        flex-grow: 1; /* Takes up the rest of available space */
         justify-content: space-between;
     }
 
@@ -89,7 +89,7 @@ body {
             align-content: start;
             max-width: 900px;
             margin: 0 auto; /* Center horizontally */
-            display: none;
+            display: block;
         }
 
         #loader {
@@ -103,7 +103,7 @@ body {
             background-size: calc(100%/3) 50%;
             animation: spin 0.75s infinite linear;
             margin: 40px auto; /* Center horizontally */
-            display: block;
+            display: none;
         }
 
             @keyframes spin {
@@ -129,8 +129,17 @@ body {
                 color : rgba(255, 255, 255, 0.5);
             }
 
-/* Responsive style for phone */
-@media (max-width: 480px) {
+/* Responsive styles */
+/* Tablets */
+@media (max-width: 1200px) {
+    #bottom {
+        flex-grow: 0;
+        height: calc(100vh - 276px - 80px);
+    }
+}
+
+/* Phones */
+@media (max-width: 490px) {
     #top {
         height: 228px;
     }
@@ -147,6 +156,11 @@ body {
             #instructions {
                 font-size: 15px;
             }
+
+    #bottom {
+        flex-grow: 0;
+        height: calc(100vh - 228px - 66px);
+    }
 
         #output {
             font-size: 18px;
