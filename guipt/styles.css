@@ -1,6 +1,7 @@
 * {
     color: #fff;
     font-family: "Open Sans", sans-serif;
+    font-family: Arial, Helvetica, sans-serif; /* Fallback options */
  }
 
 /* General */
@@ -16,7 +17,8 @@ body {
     /* Top section */
     #top {
         height: 35vh;
-        max-height: 300px;
+        min-height: 273px;
+        max-height: 273px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -89,6 +91,7 @@ body {
             padding: 5vw;
             flex-grow: 1; /* Allow output to take up available space */
             text-align: left;
+            align-content: start;
             max-width: 900px;
             margin: 0 auto; /* Center horizontally */
         }
@@ -101,24 +104,21 @@ body {
             margin-top: auto;
         }
 
-/* Responsive styles */
-/* Tablet and smaller */
-@media (max-width: 768px) {
-    #top {
-      height: 40vh;
-    }
+            #reference {
+                color : rgba(255, 255, 255, 0.5);
+                font-weight: 400;
+            }
 
-    #bottom {
-      height: 60vh;
-    }
-}
+            #reference a {
+                color : rgba(255, 255, 255, 0.5);
+            }
 
-/* Phone */
+/* Responsive style for phone */
 @media (max-width: 480px) {
     #top {
-      height: 45vh;
+        min-height: 253px;
+        max-height: 253px;
     }
-
                 input {
                     height: 40px;
                     font-size: 20px;
@@ -127,10 +127,6 @@ body {
             #instructions {
                 font-size: 15px;
             }
-
-    #bottom {
-      height: 55vh;
-    }
 
         #output {
             font-size: 18px;
