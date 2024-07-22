@@ -1,6 +1,6 @@
-// const {initializeApp} = require("firebase/app");
-// const {getFirestore, addDoc, collection, doc, Timestamp}
-//     = require("firebase/firestore/lite");
+import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
 
 // Firebase Firestore
 const firebaseConfig = {
@@ -12,8 +12,9 @@ const firebaseConfig = {
     appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
 };
 // const firebaseApp = initializeApp(firebaseConfig);
-// const db = getFirestore(firebaseApp);
-// const firestoreMode = "dev"; // "dev", "mvp", "v1"
+const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(firebaseApp);
+const firestoreMode = "dev"; // "dev", "mvp", "v1"
 
 // Fetch elements
 const inputElement = document.querySelector("input");
@@ -23,17 +24,17 @@ const outputElement = document.querySelector("#output");
 // Display text
 function displayText(text) {
     outputElement.textContent = text;
-}
+};
 
 // Clear input box
 function clearInput() {
     inputElement.value = "";
-}
+};
 
 // Close virtual keyboard
 function closeKeyboard() {
     inputElement.blur();
-}
+};
 
 // Sanitize potentially harmful characters
 function sanitizeInput(input){
@@ -41,7 +42,7 @@ function sanitizeInput(input){
     input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace
 
     return input;
-}
+};
 
 // Assess guardrails
 function validateInput(input) {
@@ -73,7 +74,7 @@ function validateInput(input) {
         assessment: "OK",
         message: ""
     };
-}
+};
 
 // Create the chat log with the first turn
 async function createLog(chatStart, turnData) {
@@ -86,24 +87,26 @@ async function createLog(chatStart, turnData) {
     return chatRef.id;
 };
 
-// Log subsequent turns
+// Log subsequent turns - TODO: if considered 2 billed interactions, incorporate into code
 async function logTurn(chatID, turnCount, turnData, chatEnd) {
     const chatRef = doc(db, firestoreMode, chatID);
 
     await runTransaction(db, async (transaction) => {
-        // Update documents on chat collection
-        // const chatDoc = transaction.get(chatRef);
-        transaction.get(chatRef);
-        transaction.update(chatRef, {
-            end: chatEnd,
-            turnCount: turnCount,
-        });
+        // Get turns so far
+        const chatDoc = await transaction.get(chatRef);
+        const turnHistory = chatDoc.data().turns;
 
-        // Add new turn document to the subcollection
-        const turnRef = doc(chatRef, 'turns', turnCount.toString());
-        transaction.set(turnRef, turnData);
+        // Appends new turn
+        const updatedTurnHistory = {...turnHistory, [turnCount]: turnData};
+
+        // Updates chat document
+        transaction.update(chatRef, {
+            turnCount: turnCount,
+            end: chatEnd,
+            turns: updatedTurnHistory
+        });
     });
-}
+};
 
 // --
 
@@ -116,7 +119,7 @@ let chatStart, chatID;
 async function GuiPT() {
     try {
         // Get start time for logs
-        // chatStart = Timestamp.now().toDate();
+        chatStart = Timestamp.now().toDate();
 
         // Get and validate input
         const input = inputElement.value;
@@ -147,9 +150,9 @@ async function GuiPT() {
 
         await axios
             // Call GuiPT
-            .post(cloudFunctionURL, null, { params: {
+            .post(cloudFunctionURL, null, {params: {
                 history: chatHistory,
-                prompt: sanitizedInput,
+                prompt: sanitizedInput
             }})
 
             // Successful response
@@ -166,18 +169,17 @@ async function GuiPT() {
                 chatHistory.push({role: "model", parts: [{text: guiptResponse}]});
                 
                 // Log chat/turn
-                // turnCount++;
-                // let chatEnd = Timestamp.now().toDate();
-                // const turnData = {
-                //     user: sanitizedInput,
-                //     model: guiptResponse
-                // };
-                // if (turnCount == 1) {
-                //     chatID = await createLog(chatStart, turnData);
-                //     console.log(chatID); // TODO
-                // } else {
-                //     await logTurn(chatID, turnCount, turnData, chatEnd);
-                // };
+                turnCount++;
+                let chatEnd = Timestamp.now().toDate();
+                const turnData = {
+                    user: sanitizedInput,
+                    model: guiptResponse
+                };
+                if (turnCount == 1) {
+                    chatID = await createLog(chatStart, turnData);
+                } else {
+                    await logTurn(chatID, turnCount, turnData, chatEnd);
+                };
             });
     }
     
