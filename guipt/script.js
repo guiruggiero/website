@@ -87,12 +87,12 @@ async function createLog(chatStart, turnData) {
     return chatRef.id;
 };
 
-// Log subsequent turns - TODO: if considered 2 billed interactions, incorporate into code
-async function logTurn(chatID, turnCount, turnData, chatEnd) {
+// Log subsequent turns - TODO: if considered 2 billed interactions, incorporate into code like chatHistory
+async function logTurn(chatID, turnCount, turnData, duration) {
     const chatRef = doc(db, firestoreMode, chatID);
 
     await runTransaction(db, async (transaction) => {
-        // Get turns so far
+        // Get chat data
         const chatDoc = await transaction.get(chatRef);
         const turnHistory = chatDoc.data().turns;
 
@@ -102,7 +102,7 @@ async function logTurn(chatID, turnCount, turnData, chatEnd) {
         // Updates chat document
         transaction.update(chatRef, {
             turnCount: turnCount,
-            end: chatEnd,
+            duration: duration,
             turns: updatedTurnHistory
         });
     });
@@ -118,8 +118,8 @@ let chatStart, chatID;
 
 async function GuiPT() {
     try {
-        // Get start time for logs
-        chatStart = Timestamp.now().toDate();
+        // Get start time for logs if it's the potential first turn
+        if (turnCount == 0) chatStart = Timestamp.now().toDate();
 
         // Get and validate input
         const input = inputElement.value;
@@ -170,7 +170,6 @@ async function GuiPT() {
                 
                 // Log chat/turn
                 turnCount++;
-                let chatEnd = Timestamp.now().toDate();
                 const turnData = {
                     user: sanitizedInput,
                     model: guiptResponse
@@ -178,7 +177,9 @@ async function GuiPT() {
                 if (turnCount == 1) {
                     chatID = await createLog(chatStart, turnData);
                 } else {
-                    await logTurn(chatID, turnCount, turnData, chatEnd);
+                    let duration = (Timestamp.now().toDate() - chatStart)/(1000*60); // Minutes
+                    duration = Number(duration.toFixed(2)); // 2 decimal places
+                    await logTurn(chatID, turnCount, turnData, duration);
                 };
             });
     }
