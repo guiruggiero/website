@@ -1,7 +1,6 @@
 * {
     color: #fff;
-    font-family: "Open Sans", sans-serif;
-    font-family: Arial, Helvetica, sans-serif; /* Fallback options */
+    font-family: Arial, sans-serif;
  }
 
 /* General */
@@ -16,9 +15,7 @@ body {
 
     /* Top section */
     #top {
-        height: 35vh;
-        min-height: 273px;
-        max-height: 273px;
+        height: 276px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -79,7 +76,6 @@ body {
 
     /* Bottom section */
     #bottom {
-        height: 65vh;
         display: flex;
         flex-direction: column;
         flex-grow: 1;
@@ -116,9 +112,13 @@ body {
 /* Responsive style for phone */
 @media (max-width: 480px) {
     #top {
-        min-height: 253px;
-        max-height: 253px;
+        height: 228px;
     }
+
+        h1 {
+            font-size: 55px;
+        }
+    
                 input {
                     height: 40px;
                     font-size: 20px;
