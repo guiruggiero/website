@@ -14,7 +14,7 @@ const firebaseConfig = {
 // const firebaseApp = initializeApp(firebaseConfig);
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
-const firestoreMode = "dev"; // "dev", "mvp", "v1"
+const firestoreMode = "mvp"; // "dev", "mvp", "v1"
 
 // Fetch elements
 const inputElement = document.querySelector("input");
@@ -98,7 +98,7 @@ async function createLog(chatStart, turnData) {
     return chatRef.id;
 };
 
-// Log subsequent turns - TODO: if considered 2 billed interactions, incorporate into code like chatHistory
+// Log subsequent turns
 async function logTurn(chatID, turnCount, turnData, duration) {
     const chatRef = doc(db, firestoreMode, chatID);
 
@@ -146,6 +146,7 @@ async function GuiPT() {
         if (validationResult.assessment != "OK") {
             if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste, erase input
             displayText(validationResult.message);
+            hideLoader();
             return;
         }
 
@@ -155,9 +156,10 @@ async function GuiPT() {
         displayLoader();
 
         // Handle timeout
-        const timeout = 61000;
+        const timeout = 31000;
         timeoutFunction = setTimeout(() => {
             displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
+            hideLoader();
         }, timeout);
 
         // eslint-disable-next-line no-undef
@@ -203,6 +205,7 @@ async function GuiPT() {
         clearTimeout(timeoutFunction);
         console.error("Error: ", error);
         displayText("Error: oops, something went wrong! Can you please try again?");
+        hideLoader();
     };
 };
 
