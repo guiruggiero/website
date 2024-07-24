@@ -1,6 +1,7 @@
 import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
+import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from
+    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
 
 // Firebase Firestore
 const firebaseConfig = {
@@ -19,12 +20,39 @@ const firestoreMode = "mvp"; // "dev", "mvp", "v1"
 // Fetch elements
 const inputElement = document.querySelector("input");
 const submitButton = document.querySelector("#submit");
-const outputElement = document.querySelector("#output");
+const responseElement = document.querySelector("#response");
+const errorElement = document.querySelector("#error");
 const loaderElement = document.querySelector("#loader");
 
 // Display text
-function displayText(text) {
-    outputElement.textContent = text;
+function displayText(type, text) {
+    loaderElement.style.display = "none";
+    toggleInput("enable");
+
+    // Response message
+    if (type == "response") {
+        errorElement.style.display = "none";
+        errorElement.textContent = "";
+        responseElement.textContent = "";
+        responseElement.style.display = "block";;
+        responseElement.style.setProperty("--response-length", text.length); // for typewriter steps
+        responseElement.textContent = text;
+    }
+
+    // Error message
+    else if (type == "error") {
+        responseElement.style.display = "none";
+        responseElement.textContent = "";
+        errorElement.textContent = text;
+        errorElement.style.display = "block";
+    }
+};
+
+// Display loader
+function displayLoader() {
+    responseElement.style.display = "none";
+    errorElement.style.display = "none";
+    loaderElement.style.display = "block";
 };
 
 // Clear input box
@@ -37,14 +65,10 @@ function closeKeyboard() {
     inputElement.blur();
 };
 
-function displayLoader() {
-    loaderElement.style.display = "block";
-    outputElement.style.display = "none";
-}
-
-function hideLoader() {
-    loaderElement.style.display = "none";
-    outputElement.style.display = "block";
+// Toggle input box enable/disabled
+function toggleInput(state) {
+    if (state == "disable") inputElement.disabled = true;
+    else if (state == "enable") inputElement.disabled = false;
 }
 
 // Sanitize potentially harmful characters
@@ -69,7 +93,7 @@ function validateInput(input) {
     if (input.length > 500) {
         return {
             assessment: "Too long",
-            message: "Error: your question is too long, please keep it under 500 characters."
+            message: "⚠️ Oops! Your question is too long, please make it shorter."
         };
     }
 
@@ -77,7 +101,7 @@ function validateInput(input) {
     if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'"()-]+$/.test(input)) { // @$%&/+
         return {
             assessment: "Forbidden characters",
-            message: "Error: please use only letters, numbers, spaces, and common punctuation."
+            message: "⚠️ Oops! Please use only letters, numbers, and common punctuation."
         };
     }
 
@@ -140,26 +164,25 @@ async function GuiPT() {
 
         // Input validation
         // If previous message is not an error, stop but don't erase it
-        if (validationResult.assessment == "Empty" && outputElement.textContent.substring(0, 5) != "Error") return;
+        if (validationResult.assessment == "Empty" && responseElement.style.display == "block") return;
         
         // Other guardrails
         if (validationResult.assessment != "OK") {
             if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste, erase input
-            displayText(validationResult.message);
-            hideLoader();
+            displayText("error", validationResult.message);
             return;
         }
 
         // Update UI to indicate loading
         closeKeyboard();
         clearInput();
+        toggleInput("disable");
         displayLoader();
 
         // Handle timeout
         const timeout = 31000;
         timeoutFunction = setTimeout(() => {
-            displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
-            hideLoader();
+            displayText("error", "⚠️ Oops! This is taking too long... Can you please try again?");
         }, timeout);
 
         // eslint-disable-next-line no-undef
@@ -177,8 +200,7 @@ async function GuiPT() {
 
                 // Get and show GuiPT response
                 const guiptResponse = response.data;
-                displayText(guiptResponse);
-                hideLoader();
+                displayText("response", guiptResponse);
 
                 // Save chat history
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
@@ -204,8 +226,7 @@ async function GuiPT() {
     catch (error) {
         clearTimeout(timeoutFunction);
         console.error("Error: ", error);
-        displayText("Error: oops, something went wrong! Can you please try again?");
-        hideLoader();
+        displayText("error", "⚠️ Oops! Something went wrong, can you please try again?");
     };
 };
 

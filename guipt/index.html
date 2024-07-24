@@ -16,8 +16,8 @@
         <meta name="keywords" content="product, product manager, product management, PM, technology, human-computer interaction,
             HCI, artificial intelligence, AI, machine learning, ML, expert, design, engineering, science, data science">
 
-        <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
         <link rel="shortcut icon" type="image/x-icon" href="../images/GRfavicon.png">
@@ -33,37 +33,42 @@
             <h1>GuiPT</h1>
 
             <div id="input-section">
-                <div id="input-field">
-                    <input id="prompt" type="text" autocomplete="false" placeholder="Ask me anything about Gui...">
+                <div id="input-field" role="search"> <!-- TODO: change to form -->
+                    <input id="prompt" type="text" autocomplete="off" placeholder="Ask me anything about Gui..."
+                        aria-label="Enter your question for GuiPT">
 
-                    <div type="submit" id="submit">
+                    <div id="submit" role="button" aria-label="Submit your question">
                         <!-- Unicode character "U+27A2" -->
-                        <svg stroke="currentColor" fill="rgba(255,255,255,.5)" stroke-width="0"
-                            viewBox="0 0 20 20" height="1.5em" width="1.5em" xmlns="https://www.w3.org/2000/svg">
+                        <svg stroke="currentColor" fill="rgba(255,255,255,.5)" stroke-width="0" viewBox="0 0 20 20"
+                            height="1.5em" width="1.5em">
                                 <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009
-                                15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+                                15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
                         </svg>
                     </div>
                 </div>
 
                 <!-- <p id="instructions">Também falo Português 🇧🇷 | Parlo anche italiano 🇮🇹 | También hablo español 🇪🇸</p> -->
-                <p id="instructions">Eu também falo Português! 🇧🇷</p>
+                <p id="instructions">Eu também falo Português! 🇧🇷</p> <!-- TODO: change to aside -->
             </div>
         </header>
 
         <main id="bottom">
-            <p id="output"></p>
+            <p class="output" id="response" aria-live="polite"></p>
             <!-- 400-token response size -->
-            <!-- <p id="output">The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs. Waltz, bad nymph, for quick jigs vex! Fox nymphs grab quick-jived waltz. Brick quiz whangs jumpy veldt fox. Bright vixens jump; dozy fowl quack. Quick wafting zephyrs vex bold Jim. Quick zephyrs blow, vexing daft Jim. Sex-charged fop blew my junk TV quiz. How quickly daft jumping zebras vex. Two driven jocks help fax my big quiz. Quick, Baz, get my woven flax jodhpurs! "Now fax quiz Jack!" my brave ghost pled. Five quacking zephyrs jolt my wax bed. Flummoxed by job, kvetching W. zaps Iraq. Cozy sphinx waves quart jug of bad milk. A very bad quack might jinx zippy fowls. Few quips galvanized the mock jury box. Quick brown dogs jump over the lazy fox. The jay, pig, fox, zebra, and my wolves quack! Blowzy red vixens fight for a quick jump. Joaquin Phoenix was gazed by MTV for luck. A wizard’s job is to vex chumps quickly in fog. Watch "Jeopardy!", Alex Trebek"s fun TV quiz game. Woven silk pyjamas exchanged for blue quartz. Brawny gods just flocked up to quiz and vex him. Adjusting quiver and bow, Zompyc[1] killed the fox. My faxed joke won a pager in the cable TV quiz show. Amazingly few discotheques provide jukeboxes. My girl wove six dozen plaid jackets before she quit. Six big devils from Japan quickly forgot how to.</p> -->
+            <!-- <p class="output" id="response">The quick, brown fox jumps over a lazy dog. DJs flock by when MTV ax quiz prog. Junk MTV quiz graced by fox whelps. Bawds jog, flick quartz, vex nymphs. Waltz, bad nymph, for quick jigs vex! Fox nymphs grab quick-jived waltz. Brick quiz whangs jumpy veldt fox. Bright vixens jump; dozy fowl quack. Quick wafting zephyrs vex bold Jim. Quick zephyrs blow, vexing daft Jim. Sex-charged fop blew my junk TV quiz. How quickly daft jumping zebras vex. Two driven jocks help fax my big quiz. Quick, Baz, get my woven flax jodhpurs! "Now fax quiz Jack!" my brave ghost pled. Five quacking zephyrs jolt my wax bed. Flummoxed by job, kvetching W. zaps Iraq. Cozy sphinx waves quart jug of bad milk. A very bad quack might jinx zippy fowls. Few quips galvanized the mock jury box. Quick brown dogs jump over the lazy fox. The jay, pig, fox, zebra, and my wolves quack! Blowzy red vixens fight for a quick jump. Joaquin Phoenix was gazed by MTV for luck. A wizard’s job is to vex chumps quickly in fog. Watch "Jeopardy!", Alex Trebek"s fun TV quiz game. Woven silk pyjamas exchanged for blue quartz. Brawny gods just flocked up to quiz and vex him. Adjusting quiver and bow, Zompyc[1] killed the fox. My faxed joke won a pager in the cable TV quiz show. Amazingly few discotheques provide jukeboxes. My girl wove six dozen plaid jackets before she quit. Six big devils from Japan quickly forgot how to.</p> -->
 
-            <div id="loader"></div>
+            <p class="output" id="error" aria-live="polite"></p>
+
+            <div id="loader" aria-hidden="true"></div>
 
             <div id="footer">
-                <p>Developed with lots of ☕ by <a href="https://guiruggiero.com/" target="_blank" crossorigin="anonymous">Gui Ruggiero</a></p>
-                <p id="reference">Front-end inspired by Ali Rowshani's <a href="https://github.com/mirana1365/js-chatgtp-clone" target="_blank">GeekyGPT</a></p>
+                <p>Developed with lots of ☕ by <a href="https://guiruggiero.com/" target="_blank"
+                    aria-label="Visit Gui Ruggiero's website">Gui Ruggiero</a></p>
+                <p id="reference">Design inspired by Ali Rowshani's <a href="https://github.com/mirana1365/js-chatgtp-clone"
+                    target="_blank" aria-label="Visit the GeekyGPT repository on GitHub">GeekyGPT</a></p>
             </div>
         </main>
 
-        <script type="module" src="script.js" defer></script>
+        <script type="module" src="script.js"></script>
     </body>
 </html>

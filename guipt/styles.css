@@ -78,14 +78,29 @@ body {
         justify-content: space-between;
     }
 
-        #output {
+        .output {
             font-size: 22px;
             padding: 30px 5vw 35px;
             text-align: left;
             align-content: start;
             max-width: 900px;
             margin: 0 auto; /* Center horizontally */
+        }
+
+        .output #response {
             display: block;
+            white-space: pre-wrap; /* Preserve line breaks */
+            /* animation: typewriter 3s steps(40) forwards; */
+            animation: typewriter 3s steps(calc(var(--response-length) * 10)) forwards;
+        }
+
+            @keyframes typewriter {
+                from {width: 0;}
+                to {width: 100%;}
+            }
+        
+        .output #error {
+            display: none;
         }
 
         #loader {
@@ -97,12 +112,12 @@ body {
                 var(--_g) 50%  50%,
                 var(--_g) 100% 50%;
             background-size: calc(100%/3) 50%;
-            animation: spin 0.75s infinite linear;
+            animation: bounce 0.75s infinite linear;
             margin: 40px auto; /* Center horizontally */
             display: none;
         }
 
-            @keyframes spin {
+            @keyframes bounce {
                 20% {background-position: 0%   0%, 50%  50%,100%  50%}
                 40% {background-position: 0% 100%, 50%   0%,100%  50%}
                 60% {background-position: 0%  50%, 50% 100%,100%   0%}
@@ -144,7 +159,7 @@ body {
                 font-size: 15px;
             }
 
-        #output {
+        .output {
             font-size: 18px;
         }
 
