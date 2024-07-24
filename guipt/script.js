@@ -27,7 +27,6 @@ const loaderElement = document.querySelector("#loader");
 // Display text
 function displayText(type, text) {
     loaderElement.style.display = "none";
-    toggleInput("enable");
 
     // Response message
     if (type == "response") {
@@ -46,6 +45,9 @@ function displayText(type, text) {
         errorElement.textContent = text;
         errorElement.style.display = "block";
     }
+
+    toggleInput("enable");
+    inputFocus();
 };
 
 // Display loader
@@ -64,6 +66,13 @@ function clearInput() {
 function closeKeyboard() {
     inputElement.blur();
 };
+
+// Focus on input box without opening virtual keyboard
+function inputFocus() {
+    inputElement.setAttribute('readonly', 'readonly');
+    inputElement.focus();
+    inputElement.removeAttribute('readonly');
+}
 
 // Toggle input box enable/disabled
 function toggleInput(state) {
