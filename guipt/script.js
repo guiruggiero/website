@@ -137,7 +137,7 @@ function validateInput(input) {
     }
 
     // Character set - allow only alphanumeric (including accented), spaces, and basic punctuation
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'"()-]+$/.test(input)) { // @$%&/+
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // @$%&/+
         return {
             assessment: "Forbidden characters",
             message: "⚠️ Oops! Please use only letters, numbers, and common punctuation."
