@@ -78,14 +78,23 @@ body {
         justify-content: space-between;
     }
 
-        #output {
+        .output {
             font-size: 22px;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
             padding: 30px 5vw 35px;
             text-align: left;
             align-content: start;
             max-width: 900px;
             margin: 0 auto; /* Center horizontally */
+        }
+        
+        .output #response {
             display: block;
+        }
+        
+        .output #error {
+            display: none;
         }
 
         #loader {
@@ -97,12 +106,12 @@ body {
                 var(--_g) 50%  50%,
                 var(--_g) 100% 50%;
             background-size: calc(100%/3) 50%;
-            animation: spin 0.75s infinite linear;
+            animation: bounce 0.75s infinite linear;
             margin: 40px auto; /* Center horizontally */
             display: none;
         }
 
-            @keyframes spin {
+            @keyframes bounce {
                 20% {background-position: 0%   0%, 50%  50%,100%  50%}
                 40% {background-position: 0% 100%, 50%   0%,100%  50%}
                 60% {background-position: 0%  50%, 50% 100%,100%   0%}
@@ -144,7 +153,7 @@ body {
                 font-size: 15px;
             }
 
-        #output {
+        .output {
             font-size: 18px;
         }
 

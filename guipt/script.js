@@ -1,30 +1,66 @@
 import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"; // TODO: minimized option
+import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from
+    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js" // TODO: minimized option
+import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 
-// Firebase Firestore
-const firebaseConfig = {
-    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
-    authDomain: "guiruggiero.firebaseapp.com",
-    projectId: "guiruggiero",
-    storageBucket: "guiruggiero.appspot.com",
-    messagingSenderId: "49247152565",
-    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
-};
-// const firebaseApp = initializeApp(firebaseConfig);
-const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(firebaseApp);
-const firestoreMode = "mvp"; // "dev", "mvp", "v1"
+// -- UI manipulation
 
 // Fetch elements
 const inputElement = document.querySelector("input");
 const submitButton = document.querySelector("#submit");
-const outputElement = document.querySelector("#output");
+const responseElement = document.querySelector("#response");
+const errorElement = document.querySelector("#error");
 const loaderElement = document.querySelector("#loader");
 
 // Display text
-function displayText(text) {
-    outputElement.textContent = text;
+function displayText(messageType, text) {
+    // First things, first - some text is coming
+    loaderElement.style.display = "none";
+
+    // Response message
+    if (messageType == "response") {
+        // Order matters for no flickering
+        errorElement.style.display = "none";
+        errorElement.textContent = "";
+        responseElement.textContent = "";
+        responseElement.style.display = "block";
+
+        // Type response
+        // eslint-disable-next-line no-undef
+        new Typed(responseElement, {
+            strings: [text],
+            contentType: "null",
+            typeSpeed: 10,
+            showCursor: false,
+
+            // After typed everything
+            onComplete: () => {
+                toggleInput("allow");
+                inputPlaceholderAndFocus();
+            }
+        });
+    }
+
+    // Error message
+    else if (messageType == "error") {
+        // Order matters for no flickering
+        responseElement.style.display = "none";
+        responseElement.textContent = "";
+        errorElement.textContent = text;
+        errorElement.style.display = "block";
+
+        // Allow and focus on input
+        toggleInput("allow");
+        inputFocus();
+    }
+};
+
+// Display loader
+function displayLoader() {
+    responseElement.style.display = "none";
+    errorElement.style.display = "none";
+    loaderElement.style.display = "block";
 };
 
 // Clear input box
@@ -32,20 +68,47 @@ function clearInput() {
     inputElement.value = "";
 };
 
+// Clear input box placeholder
+function clearPlaceholder() {
+    inputElement.placeholder = "";
+};
+
 // Close virtual keyboard
 function closeKeyboard() {
     inputElement.blur();
 };
 
-function displayLoader() {
-    loaderElement.style.display = "block";
-    outputElement.style.display = "none";
+// Focus on input box without opening virtual keyboard
+function inputFocus() {
+    inputElement.setAttribute("readonly", "readonly");
+    inputElement.focus();
+    inputElement.removeAttribute("readonly");
 }
 
-function hideLoader() {
-    loaderElement.style.display = "none";
-    outputElement.style.display = "block";
+// Type input placeholder and then focus
+function inputPlaceholderAndFocus() {
+    // eslint-disable-next-line no-undef
+    new Typed(inputElement, {
+        strings: ["^1000 Ask me anything about Gui..."], // Waits 1000ms before typing
+        contentType: "null",
+        attr: "placeholder",
+        typeSpeed: 30,
+        showCursor: false,
+
+        // After typed everything
+        onComplete: () => {
+            inputFocus();
+        }
+    });
+};
+
+// Allow/forbid input box edit
+function toggleInput(state) {
+    if (state == "forbid") inputElement.disabled = true;
+    else if (state == "allow") inputElement.disabled = false;
 }
+
+// -- Data manipulation
 
 // Sanitize potentially harmful characters
 function sanitizeInput(input){
@@ -69,15 +132,15 @@ function validateInput(input) {
     if (input.length > 500) {
         return {
             assessment: "Too long",
-            message: "Error: your question is too long, please keep it under 500 characters."
+            message: "⚠️ Oops! Your question is too long, please make it shorter."
         };
     }
 
     // Character set - allow only alphanumeric (including accented), spaces, and basic punctuation
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'"()-]+$/.test(input)) { // @$%&/+
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // @$%&/+
         return {
             assessment: "Forbidden characters",
-            message: "Error: please use only letters, numbers, spaces, and common punctuation."
+            message: "⚠️ Oops! Please use only letters, numbers, and common punctuation."
         };
     }
 
@@ -86,6 +149,22 @@ function validateInput(input) {
         message: ""
     };
 };
+
+// -- Firestore Firebase
+
+// Initializations
+const firebaseConfig = {
+    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
+    authDomain: "guiruggiero.firebaseapp.com",
+    projectId: "guiruggiero",
+    storageBucket: "guiruggiero.appspot.com",
+    messagingSenderId: "49247152565",
+    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
+};
+// const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(firebaseApp);
+const firestoreMode = "mvp"; // "dev", "mvp", "v1"
 
 // Create the chat log with the first turn
 async function createLog(chatStart, turnData) {
@@ -119,7 +198,7 @@ async function logTurn(chatID, turnCount, turnData, duration) {
     });
 };
 
-// --
+// -- Main function
 
 // Initializations
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
@@ -128,6 +207,7 @@ let chatHistory = [];
 let turnCount = 0;
 let chatStart, chatID;
 
+// Main function
 async function GuiPT() {
     try {
         // Get start time for logs if it's the potential first turn
@@ -140,26 +220,26 @@ async function GuiPT() {
 
         // Input validation
         // If previous message is not an error, stop but don't erase it
-        if (validationResult.assessment == "Empty" && outputElement.textContent.substring(0, 5) != "Error") return;
+        if (validationResult.assessment == "Empty" && responseElement.style.display == "block") return;
         
         // Other guardrails
         if (validationResult.assessment != "OK") {
             if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste, erase input
-            displayText(validationResult.message);
-            hideLoader();
+            displayText("error", validationResult.message);
             return;
         }
 
         // Update UI to indicate loading
         closeKeyboard();
         clearInput();
+        clearPlaceholder();
+        toggleInput("forbid");
         displayLoader();
 
         // Handle timeout
         const timeout = 31000;
         timeoutFunction = setTimeout(() => {
-            displayText("Error: request timed out, GuiPT might be AFK. Can you please try again?");
-            hideLoader();
+            displayText("error", "⚠️ Oops! This is taking too long... Can you please try again?");
         }, timeout);
 
         // eslint-disable-next-line no-undef
@@ -177,8 +257,7 @@ async function GuiPT() {
 
                 // Get and show GuiPT response
                 const guiptResponse = response.data;
-                displayText(guiptResponse);
-                hideLoader();
+                displayText("response", guiptResponse);
 
                 // Save chat history
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
@@ -203,13 +282,12 @@ async function GuiPT() {
     // Handle errors
     catch (error) {
         clearTimeout(timeoutFunction);
-        console.error("Error: ", error);
-        displayText("Error: oops, something went wrong! Can you please try again?");
-        hideLoader();
+        console.error(error);
+        displayText("error", "⚠️ Oops! Something went wrong, can you please try again?");
     };
 };
 
-// --
+// -- Events
 
 // Create events
 document.addEventListener("DOMContentLoaded", () => {
@@ -225,3 +303,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+// After all the page loading is complete
+inputPlaceholderAndFocus();
