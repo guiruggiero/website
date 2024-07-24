@@ -80,24 +80,18 @@ body {
 
         .output {
             font-size: 22px;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
             padding: 30px 5vw 35px;
             text-align: left;
             align-content: start;
             max-width: 900px;
             margin: 0 auto; /* Center horizontally */
         }
-
+        
         .output #response {
             display: block;
-            white-space: pre-wrap; /* Preserve line breaks */
-            /* animation: typewriter 3s steps(40) forwards; */
-            animation: typewriter 3s steps(calc(var(--response-length) * 10)) forwards;
         }
-
-            @keyframes typewriter {
-                from {width: 0;}
-                to {width: 100%;}
-            }
         
         .output #error {
             display: none;

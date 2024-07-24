@@ -1,21 +1,10 @@
 import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"; // TODO: minimized option
 import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from
-    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
+    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js" // TODO: minimized option
+import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 
-// Firebase Firestore
-const firebaseConfig = {
-    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
-    authDomain: "guiruggiero.firebaseapp.com",
-    projectId: "guiruggiero",
-    storageBucket: "guiruggiero.appspot.com",
-    messagingSenderId: "49247152565",
-    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
-};
-// const firebaseApp = initializeApp(firebaseConfig);
-const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(firebaseApp);
-const firestoreMode = "mvp"; // "dev", "mvp", "v1"
+// -- UI manipulation
 
 // Fetch elements
 const inputElement = document.querySelector("input");
@@ -25,29 +14,46 @@ const errorElement = document.querySelector("#error");
 const loaderElement = document.querySelector("#loader");
 
 // Display text
-function displayText(type, text) {
+function displayText(messageType, text) {
+    // First things, first - some text is coming
     loaderElement.style.display = "none";
 
     // Response message
-    if (type == "response") {
+    if (messageType == "response") {
+        // Order matters for no flickering
         errorElement.style.display = "none";
         errorElement.textContent = "";
         responseElement.textContent = "";
-        responseElement.style.display = "block";;
-        responseElement.style.setProperty("--response-length", text.length); // for typewriter steps
-        responseElement.textContent = text;
+        responseElement.style.display = "block";
+
+        // Type response
+        // eslint-disable-next-line no-undef
+        new Typed(responseElement, {
+            strings: [text],
+            contentType: "null",
+            typeSpeed: 10,
+            showCursor: false,
+
+            // After typed everything
+            onComplete: () => {
+                toggleInput("allow");
+                inputPlaceholderAndFocus();
+            }
+        });
     }
 
     // Error message
-    else if (type == "error") {
+    else if (messageType == "error") {
+        // Order matters for no flickering
         responseElement.style.display = "none";
         responseElement.textContent = "";
         errorElement.textContent = text;
         errorElement.style.display = "block";
-    }
 
-    toggleInput("enable");
-    inputFocus();
+        // Allow and focus on input
+        toggleInput("allow");
+        inputFocus();
+    }
 };
 
 // Display loader
@@ -62,6 +68,11 @@ function clearInput() {
     inputElement.value = "";
 };
 
+// Clear input box placeholder
+function clearPlaceholder() {
+    inputElement.placeholder = "";
+};
+
 // Close virtual keyboard
 function closeKeyboard() {
     inputElement.blur();
@@ -69,16 +80,35 @@ function closeKeyboard() {
 
 // Focus on input box without opening virtual keyboard
 function inputFocus() {
-    inputElement.setAttribute('readonly', 'readonly');
+    inputElement.setAttribute("readonly", "readonly");
     inputElement.focus();
-    inputElement.removeAttribute('readonly');
+    inputElement.removeAttribute("readonly");
 }
 
-// Toggle input box enable/disabled
+// Type input placeholder and then focus
+function inputPlaceholderAndFocus() {
+    // eslint-disable-next-line no-undef
+    new Typed(inputElement, {
+        strings: ["^1000 Ask me anything about Gui..."], // Waits 1000ms before typing
+        contentType: "null",
+        attr: "placeholder",
+        typeSpeed: 30,
+        showCursor: false,
+
+        // After typed everything
+        onComplete: () => {
+            inputFocus();
+        }
+    });
+};
+
+// Allow/forbid input box edit
 function toggleInput(state) {
-    if (state == "disable") inputElement.disabled = true;
-    else if (state == "enable") inputElement.disabled = false;
+    if (state == "forbid") inputElement.disabled = true;
+    else if (state == "allow") inputElement.disabled = false;
 }
+
+// -- Data manipulation
 
 // Sanitize potentially harmful characters
 function sanitizeInput(input){
@@ -120,6 +150,22 @@ function validateInput(input) {
     };
 };
 
+// -- Firestore Firebase
+
+// Initializations
+const firebaseConfig = {
+    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
+    authDomain: "guiruggiero.firebaseapp.com",
+    projectId: "guiruggiero",
+    storageBucket: "guiruggiero.appspot.com",
+    messagingSenderId: "49247152565",
+    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
+};
+// const firebaseApp = initializeApp(firebaseConfig);
+const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(firebaseApp);
+const firestoreMode = "mvp"; // "dev", "mvp", "v1"
+
 // Create the chat log with the first turn
 async function createLog(chatStart, turnData) {
     const chatRef = await addDoc(collection(db, firestoreMode), {
@@ -152,7 +198,7 @@ async function logTurn(chatID, turnCount, turnData, duration) {
     });
 };
 
-// --
+// -- Main function
 
 // Initializations
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
@@ -161,6 +207,7 @@ let chatHistory = [];
 let turnCount = 0;
 let chatStart, chatID;
 
+// Main function
 async function GuiPT() {
     try {
         // Get start time for logs if it's the potential first turn
@@ -185,7 +232,8 @@ async function GuiPT() {
         // Update UI to indicate loading
         closeKeyboard();
         clearInput();
-        toggleInput("disable");
+        clearPlaceholder();
+        toggleInput("forbid");
         displayLoader();
 
         // Handle timeout
@@ -234,12 +282,12 @@ async function GuiPT() {
     // Handle errors
     catch (error) {
         clearTimeout(timeoutFunction);
-        console.error("Error: ", error);
+        console.error(error);
         displayText("error", "⚠️ Oops! Something went wrong, can you please try again?");
     };
 };
 
-// --
+// -- Events
 
 // Create events
 document.addEventListener("DOMContentLoaded", () => {
@@ -255,3 +303,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+// After all the page loading is complete
+inputPlaceholderAndFocus();
