@@ -1,7 +1,7 @@
 import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js"; // TODO: minimized option
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from
-    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js" // TODO: minimized option
+    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
 import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 
 // -- UI manipulation
@@ -37,7 +37,7 @@ function displayText(messageType, text) {
             // After typed everything
             onComplete: () => {
                 toggleInput("allow");
-                inputPlaceholderAndFocus();
+                inputFocus();
             }
         });
     }
@@ -68,9 +68,9 @@ function clearInput() {
     inputElement.value = "";
 };
 
-// Clear input box placeholder
-function clearPlaceholder() {
-    inputElement.placeholder = "";
+// Change input box placeholder
+function changePlaceholder(text) {
+    inputElement.placeholder = text;
 };
 
 // Close virtual keyboard
@@ -224,15 +224,15 @@ async function GuiPT() {
         
         // Other guardrails
         if (validationResult.assessment != "OK") {
-            if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste, erase input
+            if (validationResult.assessment == "Too long") clearInput(); // Likely copy/paste
             displayText("error", validationResult.message);
             return;
         }
 
         // Update UI to indicate loading
         closeKeyboard();
+        changePlaceholder(" " + input);
         clearInput();
-        clearPlaceholder();
         toggleInput("forbid");
         displayLoader();
 
