@@ -28,14 +28,14 @@ jobs:
 
       - name: Minify overwriting original files
         run: |
-          for i in *.js **/**.js; do terser $i -o $i --compress --mangle --module; done
-          for i in *.html **/**.html; do html-minifier $i -o $i --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --collapse-boolean-attributes --minify-urls --remove-attribute-quotes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js; done
-          for i in *.css **/**.css; do csso $i -o $i; done
+          find . -name "*.js" -exec terser {} -o {} --compress --mangle --module \;
+          find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --collapse-boolean-attributes --minify-urls --remove-attribute-quotes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
+          find . -name "*.css" -exec csso {} -o {} \;
 
-      - name: Push changes to test branch
+      - name: Push changes to "live" branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add --all
           git commit -m "Automated minification and deployment of ${{ github.sha }}"
-          git push --force -u origin prod:test
+          git push --force -u origin prod:live
