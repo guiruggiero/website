@@ -1,6 +1,6 @@
 import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, Timestamp, runTransaction} from
+import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from
     "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
 import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 
@@ -167,34 +167,23 @@ const db = getFirestore(firebaseApp);
 const firestoreMode = "mvp"; // "dev", "mvp", "v1"
 
 // Create the chat log with the first turn
-async function createLog(chatStart, turnData) {
+async function createLog(chatStart, turnHistory) {
     const chatRef = await addDoc(collection(db, firestoreMode), {
         start: chatStart,
         turnCount: 1,
-        turns: {1: turnData}
+        turns: turnHistory
     });
 
     return chatRef.id;
 };
 
 // Log subsequent turns
-async function logTurn(chatID, turnCount, turnData, duration) {
+async function logTurn(chatID, turnCount, turnHistory, duration) {
     const chatRef = doc(db, firestoreMode, chatID);
-
-    await runTransaction(db, async (transaction) => {
-        // Get chat data
-        const chatDoc = await transaction.get(chatRef);
-        const turnHistory = chatDoc.data().turns;
-
-        // Appends new turn
-        const updatedTurnHistory = {...turnHistory, [turnCount]: turnData};
-
-        // Updates chat document
-        transaction.update(chatRef, {
-            turnCount: turnCount,
-            duration: duration,
-            turns: updatedTurnHistory
-        });
+    await updateDoc(chatRef, {
+        turnCount: turnCount,
+        duration: duration,
+        turns: turnHistory
     });
 };
 
@@ -203,7 +192,7 @@ async function logTurn(chatID, turnCount, turnData, duration) {
 // Initializations
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
 let timeoutFunction;
-let chatHistory = [];
+let chatHistory = [], turnHistory;
 let turnCount = 0;
 let chatStart, chatID;
 
@@ -258,23 +247,30 @@ async function GuiPT() {
                 // Get and show GuiPT response
                 const guiptResponse = response.data;
                 displayText("response", guiptResponse);
+                turnCount++;
 
-                // Save chat history
+                // Save chat history to pass to Gemini API
                 chatHistory.push({role: "user", parts: [{text: sanitizedInput}]});
                 chatHistory.push({role: "model", parts: [{text: guiptResponse}]});
                 
-                // Log chat/turn
-                turnCount++;
+                // Turn to be logged
                 const turnData = {
                     user: sanitizedInput,
                     model: guiptResponse
                 };
+
+                // Create log
                 if (turnCount == 1) {
-                    chatID = await createLog(chatStart, turnData);
-                } else {
+                    turnHistory = {[turnCount]: turnData};
+                    chatID = await createLog(chatStart, turnHistory);
+                }
+                
+                // Update log
+                else {
+                    turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
                     let duration = (Timestamp.now().toDate() - chatStart)/(1000*60); // Minutes
                     duration = Number(duration.toFixed(2)); // 2 decimal places
-                    await logTurn(chatID, turnCount, turnData, duration);
+                    await logTurn(chatID, turnCount, turnHistory, duration);
                 };
             });
     }

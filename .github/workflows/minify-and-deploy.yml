@@ -1,7 +1,3 @@
-# References
-# https://stackoverflow.com/a/73882805/12014838
-# https://github.com/aricooperdavis/ViewRanger-POI-Editor/blob/bc18c8c2d904f9ec82558332ed7923567534dd27/.github/workflows/minify.yml#L4
-
 name: Minify and deploy
 
 on:
