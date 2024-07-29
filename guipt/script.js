@@ -164,11 +164,12 @@ const firebaseConfig = {
 // const firebaseApp = initializeApp(firebaseConfig);
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
-const firestoreMode = "mvp"; // "dev", "mvp", "v1"
+const firestoreMode = "mvp";
 
 // Create the chat log with the first turn
 async function createLog(chatStart, turnHistory) {
     const chatRef = await addDoc(collection(db, firestoreMode), {
+        origin: "guiruggiero.com",
         start: chatStart,
         turnCount: 1,
         turns: turnHistory
