@@ -1,8 +1,8 @@
-import "https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js";
+import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from
     "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
-import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
+import "https://unpkg.com/axios/dist/axios.min.js";
 
 // -- UI manipulation
 
@@ -191,7 +191,7 @@ async function logTurn(chatID, turnCount, turnHistory, duration) {
 // -- Main function
 
 // Initializations
-const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
+const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/whoguini";
 let timeoutFunction;
 let chatHistory = [], turnHistory;
 let turnCount = 0;
