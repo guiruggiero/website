@@ -191,7 +191,7 @@ async function logTurn(chatID, turnCount, turnHistory, duration) {
 // -- Main function
 
 // Initializations
-const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
+const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/whoguini";
 let timeoutFunction;
 let chatHistory = [], turnHistory;
 let turnCount = 0;
