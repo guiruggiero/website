@@ -30,7 +30,7 @@ function displayText(messageType, text) {
         // eslint-disable-next-line no-undef
         new Typed(responseElement, {
             strings: [text],
-            contentType: "null", // TODO
+            contentType: "html",
             typeSpeed: 10,
             showCursor: false,
 
@@ -246,7 +246,7 @@ async function GuiPT() {
                 clearTimeout(timeoutFunction);
 
                 // Get and show GuiPT response
-                const guiptResponse = response.data; // TODO
+                const guiptResponse = response.data;
                 displayText("response", guiptResponse);
                 turnCount++;
 
