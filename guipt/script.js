@@ -30,7 +30,7 @@ function displayText(messageType, text) {
         // eslint-disable-next-line no-undef
         new Typed(responseElement, {
             strings: [text],
-            contentType: "null",
+            contentType: "html",
             typeSpeed: 10,
             showCursor: false,
 
