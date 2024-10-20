@@ -121,7 +121,7 @@ function sanitizeInput(input){
 // Assess guardrails
 function validateInput(input) {
     // Empty input
-    if (input.length == 0 || input == " ") {
+    if (!input || input == " ") {
         return {
             assessment: "Empty",
             message: ""
@@ -132,7 +132,7 @@ function validateInput(input) {
     if (input.length > 200) {
         return {
             assessment: "Too long",
-            message: "⚠️ Oops! Your question is too long, please make it shorter."
+            message: "⚠️ Oops! Your message is too long, please make it shorter."
         };
     }
 
@@ -229,7 +229,7 @@ async function GuiPT() {
         // Handle timeout
         const timeout = 31000;
         timeoutFunction = setTimeout(() => {
-            displayText("error", "⚠️ Oops! This is taking too long... Can you please try again?");
+            displayText("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
         }, timeout);
 
         // eslint-disable-next-line no-undef
