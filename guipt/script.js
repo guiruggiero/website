@@ -1,7 +1,6 @@
 import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from
-    "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
+import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
 import "https://unpkg.com/axios/dist/axios.min.js";
 
 // -- UI manipulation
@@ -114,6 +113,7 @@ function toggleInput(state) {
 function sanitizeInput(input){
     input = input.replace(/<[^>]+>/g, ""); // Remove HTML tags
     input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace
+    input = input.trim(); // Remove whitespace from both ends
 
     return input;
 };
@@ -126,10 +126,10 @@ function validateInput(input) {
             assessment: "Empty",
             message: ""
         };
-    } 
+    }
 
     // Length limit
-    if (input.length > 500) {
+    if (input.length > 200) {
         return {
             assessment: "Too long",
             message: "⚠️ Oops! Your question is too long, please make it shorter."
