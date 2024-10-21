@@ -25,6 +25,9 @@ function displayText(messageType, text) {
         responseElement.textContent = "";
         responseElement.style.display = "block";
 
+        // Replacing the & character so Typed doesn't stop
+        text = text.replace(/&/g, "&amp;");
+
         // Type response
         // eslint-disable-next-line no-undef
         new Typed(responseElement, {
