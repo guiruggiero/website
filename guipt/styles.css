@@ -64,7 +64,7 @@ body {
                 }
 
             #instructions {
-                color : rgba(255, 255, 255, 0.5);
+                color: rgba(255, 255, 255, 0.5);
                 font-size: 18px;
                 font-weight: 600;
                 font-style: italic;
@@ -120,18 +120,17 @@ body {
 
         #footer {
             text-align: center;
-            color : rgba(255, 255, 255, 0.5);
             font-size: 15px;
             font-weight: 600;
         }
 
             #reference {
-                color : rgba(255, 255, 255, 0.5);
+                color: rgba(255, 255, 255, 0.5);
                 font-weight: 400;
             }
 
             #reference a {
-                color : rgba(255, 255, 255, 0.5);
+                color: rgba(255, 255, 255, 0.5);
             }
 
 /* Responsive styles - phones */
