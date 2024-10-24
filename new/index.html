@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Website</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="main-container">
+        <div id="social-links">
+            <a href="https://linkedin.com/in/yourprofile" target="_blank" aria-label="LinkedIn Profile">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="https://github.com/yourprofile" target="_blank" aria-label="GitHub Profile">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+
+        <div id="logo">
+            <picture>
+                <source srcset="images/GRlogo.webp" type="image/webp"/>
+                <img src="images/GRlogo.png" height="253" alt="Gui Ruggiero logo"/>
+            </picture>
+        </div>
+
+        <div id="chat-container">
+            <div id="chat-window"></div>
+            <div id="input-container">
+                <input type="text" id="chat-input" placeholder="Ask me anything...">
+                <button id="submit-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        © 2024 Your Name. All rights reserved.
+    </footer>
+
+    <script src="script.js"></script> <!-- type="module" -->
+    </body>
+</html>
