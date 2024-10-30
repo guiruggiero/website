@@ -1,0 +1,28 @@
+# robots.txt for guiruggiero.com
+User-agent: *
+Allow: /guipt/
+
+# Protected subdomains
+Disallow: /code.guiruggiero.com/
+Disallow: /meetwith.guiruggiero.com/
+
+# Protected folders
+Disallow: /.github/
+Disallow: /new/
+Disallow: /scheduling/
+Disallow: /who-gui-ni/
+
+# Protected redirects
+Disallow: /meetwith/
+Disallow: /resume/
+Disallow: /test/
+Disallow: /virtualroom/
+Disallow: /whatsapp/
+
+# Disallow specific file types
+Disallow: /*.gitignore$
+Disallow: /*.yml$
+Disallow: /*.mjs$
+
+# Sitemap location
+Sitemap: https://guiruggiero.com/sitemap.xml
