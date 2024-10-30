@@ -1,6 +1,6 @@
-import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js";
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-lite.js"
+import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"; // https://mattboldt.github.io/typed.js/docs/
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"; // https://firebase.google.com/docs/web/learn-more#libraries-cdn
+import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-lite.js"
 import "https://unpkg.com/axios/dist/axios.min.js";
 
 // -- UI manipulation
