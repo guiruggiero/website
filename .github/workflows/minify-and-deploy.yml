@@ -18,15 +18,15 @@ jobs:
       
       - name: Install CLI tools
         run: |
-          npm install -g terser
           npm install -g html-minifier
           npm install -g csso-cli
+          npm install -g terser
 
       - name: Minify overwriting original files
         run: |
-          find . -name "*.js" -exec terser {} -o {} --compress --mangle --module \;
-          find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --collapse-boolean-attributes --minify-urls --remove-attribute-quotes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
+          find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
           find . -name "*.css" -exec csso {} -o {} \;
+          find . -name "*.js" -exec terser {} -o {} --compress --mangle --module \;
 
       - name: Push changes to "live-min" branch
         run: |
