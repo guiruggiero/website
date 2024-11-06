@@ -289,8 +289,12 @@ async function GuiPT() {
 
 // -- Events
 
-// Create events
+// Create events when page is done loading
 document.addEventListener("DOMContentLoaded", () => {
+    // Cookie consent banner
+    // eslint-disable-next-line no-undef
+    new CookieConsent();
+
     // Click to submit icon
     submitButton.addEventListener("click", () => {
         GuiPT();
