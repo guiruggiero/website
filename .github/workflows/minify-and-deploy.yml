@@ -26,7 +26,7 @@ jobs:
         run: |
           find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
           find . -name "*.css" -exec csso {} -o {} \;
-          find . -name "*.js" -exec terser {} -o {} --compress --mangle --module \;
+          find . -name "*.js" -exec terser {} -o {} --compress --mangle \;
 
       - name: Push changes to "live-min" branch
         run: |
