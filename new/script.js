@@ -1,14 +1,54 @@
-const logo = document.getElementById("logo");
-const chatContainer = document.getElementById("chat-container");
-const chatWindow = document.getElementById("chat-window");
-const chatInput = document.getElementById("chat-input");
-const submitBtn = document.getElementById("submit-btn");
-const inputContainer = document.getElementById("input-container");
+import "https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"; // https://mattboldt.github.io/typed.js/docs/
+// import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"; // https://firebase.google.com/docs/web/learn-more#libraries-cdn
+// import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-lite.js"
+// import "https://unpkg.com/axios/dist/axios.min.js";
 
-let isExpanded = false;
+// -- UI manipulation
+
+// Fetch elements
+const logoElement = document.querySelector("#logo");
+const chatContainer = document.querySelector("#chat-container");
+const chatWindow = document.querySelector("#chat-window");
+// const loaderElement = document.querySelector("#loader");
+// const errorElement = document.querySelector("#error");
+const inputContainer = document.querySelector("#input-container");
+const inputElement = document.querySelector("input");
+const submitButton = document.querySelector("#submit");
+
+let chatWindowExpanded = false; // TODO: move to initializations
+
+// Focus on input box without opening virtual keyboard
+function inputFocus() {
+    inputElement.setAttribute("readonly", "readonly");
+    inputElement.focus();
+    inputElement.removeAttribute("readonly");
+}
+
+// Type input placeholder and then focus
+function inputPlaceholderAndFocus() {
+    // eslint-disable-next-line no-undef
+    new Typed(inputElement, {
+        strings: ["^1000 Ask me anything about Gui..."], // Waits 1000ms before typing
+        contentType: "null",
+        attr: "placeholder",
+        typeSpeed: 30,
+        showCursor: false,
+
+        // After typed everything
+        onComplete: () => {
+            inputFocus();
+        }
+    });
+};
+
+
+
+
+
+
 
 function expandChatWindow() {
-    if (!isExpanded) {
+    if (!chatWindowExpanded) {
         // Set initial size to match the search bar
         chatContainer.style.width = `${inputContainer.offsetWidth}px`;
         chatContainer.style.height = `${inputContainer.offsetHeight}px`;
@@ -16,7 +56,7 @@ function expandChatWindow() {
         // Force a reflow
         chatContainer.offsetHeight;
         
-        // Expand to full size - TODO: smoother
+        // Expand to full size
         chatContainer.style.width = "min(90vw, 900px)";
         chatContainer.style.height = "min(80vh, 800px)";
         chatContainer.style.maxHeight = "600px"; // calc(100% - 70px) for responsiveness?
@@ -31,10 +71,10 @@ function expandChatWindow() {
             chatWindow.style.opacity = "1";
             chatWindow.style.padding = "15px";
             chatWindow.style.marginTop = "10px";
-            logo.style.opacity = "0";
+            logoElement.style.opacity = "0";
         }, 50);
 
-        isExpanded = true;
+        chatWindowExpanded = true;
     }
 }
 
@@ -72,7 +112,7 @@ function addMessage(message, isUser) {
 }
 
 function handleSubmit() {
-    const message = chatInput.value;
+    const message = inputElement.value;
     if (message.trim() === "") return;
 
     expandChatWindow();
@@ -83,11 +123,24 @@ function handleSubmit() {
         addMessage("This is a simulated response from the LLM chatbot.", false);
     }, 1000);
 
-    chatInput.value = "";
+    inputElement.value = "";
 }
 
-submitBtn.addEventListener("click", handleSubmit);
+submitButton.addEventListener("click", handleSubmit);
 
-chatInput.addEventListener("keypress", (e) => {
+inputElement.addEventListener("keypress", (e) => {
     if (e.key === "Enter") handleSubmit();
 });
+
+
+
+
+
+
+
+
+
+
+
+// After all the page loading is complete
+inputPlaceholderAndFocus();

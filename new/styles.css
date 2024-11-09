@@ -10,18 +10,22 @@ body {
     font-family: "Poppins", sans-serif;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100dvh;
     background: #1a1a1a;
     color: #ffffff;
 }
 
-    header {
+    /* header {
         height: 60px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 0 20px;
     }
+
+        nav {
+            
+        }
 
         #social-links {
             position: absolute;
@@ -40,7 +44,7 @@ body {
 
             #social-links a:hover {
                 color: #2563eb;
-            }
+            } */
 
     main {
         flex-grow: 1;
@@ -55,7 +59,7 @@ body {
     }
 
         #logo {
-            margin-bottom: 80px;
+            margin-bottom: 80px; /* TODO: logo spacing */
             transition: opacity 0.3s ease;
             opacity: 1;
         }
@@ -65,11 +69,11 @@ body {
             max-width: 600px;
             background-color: #262626;
             border-radius: 8px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2); /* TODO: intensify */
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
-            top: calc(50% + 80px);  /* Logo spacing */
+            top: calc(50% + 80px); /* TODO: logo spacing */
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
@@ -92,6 +96,27 @@ body {
                     background-color: #2563eb;
                     border-radius: 3px;
                 }
+
+                #loader {
+                    width: 60px;
+                    aspect-ratio: 2.5;
+                    --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 90%,#0000);
+                    background: 
+                        var(--_g) 0%   50%,
+                        var(--_g) 50%  50%,
+                        var(--_g) 100% 50%;
+                    background-size: calc(100%/3) 50%;
+                    animation: bounce 0.75s infinite linear;
+                    margin: 40px auto; /* Center horizontally */
+                    display: none;
+                }
+        
+                    @keyframes bounce {
+                        20% {background-position: 0%   0%, 50%  50%,100%  50%}
+                        40% {background-position: 0% 100%, 50%   0%,100%  50%}
+                        60% {background-position: 0%  50%, 50% 100%,100%   0%}
+                        80% {background-position: 0%  50%, 50%  50%,100% 100%}
+                    }
 
                 .messages-container {
                     margin-top: auto;
@@ -135,7 +160,7 @@ body {
                 transition: all 0.4s ease;
             }
 
-                #chat-input {
+                input {
                     flex-grow: 1;
                     padding: 10px 12px;
                     font-size: 1em;
@@ -144,17 +169,18 @@ body {
                     background-color: #333333;
                     color: #ffffff;
                     transition: all 0.3s ease;
+                    box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2);
                 }
 
-                    #chat-input::placeholder {
+                    input::placeholder {
                         color: #666666;
                     }
 
-                    #chat-input:focus {
+                    input:focus {
                         outline: none;
                     }
 
-                #submit-btn {
+                #submit {
                     background-color: #2563eb;
                     color: #ffffff;
                     border: none;
@@ -168,9 +194,8 @@ body {
                     margin-left: 10px;
                 }
 
-                    #submit-btn:hover {
+                    #submit:hover {
                         background-color: #1d4ed8;
-                        /* transform: translateY(-2px); */
                         box-shadow: 0 5px 10px rgba(0,0,0,0.2);
                     }
 
@@ -182,7 +207,6 @@ body {
         }
 
     footer {
-        /* height: 40px; */
         color: #666666;
         text-align: center;
         padding: 15px;
@@ -190,7 +214,7 @@ body {
         width: 100%;
     }
 
-@media (max-width: 600px) {
+@media (max-width: 600px) { /* GUiPT: 490px */
         #social-links {
             top: 10px;
             right: 10px;
