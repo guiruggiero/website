@@ -86,6 +86,7 @@ body {
                 overflow-y: auto;
                 transition: all 0.4s ease;
                 opacity: 0;
+                scrollbar-gutter: stable;
             }
 
                 #chat-window::-webkit-scrollbar {
@@ -97,7 +98,7 @@ body {
                     border-radius: 3px;
                 }
 
-                #loader {
+                /* #loader {
                     width: 60px;
                     aspect-ratio: 2.5;
                     --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 90%,#0000);
@@ -107,7 +108,7 @@ body {
                         var(--_g) 100% 50%;
                     background-size: calc(100%/3) 50%;
                     animation: bounce 0.75s infinite linear;
-                    margin: 40px auto; /* Center horizontally */
+                    margin: 40px auto; 
                     display: none;
                 }
         
@@ -116,7 +117,7 @@ body {
                         40% {background-position: 0% 100%, 50%   0%,100%  50%}
                         60% {background-position: 0%  50%, 50% 100%,100%   0%}
                         80% {background-position: 0%  50%, 50%  50%,100% 100%}
-                    }
+                    } */
 
                 .messages-container {
                     margin-top: auto;
@@ -199,7 +200,7 @@ body {
                         box-shadow: 0 5px 10px rgba(0,0,0,0.2);
                     }
 
-        #instructions {
+        #suggestions {
             color: #666666;
             font-size: 1em;
             font-weight: 600;
@@ -214,7 +215,7 @@ body {
         width: 100%;
     }
 
-@media (max-width: 600px) { /* GUiPT: 490px */
+@media (max-width: 600px) { /* TODO: GuiPT = 490px, and others */
         #social-links {
             top: 10px;
             right: 10px;

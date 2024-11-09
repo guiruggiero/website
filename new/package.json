@@ -1,0 +1,19 @@
+{
+  "name": "guiruggiero.com",
+  "author": "Gui Ruggiero",
+  "homepage": "https://guiruggiero.com/",
+  "version": "1.0",
+  "main": "script.js",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "firebase": "^11.0.1",
+    "firebase-firestore-lite": "^11.0.1",
+    "font-awesome": "6.6.0",
+    "typed.js": "2.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0"
+  }
+}
