@@ -25,3 +25,7 @@ class CookieConsent {
         this.cookieConsent.classList.remove("show");
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    new CookieConsent();
+});
