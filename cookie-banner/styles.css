@@ -8,7 +8,7 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     display: none;
     font-family: Arial, sans-serif;
-    max-width: 200px;
+    max-width: 300px;
     z-index: 9999;
 }
 
@@ -26,7 +26,7 @@
     }
 
     .cookie-consent button {
-        background: #dc1a1a;
+        background: #2563eb;
         color: #ffffff;
         border: none;
         padding: 10px 20px;
@@ -36,5 +36,5 @@
     }
 
         .cookie-consent button:hover {
-            background: #b51515;
+            background: #1d4ed8;
         }

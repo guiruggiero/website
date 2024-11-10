@@ -26,9 +26,9 @@
         <link rel="icon" type="image/png" sizes="192x192" href="../images/android-chrome-192x192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="../images/android-chrome-512x512.png">
 
-        <link rel="stylesheet" href="../cookie-banner/styles.css">
         <link rel="stylesheet" href="styles.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <!-- <script src="https://kit.fontawesome.com/d5bb5e0a28.js" crossorigin="anonymous"></script> -->
+        <link rel="stylesheet" href="../cookie-banner/styles.css">
     </head>
 
     <body>
@@ -37,39 +37,55 @@
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- End Google Tag Manager (noscript) -->
         
-        <div id="main-container">
+        <!-- <header>
+            <nav></nav>
+
             <div id="social-links">
                 <a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
-                    <i class="fab fa-linkedin"></i></a>
+                    <i class="fab fa-linkedin-in"></i></a>
 
-                <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub repositories">
+                <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
                     <i class="fab fa-github"></i></a>
             </div>
+        </header> -->
 
+        <main>
             <div id="logo">
                 <picture>
                     <source srcset="../images/gr-logo-light.webp" type="image/webp"/>
-                    <img src="../images/gr-logo-light.png" height="253" alt="Gui Ruggiero logo"/>
+                    <img src="../images/gr-logo-light.png" height="180" alt="Gui Ruggiero logo"/>
                 </picture>
             </div>
 
             <div id="chat-container">
-                <div id="chat-window"></div>
+                <div id="chat-window">
+                    <!-- <div id="loader" aria-hidden="true"></div>  -->
+                </div>
 
                 <div id="input-container">
-                    <input type="text" id="chat-input" placeholder="Ask me anything...">
+                    <input id="prompt" type="text" autocomplete="off" aria-label="Enter your question for GuiPT">
                     
-                    <button id="submit-btn">Send</button>
+                    <div id="submit" role="button" aria-label="Submit your question">
+                        <!-- Unicode character "U+27A2" -->
+                        <svg stroke="currentColor" fill="rgba(255,255,255,.5)" stroke-width="0" viewBox="0 0 20 20"
+                            height="1.5em" width="1.5em">
+                                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009
+                                15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <p id="suggestions">Eu também falo Português! 🇧🇷</p>
+
+            <!-- <div id="error" aria-live="polite"></div>  -->
+        </main>
 
         <footer>
-            © 2024 Your Name. All rights reserved.
+            Built with lots of ☕ by Gui Ruggiero himself.
         </footer>
 
+        <script type="module" src="script.js"></script>
         <script src="../cookie-banner/script.js"></script>
-        <script>document.addEventListener("DOMContentLoaded", () => {new CookieConsent();});</script> <!-- TODO: remove -->
-        <script src="script.js"></script> <!-- type="module" -->
     </body>
 </html>

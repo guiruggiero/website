@@ -3,7 +3,7 @@ class CookieConsent {
         this.cookieConsent = document.createElement("div");
         this.cookieConsent.className = "cookie-consent";
         this.cookieConsent.innerHTML = `
-            <p>This site uses cookies from Google to analyze traffic.</p>
+            <p>This site uses sweet cookies 🍪 from Google to analyze traffic.</p>
             <button>OK, got it!</button>
         `;
         
@@ -25,3 +25,7 @@ class CookieConsent {
         this.cookieConsent.classList.remove("show");
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    new CookieConsent();
+});
