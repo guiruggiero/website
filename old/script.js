@@ -140,7 +140,7 @@ function addMessage(message, isUser) {
 /* Data handling functions - input manipulation and Firebase */
 
 // Sanitize potentially harmful characters
-function sanitizeInput(input){
+function sanitizeInput(input) {
     input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace
     input = input.trim(); // Remove whitespace from both ends
     input = input.replace(/<[^>]+>/g, ""); // Remove HTML tags
