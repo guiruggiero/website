@@ -31,7 +31,8 @@ async function handleGuiPT() {
     UI.closeKeyboard();
     UI.changePlaceholder(" Reply to GuiPT");
     UI.clearInput();
-    UI.toggleInput("forbid");
+    UI.toggleInput();
+    UI.toggleSubmitButton();
     // displayLoader(); // TODO
     UI.expandChatWindow();
     UI.addMessage(input, true);
@@ -85,24 +86,24 @@ async function handleGuiPT() {
     }
     
     // Alow input again
-    UI.toggleInput("allow");
+    UI.toggleInput();
     UI.inputFocus();
 }
 
-
 // Event handlers when page is done loading
 document.addEventListener("DOMContentLoaded", () => {
-    // Click to submit button
+    // Initial UI setup
+    UI.inputPlaceholderAndFocus();
+
+    // Real-time input handling
+    UI.elements.input.addEventListener("input", UI.toggleSubmitButton);
+
+    // Submission handlers
     UI.elements.submit.addEventListener("click", () => {
         handleGuiPT();
         UI.inputFocus();
     });
-
-    // Enter key
     UI.elements.input.addEventListener("keyup", (e) => {
         if (e.key === "Enter") handleGuiPT();
     });
-
-    // Animate input placeholder
-    UI.inputPlaceholderAndFocus();
 });

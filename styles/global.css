@@ -92,10 +92,14 @@ body {
                 #chat-window::-webkit-scrollbar {
                     width: 6px;
                 }
+
+                #chat-window::-webkit-scrollbar-thumb {
+                    background-color: rgba(37, 99, 235, 0.3);
+                    border-radius: 3px;
+                }
                 
                 #chat-window:hover::-webkit-scrollbar-thumb {
-                    background-color: #2563eb;
-                    border-radius: 3px;
+                    background-color: rgba(37, 99, 235, 1);
                 }
 
                 /* #loader {
@@ -183,14 +187,21 @@ body {
                     border-radius: 8px;
                     transform: rotate(90deg);
                     cursor: pointer;
-                    transition: all 0.3s ease, transform 0.3s ease;
                     height: 40px;
                     width: 40px;
                     padding: 8px;
                     margin-left: 10px;
+                    opacity: 0.3;
+                    transition: all 0.3s ease, transform 0.3s ease;
+                    pointer-events: none;
                 }
 
-                    #submit:hover {
+                    #submit.active {
+                        opacity: 1;
+                        pointer-events: auto;
+                    }
+
+                    #submit.active:hover {
                         background-color: #1d4ed8;
                         box-shadow: 0 5px 10px rgba(0,0,0,0.2);
                     }

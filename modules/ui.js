@@ -35,6 +35,12 @@ export function inputPlaceholderAndFocus() {
     });
 }
 
+// Allow/forbid submit button
+export function toggleSubmitButton() {
+    const hasContent = elements.input.value.trim().length > 0;
+    elements.submit.classList.toggle("active", hasContent);
+}
+
 // Clear input box
 export function clearInput() {
     elements.input.value = "";
@@ -51,8 +57,9 @@ export function changePlaceholder(text) {
 }
 
 // Allow/forbid input
-export function toggleInput(state) {
-    elements.input.disabled = state === "forbid";
+export function toggleInput() {
+    const currentState = elements.input.disabled;
+    elements.input.disabled = !currentState;
 }
 
 // Display loader
