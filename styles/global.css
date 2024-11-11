@@ -102,27 +102,6 @@ body {
                     background-color: rgba(37, 99, 235, 1);
                 }
 
-                /* #loader {
-                    width: 60px;
-                    aspect-ratio: 2.5;
-                    --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 90%,#0000);
-                    background: 
-                        var(--_g) 0%   50%,
-                        var(--_g) 50%  50%,
-                        var(--_g) 100% 50%;
-                    background-size: calc(100%/3) 50%;
-                    animation: bounce 0.75s infinite linear;
-                    margin: 40px auto; 
-                    display: none;
-                }
-        
-                    @keyframes bounce {
-                        20% {background-position: 0%   0%, 50%  50%,100%  50%}
-                        40% {background-position: 0% 100%, 50%   0%,100%  50%}
-                        60% {background-position: 0%  50%, 50% 100%,100%   0%}
-                        80% {background-position: 0%  50%, 50%  50%,100% 100%}
-                    } */ /* TODO */
-
                 .messages-container {
                     margin-top: auto;
                     width: 100%;
@@ -156,6 +135,33 @@ body {
                             align-self: flex-start;
                             margin-left: 8px;
                         }
+
+                        .error-message {
+                            background-color: #480b0b;
+                            align-self: center;
+                            margin-inline: auto;
+                        }
+
+                    /* #loader {
+                        width: 60px;
+                        aspect-ratio: 2.5;
+                        --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 90%,#0000);
+                        background: 
+                            var(--_g) 0%   50%,
+                            var(--_g) 50%  50%,
+                            var(--_g) 100% 50%;
+                        background-size: calc(100%/3) 50%;
+                        animation: bounce 0.75s infinite linear;
+                        margin: 40px auto; 
+                        display: none;
+                    }
+            
+                        @keyframes bounce {
+                            20% {background-position: 0%   0%, 50%  50%,100%  50%}
+                            40% {background-position: 0% 100%, 50%   0%,100%  50%}
+                            60% {background-position: 0%  50%, 50% 100%,100%   0%}
+                            80% {background-position: 0%  50%, 50%  50%,100% 100%}
+                        } */
 
             #input-container {
                 display: flex;

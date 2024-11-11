@@ -22,8 +22,10 @@ async function handleGuiPT() {
     // Don't act on input if input doesn't pass validation
     if (validationResult.assessment === "Empty") return;
     if (validationResult.assessment !== "OK") {
+        console.log("Error detected");
         if (validationResult.assessment === "Too long") UI.clearInput(); // Likely copy/paste
-        // displayText("error", validationResult.message); // TODO
+        if (!UI.chatWindowExpanded) UI.expandChatWindow();
+        UI.addMessage("error", validationResult.message);
         return;
     }
 
@@ -33,14 +35,14 @@ async function handleGuiPT() {
     UI.clearInput();
     UI.toggleInput();
     UI.toggleSubmitButton();
-    UI.expandChatWindow();
-    UI.addMessage(input, true);
-    // displayLoader(); // TODO
+    if (turnCount == 0) UI.expandChatWindow(); // Expand only on first turn
+    UI.addMessage("user", input);
+    // toggleLoader(); // TODO
 
     // Handle timeout
     const timeout = 31000; // 31 seconds
     timeoutFunction = setTimeout(() => {
-        // displayText("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?"); // TODO
+        UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
     }, timeout);
 
     try {
@@ -52,7 +54,7 @@ async function handleGuiPT() {
 
         // Get and show response
         const guiptResponse = response.data;
-        UI.addMessage(guiptResponse, false);
+        UI.addMessage("bot", guiptResponse);
         turnCount++;
 
         // Save turn in chat history
@@ -82,7 +84,7 @@ async function handleGuiPT() {
     } catch (error) {
         clearTimeout(timeoutFunction);
         console.error(error);
-        // displayText("error", "⚠️ Oops! Something went wrong, can you please try again?"); // TODO
+        UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
     }
     
     // Alow input again

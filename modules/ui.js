@@ -1,15 +1,13 @@
 import "https://unpkg.com/typed.js/dist/typed.umd.js";
 
 // Initialization
-let chatWindowExpanded = false;
+export let chatWindowExpanded = false;
 
 // DOM elements
 export const elements = {
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
-    // loader: document.querySelector("#loader"), // TODO
-    // error: document.querySelector("#error"), // TODO
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
@@ -62,48 +60,45 @@ export function toggleInput() {
     elements.input.disabled = !currentState;
 }
 
-// Display loader
-// export function displayLoader() {
-//     elements.error.style.display = "none";
-//     elements.loader.style.display = "block";
-// }
-
 // Expand chat window
-export function expandChatWindow() {
-    if (!chatWindowExpanded) { // TODO: play with order and delay
-        // Set initial size to match input container
-        elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
-        elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
-        
-        // Force a reflow
-        elements.chatContainer.offsetHeight;
-        
-        // Expand to full size
-        elements.chatContainer.style.maxWidth = "800px";
-        elements.chatContainer.style.width = "min(90vw, 900px)"; // TODO: calc(100% - 70px) for responsive layout?
-        elements.chatContainer.style.maxHeight = "600px";
-        elements.chatContainer.style.height = "min(80vh, 800px)";
-        
-        // Bring back input container to view
-        elements.inputContainer.style.padding = "10px";
-        elements.inputContainer.style.backgroundColor = "#262626";
+export function expandChatWindow() { // TODO: play with order and delay
+    // Set initial size to match input container
+    elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
+    elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
+    
+    // Force a reflow
+    elements.chatContainer.offsetHeight;
+    
+    // Expand to full size
+    elements.chatContainer.style.maxWidth = "800px";
+    elements.chatContainer.style.width = "min(90vw, 900px)"; // TODO: calc(100% - 70px) for responsive layout?
+    elements.chatContainer.style.maxHeight = "600px";
+    elements.chatContainer.style.height = "min(80vh, 800px)";
+    
+    // Bring back input container to view
+    elements.inputContainer.style.padding = "10px";
+    elements.inputContainer.style.backgroundColor = "#262626";
 
-        // Fade in inner content and hide logo/suggestions
-        setTimeout(() => {
-            elements.chatWindow.style.height = "calc(100% - 70px)";
-            elements.chatWindow.style.opacity = "1";
-            elements.chatWindow.style.padding = "15px 9px 15px 15px";
-            elements.chatWindow.style.marginTop = "10px";
-            elements.logo.style.opacity = "0";
-            elements.suggestions.style.opacity = "0";
-        }, 0);
+    // Fade in inner content and hide logo/suggestions
+    setTimeout(() => {
+        elements.chatWindow.style.height = "calc(100% - 70px)";
+        elements.chatWindow.style.opacity = "1";
+        elements.chatWindow.style.padding = "15px 9px 15px 15px";
+        elements.chatWindow.style.marginTop = "10px";
+        elements.logo.style.opacity = "0";
+        elements.suggestions.style.opacity = "0";
+    }, 0);
 
-        chatWindowExpanded = true;
-    }
+    chatWindowExpanded = true;
 }
 
+// Show/hide loader
+// export function toggleLoader() {
+//     // TODO
+// }
+
 // Add message to chat window
-export function addMessage(message, isUser) {
+export function addMessage(type, message) {
     // Create messages container if it doesn't exist (for right scrolling)
     let messagesContainer = elements.chatWindow.querySelector(".messages-container");
     if (!messagesContainer) {
@@ -130,11 +125,12 @@ export function addMessage(message, isUser) {
 
     // Create new message
     const messageElement = document.createElement("div");
-    messageElement.classList.add("message", isUser ? "user-message" : "bot-message");
-    if (isUser) {
+    if (type == "user") {
+        messageElement.classList.add("message", "user-message");
         messageElement.textContent = message;
         animateMessage();
-    } else {
+    } else if (type == "bot") {
+        messageElement.classList.add("message", "bot-message");
         animateMessage();
         
         // Replace the & character so Typed doesn't stop
@@ -158,5 +154,9 @@ export function addMessage(message, isUser) {
                 resizeObserver.disconnect();
             }
         });
+    } else {
+        messageElement.classList.add("message", "error-message");
+        messageElement.textContent = message;
+        animateMessage();
     }
 }
