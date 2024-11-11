@@ -42,9 +42,9 @@ body {
                 transition: color 0.3s ease;
             }
 
-            #social-links a:hover {
-                color: #2563eb;
-            } */
+                #social-links a:hover {
+                    color: #2563eb;
+                } */
 
     main {
         flex-grow: 1;
@@ -92,8 +92,8 @@ body {
                 #chat-window::-webkit-scrollbar {
                     width: 6px;
                 }
-
-                #chat-window::-webkit-scrollbar-thumb {
+                
+                #chat-window:hover::-webkit-scrollbar-thumb {
                     background-color: #2563eb;
                     border-radius: 3px;
                 }
@@ -135,11 +135,6 @@ body {
                         line-height: 1.4;
                         color: #ffffff;
                     }
-
-                        @keyframes fadeIn {
-                            from { opacity: 0; transform: translateY(10px); }
-                            to { opacity: 1; transform: translateY(0); }
-                        }
 
                         .user-message {
                             background-color: #2563eb;

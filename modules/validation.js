@@ -1,5 +1,3 @@
-// import "https://unpkg.com/sanitize-html/index.js"; //TODO
-
 // Sanitize potentially harmful characters
 export function sanitizeInput(input) {
     input = input.replace(/[\s\t\r\n]+/g, " "); // Normalize whitespace

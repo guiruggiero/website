@@ -45,14 +45,14 @@ export function closeKeyboard() {
     elements.input.blur();
 }
 
-// Allow/forbid input
-export function toggleInput(state) {
-    elements.input.disabled = state === "forbid";
-}
-
 // Change input placeholder
 export function changePlaceholder(text) {
     elements.input.placeholder = text;
+}
+
+// Allow/forbid input
+export function toggleInput(state) {
+    elements.input.disabled = state === "forbid";
 }
 
 // Display loader
@@ -113,7 +113,7 @@ export function addMessage(message, isUser) {
 
     // Animate the message in
     messageElement.style.opacity = "0";
-    messageElement.style.transform = "translateY(20px)";
+    messageElement.style.transform = "translateY(10px)"; // 20px
     messageElement.offsetHeight;
     messageElement.style.transition = "all 0.5s ease";
     messageElement.style.opacity = "1";
