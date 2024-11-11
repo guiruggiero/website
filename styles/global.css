@@ -42,9 +42,9 @@ body {
                 transition: color 0.3s ease;
             }
 
-            #social-links a:hover {
-                color: #2563eb;
-            } */
+                #social-links a:hover {
+                    color: #2563eb;
+                } */
 
     main {
         flex-grow: 1;
@@ -69,7 +69,7 @@ body {
             max-width: 600px;
             background-color: #262626;
             border-radius: 8px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2); /* TODO: intensify */
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: absolute;
@@ -94,8 +94,12 @@ body {
                 }
 
                 #chat-window::-webkit-scrollbar-thumb {
-                    background-color: #2563eb;
+                    background-color: rgba(37, 99, 235, 0.3);
                     border-radius: 3px;
+                }
+                
+                #chat-window:hover::-webkit-scrollbar-thumb {
+                    background-color: rgba(37, 99, 235, 1);
                 }
 
                 /* #loader {
@@ -117,7 +121,7 @@ body {
                         40% {background-position: 0% 100%, 50%   0%,100%  50%}
                         60% {background-position: 0%  50%, 50% 100%,100%   0%}
                         80% {background-position: 0%  50%, 50%  50%,100% 100%}
-                    } */
+                    } */ /* TODO */
 
                 .messages-container {
                     margin-top: auto;
@@ -135,11 +139,6 @@ body {
                         line-height: 1.4;
                         color: #ffffff;
                     }
-
-                        @keyframes fadeIn {
-                            from { opacity: 0; transform: translateY(10px); }
-                            to { opacity: 1; transform: translateY(0); }
-                        }
 
                         .user-message {
                             background-color: #2563eb;
@@ -188,14 +187,21 @@ body {
                     border-radius: 8px;
                     transform: rotate(90deg);
                     cursor: pointer;
-                    transition: all 0.3s ease, transform 0.3s ease;
                     height: 40px;
                     width: 40px;
                     padding: 8px;
                     margin-left: 10px;
+                    opacity: 0.3;
+                    transition: all 0.3s ease, transform 0.3s ease;
+                    pointer-events: none;
                 }
 
-                    #submit:hover {
+                    #submit.active {
+                        opacity: 1;
+                        pointer-events: auto;
+                    }
+
+                    #submit.active:hover {
                         background-color: #1d4ed8;
                         box-shadow: 0 5px 10px rgba(0,0,0,0.2);
                     }
