@@ -112,20 +112,51 @@ export function addMessage(message, isUser) {
         elements.chatWindow.appendChild(messagesContainer);
     }
 
+    // Animate the message in, regardless of content
+    function animateMessage() {
+        messagesContainer.appendChild(messageElement);
+
+        // Animate the message in
+        messageElement.style.opacity = "0";
+        messageElement.style.transform = "translateY(10px)"; // 20px
+        messageElement.offsetHeight;
+        messageElement.style.transition = "all 0.5s ease";
+        messageElement.style.opacity = "1";
+        messageElement.style.transform = "translateY(0)";
+        
+        // Scroll to bottom
+        elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+    }
+
     // Create new message
     const messageElement = document.createElement("div");
     messageElement.classList.add("message", isUser ? "user-message" : "bot-message");
-    messageElement.textContent = message;
-    messagesContainer.appendChild(messageElement);
+    if (isUser) {
+        messageElement.textContent = message;
+        animateMessage();
+    } else {
+        animateMessage();
+        
+        // Replace the & character so Typed doesn't stop
+        message = message.replace(/&/g, "&amp;");
 
-    // Animate the message in
-    messageElement.style.opacity = "0";
-    messageElement.style.transform = "translateY(10px)"; // 20px
-    messageElement.offsetHeight;
-    messageElement.style.transition = "all 0.5s ease";
-    messageElement.style.opacity = "1";
-    messageElement.style.transform = "translateY(0)";
-    
-    // Scroll to bottom
-    elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        // Scroll to bottom if height changes
+        const resizeObserver = new ResizeObserver(() => {
+            elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        });
+
+        // Type response
+        new Typed(messageElement, {
+            strings: [message],
+            contentType: "html",
+            typeSpeed: 10,
+            showCursor: false,
+            onBegin: () => {
+                resizeObserver.observe(messageElement);
+            },
+            onComplete: () => {
+                resizeObserver.disconnect();
+            }
+        });
+    }
 }

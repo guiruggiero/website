@@ -33,9 +33,9 @@ async function handleGuiPT() {
     UI.clearInput();
     UI.toggleInput();
     UI.toggleSubmitButton();
-    // displayLoader(); // TODO
     UI.expandChatWindow();
     UI.addMessage(input, true);
+    // displayLoader(); // TODO
 
     // Handle timeout
     const timeout = 31000; // 31 seconds
@@ -52,7 +52,7 @@ async function handleGuiPT() {
 
         // Get and show response
         const guiptResponse = response.data;
-        UI.addMessage(guiptResponse, false); // TODO: Typed
+        UI.addMessage(guiptResponse, false);
         turnCount++;
 
         // Save turn in chat history
