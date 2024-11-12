@@ -22,9 +22,8 @@ async function handleGuiPT() {
     // Don't act on input if input doesn't pass validation
     if (validationResult.assessment === "Empty") return;
     if (validationResult.assessment !== "OK") {
-        console.log("Error detected");
         if (validationResult.assessment === "Too long") UI.clearInput(); // Likely copy/paste
-        if (!UI.chatWindowExpanded) UI.expandChatWindow();
+        if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
         UI.addMessage("error", validationResult.message);
         return;
     }
@@ -35,9 +34,9 @@ async function handleGuiPT() {
     UI.clearInput();
     UI.toggleInput();
     UI.toggleSubmitButton();
-    if (turnCount == 0) UI.expandChatWindow(); // Expand only on first turn
+    if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
     UI.addMessage("user", input);
-    // toggleLoader(); // TODO
+    const loaderContainer = UI.showLoader();
 
     // Handle timeout
     const timeout = 31000; // 31 seconds
@@ -54,7 +53,7 @@ async function handleGuiPT() {
 
         // Get and show response
         const guiptResponse = response.data;
-        UI.addMessage("bot", guiptResponse);
+        UI.addMessage("bot", guiptResponse, loaderContainer);
         turnCount++;
 
         // Save turn in chat history

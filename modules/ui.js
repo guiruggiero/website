@@ -8,6 +8,7 @@ export const elements = {
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
+    messagesContainer: null,
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
@@ -81,58 +82,51 @@ export function expandChatWindow() { // TODO: play with order and delay
 
     // Fade in inner content and hide logo/suggestions
     setTimeout(() => {
-        elements.chatWindow.style.height = "calc(100% - 70px)";
+        elements.chatWindow.style.height = "calc(100% - 80px)";
         elements.chatWindow.style.opacity = "1";
-        elements.chatWindow.style.padding = "15px 9px 15px 15px";
-        elements.chatWindow.style.marginTop = "10px";
+        elements.chatWindow.style.padding = "0px 9px 0px 15px";
+        elements.chatWindow.style.marginTop = "20px";
         elements.logo.style.opacity = "0";
         elements.suggestions.style.opacity = "0";
     }, 0);
 
     chatWindowExpanded = true;
+
+    // Create messages container for correct scrolling
+    let messagesContainer = document.createElement("div");
+    messagesContainer.className = "messages-container";
+    elements.chatWindow.appendChild(messagesContainer);
+    elements.messagesContainer = messagesContainer;
 }
 
-// Show/hide loader
-// export function toggleLoader() {
-//     // TODO
-// }
+// Animate the element in, regardless of content
+function animateElement(element) {
+    elements.messagesContainer.appendChild(element);
+
+    // Animate the element in
+    element.style.opacity = "0";
+    element.style.transform = "translateY(10px)";
+    element.offsetHeight;
+    element.style.transition = "all 0.5s ease";
+    element.style.opacity = "1";
+    element.style.transform = "translateY(0)";
+    
+    // Scroll to bottom
+    elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+}
 
 // Add message to chat window
-export function addMessage(type, message) {
-    // Create messages container if it doesn't exist (for right scrolling)
-    let messagesContainer = elements.chatWindow.querySelector(".messages-container");
-    if (!messagesContainer) {
-        messagesContainer = document.createElement("div");
-        messagesContainer.className = "messages-container";
-        elements.chatWindow.appendChild(messagesContainer);
-    }
-
-    // Animate the message in, regardless of content
-    function animateMessage() {
-        messagesContainer.appendChild(messageElement);
-
-        // Animate the message in
-        messageElement.style.opacity = "0";
-        messageElement.style.transform = "translateY(10px)"; // 20px
-        messageElement.offsetHeight;
-        messageElement.style.transition = "all 0.5s ease";
-        messageElement.style.opacity = "1";
-        messageElement.style.transform = "translateY(0)";
-        
-        // Scroll to bottom
-        elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
-    }
-
-    // Create new message
-    const messageElement = document.createElement("div");
+export function addMessage(type, message, existingContainer = null) {
     if (type == "user") {
+        const messageElement = document.createElement("div");
         messageElement.classList.add("message", "user-message");
         messageElement.textContent = message;
-        animateMessage();
+        animateElement(messageElement);
     } else if (type == "bot") {
-        messageElement.classList.add("message", "bot-message");
-        animateMessage();
-        
+        let messageElement = existingContainer;
+        messageElement.removeAttribute("id");
+        messageElement.innerHTML = "";
+
         // Replace the & character so Typed doesn't stop
         message = message.replace(/&/g, "&amp;");
 
@@ -154,9 +148,27 @@ export function addMessage(type, message) {
                 resizeObserver.disconnect();
             }
         });
-    } else {
+    } else { // Error message
+        const messageElement = document.createElement("div");
         messageElement.classList.add("message", "error-message");
         messageElement.textContent = message;
-        animateMessage();
+        animateElement(messageElement);
     }
+}
+
+// Show loader
+export function showLoader() {
+    // Create loader container with bot message styling
+    const loaderContainer = document.createElement("div");
+    loaderContainer.id = "loader-container";
+    loaderContainer.classList.add("message", "bot-message");
+    
+    // Create loader element
+    const loaderElement = document.createElement("div");
+    loaderElement.id = "loader";
+    loaderContainer.appendChild(loaderElement);
+    animateElement(loaderContainer);
+    
+    // For reuse with bot message
+    return loaderContainer;
 }
