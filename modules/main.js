@@ -23,7 +23,8 @@ async function handleGuiPT() {
     if (validationResult.assessment === "Empty") return;
     if (validationResult.assessment !== "OK") {
         if (validationResult.assessment === "Too long") UI.clearInput(); // Likely copy/paste
-        // displayText("error", validationResult.message); // TODO
+        if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
+        UI.addMessage("error", validationResult.message);
         return;
     }
 
@@ -33,14 +34,14 @@ async function handleGuiPT() {
     UI.clearInput();
     UI.toggleInput();
     UI.toggleSubmitButton();
-    // displayLoader(); // TODO
-    UI.expandChatWindow();
-    UI.addMessage(input, true);
+    if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
+    UI.addMessage("user", input);
+    const loaderContainer = UI.showLoader();
 
     // Handle timeout
     const timeout = 31000; // 31 seconds
     timeoutFunction = setTimeout(() => {
-        // displayText("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?"); // TODO
+        UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
     }, timeout);
 
     try {
@@ -52,7 +53,7 @@ async function handleGuiPT() {
 
         // Get and show response
         const guiptResponse = response.data;
-        UI.addMessage(guiptResponse, false); // TODO: Typed
+        UI.addMessage("bot", guiptResponse, loaderContainer);
         turnCount++;
 
         // Save turn in chat history
@@ -70,19 +71,19 @@ async function handleGuiPT() {
         // Create log if first turn, otherwise update log
         if (turnCount === 1) {
             turnHistory = {[turnCount]: turnData};
-            // chatID = await Firebase.createLog(chatStart, turnHistory); // Local testing
+            chatID = await Firebase.createLog(chatStart, turnHistory);
         } else {
             turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
             const duration = Number(
                 (Firebase.Timestamp.now().toDate() - chatStart)/(1000*60) // Minutes
             ).toFixed(2); // 2 decimal places
-            // await Firebase.logTurn(chatID, turnCount, turnHistory, duration); // Local testing
+            await Firebase.logTurn(chatID, turnCount, turnHistory, duration);
         }
 
     } catch (error) {
         clearTimeout(timeoutFunction);
         console.error(error);
-        // displayText("error", "⚠️ Oops! Something went wrong, can you please try again?"); // TODO
+        UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
     }
     
     // Alow input again

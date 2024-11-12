@@ -1,15 +1,14 @@
 import "https://unpkg.com/typed.js/dist/typed.umd.js";
 
 // Initialization
-let chatWindowExpanded = false;
+export let chatWindowExpanded = false;
 
 // DOM elements
 export const elements = {
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
-    // loader: document.querySelector("#loader"), // TODO
-    // error: document.querySelector("#error"), // TODO
+    messagesContainer: null,
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
@@ -25,6 +24,7 @@ export function inputFocus() {
 
 // Type input placeholder and then focus
 export function inputPlaceholderAndFocus() {
+    // eslint-disable-next-line no-undef
     new Typed(elements.input, {
         strings: ["^500 Ask me anything about Gui..."], // Waits 500ms before typing
         contentType: "null",
@@ -62,70 +62,115 @@ export function toggleInput() {
     elements.input.disabled = !currentState;
 }
 
-// Display loader
-// export function displayLoader() {
-//     elements.error.style.display = "none";
-//     elements.loader.style.display = "block";
-// }
-
 // Expand chat window
-export function expandChatWindow() {
-    if (!chatWindowExpanded) { // TODO: play with order and delay
-        // Set initial size to match input container
-        elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
-        elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
-        
-        // Force a reflow
-        elements.chatContainer.offsetHeight;
-        
-        // Expand to full size
-        elements.chatContainer.style.maxWidth = "800px";
-        elements.chatContainer.style.width = "min(90vw, 900px)"; // TODO: calc(100% - 70px) for responsive layout?
-        elements.chatContainer.style.maxHeight = "600px";
-        elements.chatContainer.style.height = "min(80vh, 800px)";
-        
-        // Bring back input container to view
-        elements.inputContainer.style.padding = "10px";
-        elements.inputContainer.style.backgroundColor = "#262626";
+export function expandChatWindow() { // TODO: play with order and delay
+    // Set initial size to match input container
+    elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
+    elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
+    
+    // Force a reflow
+    elements.chatContainer.offsetHeight;
+    
+    // Expand to full size
+    elements.chatContainer.style.maxWidth = "800px";
+    elements.chatContainer.style.width = "min(90vw, 900px)"; // TODO: calc(100% - 70px) for responsive layout?
+    elements.chatContainer.style.maxHeight = "600px";
+    elements.chatContainer.style.height = "min(80vh, 800px)";
+    
+    // Bring back input container to view
+    elements.inputContainer.style.padding = "10px";
+    elements.inputContainer.style.backgroundColor = "#262626";
 
-        // Fade in inner content and hide logo/suggestions
-        setTimeout(() => {
-            elements.chatWindow.style.height = "calc(100% - 70px)";
-            elements.chatWindow.style.opacity = "1";
-            elements.chatWindow.style.padding = "15px 9px 15px 15px";
-            elements.chatWindow.style.marginTop = "10px";
-            elements.logo.style.opacity = "0";
-            elements.suggestions.style.opacity = "0";
-        }, 0);
+    // Fade in inner content and hide logo/suggestions
+    setTimeout(() => {
+        elements.chatWindow.style.height = "calc(100% - 80px)";
+        elements.chatWindow.style.opacity = "1";
+        elements.chatWindow.style.padding = "0px 9px 0px 15px";
+        elements.chatWindow.style.marginTop = "20px";
+        elements.logo.style.opacity = "0";
+        elements.suggestions.style.opacity = "0";
+    }, 0);
 
-        chatWindowExpanded = true;
-    }
+    chatWindowExpanded = true;
+
+    // Create messages container for correct scrolling
+    let messagesContainer = document.createElement("div");
+    messagesContainer.className = "messages-container";
+    elements.chatWindow.appendChild(messagesContainer);
+    elements.messagesContainer = messagesContainer;
 }
 
-// Add message to chat window
-export function addMessage(message, isUser) {
-    // Create messages container if it doesn't exist (for right scrolling)
-    let messagesContainer = elements.chatWindow.querySelector(".messages-container");
-    if (!messagesContainer) {
-        messagesContainer = document.createElement("div");
-        messagesContainer.className = "messages-container";
-        elements.chatWindow.appendChild(messagesContainer);
-    }
+// Animate the element in, regardless of content
+function animateElement(element) {
+    elements.messagesContainer.appendChild(element);
 
-    // Create new message
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("message", isUser ? "user-message" : "bot-message");
-    messageElement.textContent = message;
-    messagesContainer.appendChild(messageElement);
-
-    // Animate the message in
-    messageElement.style.opacity = "0";
-    messageElement.style.transform = "translateY(10px)"; // 20px
-    messageElement.offsetHeight;
-    messageElement.style.transition = "all 0.5s ease";
-    messageElement.style.opacity = "1";
-    messageElement.style.transform = "translateY(0)";
+    // Animate the element in
+    element.style.opacity = "0";
+    element.style.transform = "translateY(10px)";
+    element.offsetHeight;
+    element.style.transition = "all 0.5s ease";
+    element.style.opacity = "1";
+    element.style.transform = "translateY(0)";
     
     // Scroll to bottom
     elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+}
+
+// Add message to chat window
+export function addMessage(type, message, existingContainer = null) {
+    if (type == "user") {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "user-message");
+        messageElement.textContent = message;
+        animateElement(messageElement);
+    } else if (type == "bot") {
+        let messageElement = existingContainer;
+        messageElement.removeAttribute("id");
+        messageElement.innerHTML = "";
+
+        // Replace the & character so Typed doesn't stop
+        message = message.replace(/&/g, "&amp;");
+
+        // Scroll to bottom if height changes
+        const resizeObserver = new ResizeObserver(() => {
+            elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        });
+
+        // Type response
+        // eslint-disable-next-line no-undef
+        new Typed(messageElement, {
+            strings: [message],
+            contentType: "html",
+            typeSpeed: 10,
+            showCursor: false,
+            onBegin: () => {
+                resizeObserver.observe(messageElement);
+            },
+            onComplete: () => {
+                resizeObserver.disconnect();
+            }
+        });
+    } else { // Error message
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message", "error-message");
+        messageElement.textContent = message;
+        animateElement(messageElement);
+    }
+}
+
+// Show loader
+export function showLoader() {
+    // Create loader container with bot message styling
+    const loaderContainer = document.createElement("div");
+    loaderContainer.id = "loader-container";
+    loaderContainer.classList.add("message", "bot-message");
+    
+    // Create loader element
+    const loaderElement = document.createElement("div");
+    loaderElement.id = "loader";
+    loaderContainer.appendChild(loaderElement);
+    animateElement(loaderContainer);
+    
+    // For reuse with bot message
+    return loaderContainer;
 }

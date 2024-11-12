@@ -21,7 +21,7 @@ export function validateInput(input) {
     if (input.length > 200) {
         return {
             assessment: "Too long",
-            message: "⚠️ Oops! Your message is too long, please make it shorter."
+            message: "⚠️ Oops! Would you mind shortening your message a bit, please?"
         };
     }
 

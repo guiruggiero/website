@@ -5,6 +5,7 @@ const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/gui
 
 // Call GuiPT
 export async function callGuiPT(chatHistory, sanitizedInput) {
+    // eslint-disable-next-line no-undef
     return await axios.post(cloudFunctionURL, null, {
         params: {
             history: chatHistory,
