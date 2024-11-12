@@ -27,7 +27,7 @@ export async function createLog(chatStart, turnHistory) {
 }
 
 // Log subsequent turns
-export async function logTurn(chatID, turnCount, turnHistory, duration) {
+export async function logTurn(chatID, turnCount, duration, turnHistory) {
     const chatRef = doc(db, env, chatID);
     await updateDoc(chatRef, {
         turnCount: turnCount,
