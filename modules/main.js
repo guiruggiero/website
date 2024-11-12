@@ -74,10 +74,9 @@ async function handleGuiPT() {
             chatID = await Firebase.createLog(chatStart, turnHistory);
         } else {
             turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
-            const duration = Number(
-                (Firebase.Timestamp.now().toDate() - chatStart)/(1000*60) // Minutes
-            ).toFixed(2); // 2 decimal places
-            await Firebase.logTurn(chatID, turnCount, turnHistory, duration);
+            let duration = (Firebase.Timestamp.now().toDate() - chatStart)/(1000*60); // Minutes
+            duration = Number(duration.toFixed(2)); // 2 decimal places
+            await Firebase.logTurn(chatID, turnCount, duration, turnHistory);
         }
 
     } catch (error) {
