@@ -1,6 +1,6 @@
 # robots.txt for guiruggiero.com
 User-agent: *
-Allow: /guipt/
+Allow: /
 
 # Protected subdomains
 Disallow: /code.guiruggiero.com/
@@ -8,11 +8,12 @@ Disallow: /meetwith.guiruggiero.com/
 
 # Protected folders
 Disallow: /.github/
-Disallow: /new/
+Disallow: /archive/
 Disallow: /scheduling/
 Disallow: /who-gui-ni/
 
 # Protected redirects
+Disallow: /guipt/
 Disallow: /meetwith/
 Disallow: /resume/
 Disallow: /test/

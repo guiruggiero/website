@@ -1,4 +1,4 @@
-@import "../styles/global.css";
+@import "./global.css";
 
 #logo {
     margin-bottom: 80px; /* TODO: logo spacing */

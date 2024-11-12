@@ -2,14 +2,8 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
    <url>
       <loc>https://guiruggiero.com/</loc>
-      <priority>0.8</priority>
-      <changefreq>weekly</changefreq>
-      <lastmod>2024-10-30T23:00:00+01:00</lastmod> 
-   </url>
-   <url>
-      <loc>https://guiruggiero.com/guipt/</loc>
       <priority>1.0</priority>
       <changefreq>weekly</changefreq>
-      <lastmod>2024-10-30T23:00:00+01:00</lastmod> 
+      <lastmod>2024-11-12T05:00:00+01:00</lastmod> 
    </url>
 </urlset>

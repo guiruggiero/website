@@ -71,13 +71,13 @@ async function handleGuiPT() {
         // Create log if first turn, otherwise update log
         if (turnCount === 1) {
             turnHistory = {[turnCount]: turnData};
-            // chatID = await Firebase.createLog(chatStart, turnHistory); // Local testing
+            chatID = await Firebase.createLog(chatStart, turnHistory);
         } else {
             turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
             const duration = Number(
                 (Firebase.Timestamp.now().toDate() - chatStart)/(1000*60) // Minutes
             ).toFixed(2); // 2 decimal places
-            // await Firebase.logTurn(chatID, turnCount, turnHistory, duration); // Local testing
+            await Firebase.logTurn(chatID, turnCount, turnHistory, duration);
         }
 
     } catch (error) {
