@@ -5,6 +5,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 body {
@@ -12,7 +13,6 @@ body {
     flex-direction: column;
     min-height: 100dvh;
     background: #1a1a1a;
-    color: #ffffff;
 }
 
     header {
@@ -42,7 +42,6 @@ body {
         }
 
             #social-links a {
-                color: #ffffff;
                 text-decoration: none;
                 font-size: 30px;
                 transition: color 0.3s ease;

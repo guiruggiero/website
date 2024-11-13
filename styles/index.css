@@ -67,11 +67,10 @@ header img {
                 position: relative;
                 font-size: 0.95em;
                 line-height: 1.4;
-                color: rgba(255, 255, 255, 0.85);
             }
 
                 .message a {
-                    color: rgba(255, 255, 255, 0.85);
+                    color: rgba(255, 255, 255, 1);
                 }
 
                 .user-message {
@@ -126,7 +125,6 @@ header img {
             border: none;
             border-radius: 8px;
             background-color: #333333;
-            color: rgba(255, 255, 255, 0.85);
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2);
         }
