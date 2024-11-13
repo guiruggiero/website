@@ -80,9 +80,15 @@ async function handleGuiPT() {
         }
 
     } catch (error) {
+        // Error before timeout
         clearTimeout(timeoutFunction);
+
+        // Only show error message if it's not a Firebase error 
+        if (!error.toString().includes("Firebase")) {
+            UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
+        }
+
         console.error(error);
-        UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
     }
     
     // Alow input again

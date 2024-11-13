@@ -1,10 +1,19 @@
 @import "./global.css";
 
+header img {
+    display: none; /* TODO: change on JS to block */
+}
+
 #logo {
     margin-bottom: 80px; /* TODO: logo spacing */
     transition: opacity 0.3s ease;
     opacity: 1;
 }
+
+    #logo img {
+        height: 180px;
+        width: 150.53px;
+    }
 
 #chat-container {
     width: 100%;
@@ -58,11 +67,11 @@
                 position: relative;
                 font-size: 0.95em;
                 line-height: 1.4;
-                color: #ffffff;
+                color: rgba(255, 255, 255, 0.85);
             }
 
                 .message a {
-                    color: #ffffff;
+                    color: rgba(255, 255, 255, 0.85);
                 }
 
                 .user-message {
@@ -112,12 +121,12 @@
 
         input {
             flex-grow: 1;
-            padding: 10px 12px;
+            padding: 8px 12px;
             font-size: 1em;
             border: none;
             border-radius: 8px;
             background-color: #333333;
-            color: #ffffff;
+            color: rgba(255, 255, 255, 0.85);
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2);
         }
@@ -132,29 +141,38 @@
 
         #submit {
             background-color: #2563eb;
-            color: #ffffff;
+            color: rgba(255, 255, 255, 0.6);
             border: none;
             border-radius: 8px;
-            transform: rotate(90deg);
             cursor: pointer;
             height: 40px;
             width: 40px;
             padding: 8px;
             margin-left: 10px;
             opacity: 0.3;
-            transition: all 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
             pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
+            iconify-icon {
+                display: inline-block;
+                width: 1em;
+                height: 1em;
+                font-size: 1.5em;
+            }
 
             #submit.active {
                 opacity: 1;
                 pointer-events: auto;
             }
 
-            #submit.active:hover {
-                background-color: #1d4ed8;
-                box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-            }
+                #submit.active:hover {
+                    background-color: #1d4ed8;
+                    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+                }
 
 #suggestions {
     color: #666666;

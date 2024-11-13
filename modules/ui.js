@@ -1,4 +1,4 @@
-import "https://unpkg.com/typed.js/dist/typed.umd.js";
+import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
 
 // Initialization
 export let chatWindowExpanded = false;

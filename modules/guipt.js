@@ -1,4 +1,4 @@
-import "https://unpkg.com/axios/dist/axios.min.js";
+import "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js";
 
 // Initialization
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";

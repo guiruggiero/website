@@ -3,8 +3,8 @@ class CookieConsent {
         this.cookieConsent = document.createElement("div");
         this.cookieConsent.className = "cookie-consent";
         this.cookieConsent.innerHTML = `
-            <p>This site uses sweet cookies 🍪 from Google to analyze traffic.</p>
-            <button>OK, got it!</button>
+            <p>This site uses butter cookies from Google to analyze traffic.</p>
+            <button>OK, got it! 🍪</button>
         `;
         
         this.cookieConsent.querySelector("button").addEventListener("click", () => this.acceptCookies());

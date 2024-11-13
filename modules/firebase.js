@@ -1,4 +1,4 @@
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"; // https://firebase.google.com/docs/web/learn-more#libraries-cdn
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-lite.js"
 
 // Initializations
