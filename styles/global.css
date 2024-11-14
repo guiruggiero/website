@@ -83,7 +83,7 @@ body {
         font-size: 0.9em;
     }
 
-@media (max-width: 600px) { /* TODO: GuiPT = 490px, and others */
+@media (max-width: 600px) {
     header, main, footer {
         width: 95%;
     }
