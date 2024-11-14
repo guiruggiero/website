@@ -1,18 +1,25 @@
 @import "./global.css";
 
-header img {
-    display: none; /* TODO: change on JS to block */
+header {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease;
 }
 
+    header.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
 #logo {
-    margin-bottom: 80px; /* TODO: logo spacing */
+    margin-bottom: 80px;
     transition: opacity 0.3s ease;
     opacity: 1;
 }
 
     #logo img {
         height: 180px;
-        width: 150.53px;
+        width: auto;
     }
 
 #chat-container {
@@ -24,7 +31,7 @@ header img {
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: absolute;
-    top: calc(50% + 80px); /* TODO: logo spacing */
+    top: calc(50% + 80px);
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: 10;
@@ -67,11 +74,10 @@ header img {
                 position: relative;
                 font-size: 0.95em;
                 line-height: 1.4;
-                color: rgba(255, 255, 255, 0.85);
             }
 
                 .message a {
-                    color: rgba(255, 255, 255, 0.85);
+                    color: rgba(255, 255, 255, 1);
                 }
 
                 .user-message {
@@ -96,7 +102,7 @@ header img {
             #loader {
                 width: 42.562px;
                 aspect-ratio: 2;
-                --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 50%,#0000);
+                --_g: no-repeat radial-gradient(circle closest-side,rgba(255, 255, 255, 0.85) 60%,#000000);
                 background: 
                     var(--_g) 0%   50%,
                     var(--_g) 50%  50%,
@@ -126,7 +132,6 @@ header img {
             border: none;
             border-radius: 8px;
             background-color: #333333;
-            color: rgba(255, 255, 255, 0.85);
             transition: all 0.3s ease;
             box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2);
         }
@@ -157,7 +162,7 @@ header img {
             align-items: center;
         }
 
-            iconify-icon {
+            #submit iconify-icon {
                 display: inline-block;
                 width: 1em;
                 height: 1em;
@@ -181,7 +186,7 @@ header img {
     font-style: italic;
 }
 
-@media (max-width: 600px) { /* TODO: GuiPT = 490px, and others */
+@media (max-width: 600px) {
     #chat-container {
         max-width: 95vw;
     }

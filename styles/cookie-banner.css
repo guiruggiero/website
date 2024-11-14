@@ -23,13 +23,12 @@
     }
 
     .cookie-consent p {
-        color: #333333;
+        color: #262626;
         margin: 0;
     }
 
     .cookie-consent button {
         background: #2563eb;
-        color: #ffffff;
         border: none;
         padding: 8px 12px;
         border-radius: 8px;
