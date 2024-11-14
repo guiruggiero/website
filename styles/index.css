@@ -1,8 +1,15 @@
 @import "./global.css";
 
-header img {
-    display: none; /* TODO: change on JS to block */
+header {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s ease;
 }
+
+    header.visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
 
 #logo {
     margin-bottom: 80px; /* TODO: logo spacing */
@@ -12,7 +19,7 @@ header img {
 
     #logo img {
         height: 180px;
-        width: 150.53px;
+        width: auto;
     }
 
 #chat-container {
@@ -95,7 +102,7 @@ header img {
             #loader {
                 width: 42.562px;
                 aspect-ratio: 2;
-                --_g: no-repeat radial-gradient(circle closest-side,#ECECF1 50%,#0000);
+                --_g: no-repeat radial-gradient(circle closest-side,rgba(255, 255, 255, 0.85) 60%,#000000);
                 background: 
                     var(--_g) 0%   50%,
                     var(--_g) 50%  50%,
@@ -155,7 +162,7 @@ header img {
             align-items: center;
         }
 
-            iconify-icon {
+            #submit iconify-icon {
                 display: inline-block;
                 width: 1em;
                 height: 1em;

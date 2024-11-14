@@ -5,6 +5,7 @@ export let chatWindowExpanded = false;
 
 // DOM elements
 export const elements = {
+    header: document.querySelector("header"),
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
@@ -62,6 +63,10 @@ export function toggleInput() {
     elements.input.disabled = !currentState;
 }
 
+export function showHeader() {
+    elements.header.classList.add("visible");
+}
+
 // Expand chat window
 export function expandChatWindow() { // TODO: play with order and delay
     // Set initial size to match input container
@@ -89,6 +94,9 @@ export function expandChatWindow() { // TODO: play with order and delay
         elements.chatWindow.style.marginTop = "20px";
         elements.logo.style.opacity = "0";
         elements.suggestions.style.opacity = "0";
+
+        // Show header after chat window expansion and slight delay
+        setTimeout(showHeader, 300);
     }, 0);
 
     chatWindowExpanded = true;
