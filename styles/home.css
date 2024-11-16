@@ -45,6 +45,7 @@ header {
         transition: all 0.4s ease;
         opacity: 0;
         scrollbar-gutter: stable;
+        scroll-behavior: smooth;
     }
 
         #chat-window::-webkit-scrollbar {
@@ -121,7 +122,6 @@ header {
     #input-container {
         display: flex;
         align-items: center;
-        background-color: #1a1a1a;
         transition: all 0.4s ease;
     }
 

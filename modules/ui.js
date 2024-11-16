@@ -95,7 +95,7 @@ export function expandChatWindow() {
         elements.logo.style.opacity = "0";
         elements.suggestions.style.opacity = "0";
 
-        // Show header after chat window expansion and slight delay
+        // Show header after slight delay
         setTimeout(showHeader, 300);
     }, 0);
 
