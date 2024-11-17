@@ -6,6 +6,7 @@ export let chatWindowExpanded = false;
 // DOM elements
 export const elements = {
     header: document.querySelector("header"),
+    main: document.querySelector("main"),
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
@@ -63,26 +64,31 @@ export function toggleInput() {
     elements.input.disabled = !currentState;
 }
 
-export function showHeader() {
-    elements.header.classList.add("visible");
-}
-
 // Expand chat window
 export function expandChatWindow() {
+    // Get initial positions and sizes relative to viewport
+    const initialTop = elements.chatContainer.getBoundingClientRect().top;
+    
     // Set initial size to match input container
     elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
     elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
     
+    // Set position to fixed immediately, but maintain current position
+    elements.chatContainer.style.position = "fixed";
+    elements.chatContainer.style.top = `${initialTop}px`;
+    
     // Force a reflow
     elements.chatContainer.offsetHeight;
-    
-    // Expand to full size
-    elements.chatContainer.style.maxWidth = "800px";
-    elements.chatContainer.style.width = "min(90vw, 900px)";
+
+    // Expand to full size and move to final position
+    elements.chatContainer.style.maxWidth = "750px";
+    elements.chatContainer.style.width = "90%";
     elements.chatContainer.style.maxHeight = "600px";
-    elements.chatContainer.style.height = "min(80vh, 800px)";
-    
-    // Bring back input container to view
+    elements.chatContainer.style.minHeight = "265px";
+    elements.chatContainer.style.height = "calc(100dvh - 140px)";
+    elements.chatContainer.style.top = "70px";
+
+    // Input container styles
     elements.inputContainer.style.padding = "10px";
     elements.inputContainer.style.backgroundColor = "#262626";
 
@@ -96,7 +102,7 @@ export function expandChatWindow() {
         elements.suggestions.style.opacity = "0";
 
         // Show header after slight delay
-        setTimeout(showHeader, 300);
+        setTimeout(elements.header.classList.add("visible"), 300);
     }, 0);
 
     chatWindowExpanded = true;
