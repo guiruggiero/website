@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       - name: Install NodeJS
-        uses: actions/setup-node@v4.0.3
+        uses: actions/setup-node@main
         with:
           node-version: "20"
       
