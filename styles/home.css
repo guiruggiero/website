@@ -111,9 +111,9 @@ main {
                     }
 
                 #loader {
-                    width: 42.562px;
+                    width: 42.54px;
                     aspect-ratio: 2;
-                    --_g: no-repeat radial-gradient(circle closest-side,rgba(255, 255, 255, 0.85) 60%,#000000);
+                    --_g: no-repeat radial-gradient(circle closest-side,rgba(255, 255, 255, 0.85) 60%,#333333);
                     background: 
                         var(--_g) 0%   50%,
                         var(--_g) 50%  50%,
