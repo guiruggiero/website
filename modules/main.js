@@ -24,7 +24,7 @@ async function handleGuiPT() {
     if (validationResult.assessment !== "OK") {
         if (validationResult.assessment === "Too long") UI.clearInput(); // Likely copy/paste
         if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
-        UI.addMessage("error", validationResult.message);
+        UI.addMessage("error", validationResult.errorMessage);
         return;
     }
 
@@ -101,10 +101,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial UI setup
     UI.inputPlaceholderAndFocus();
 
+    // setTimeout(() => { // Debug: expand chat and show loeader without input
+    //     UI.expandChatWindow();
+    //     UI.showLoader();
+    // }, 2000);
+
     // Real-time input handling
     UI.elements.input.addEventListener("input", UI.toggleSubmitButton);
 
-    // Submission handlers
+    // Input submission
     UI.elements.submit.addEventListener("click", () => {
         handleGuiPT();
         UI.inputFocus();

@@ -133,6 +133,10 @@ body {
                 color: rgba(255, 255, 255, 0.5);
             }
 
+    .cookie-consent {
+        max-width: 187px;
+    }
+
 /* Responsive styles - phones */
 @media (max-width: 490px) {
     #top {

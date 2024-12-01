@@ -6,7 +6,6 @@ export let chatWindowExpanded = false;
 // DOM elements
 export const elements = {
     header: document.querySelector("header"),
-    main: document.querySelector("main"),
     logo: document.querySelector("#logo"),
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
@@ -85,7 +84,7 @@ export function expandChatWindow() {
     elements.chatContainer.style.width = "90%";
     elements.chatContainer.style.maxHeight = "600px";
     elements.chatContainer.style.minHeight = "265px";
-    elements.chatContainer.style.height = "calc(100dvh - 140px)";
+    elements.chatContainer.style.height = "calc(100dvh - 130px)";
     elements.chatContainer.style.top = "70px";
 
     // Input container styles
