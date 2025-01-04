@@ -19,13 +19,13 @@ jobs:
       - name: Install CLI tools
         run: |
           npm install -g html-minifier
-          npm install -g csso-cli
+          npm install -g lightningcss-cli
           npm install -g terser
 
       - name: Minify overwriting original files
         run: |
           find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
-          find . -name "*.css" -exec csso {} -o {} \;
+          find . -name "*.css" -exec lightningcss -m {} -o {} \;
           find . -name "*.js" -exec terser {} -o {} --compress --mangle \;
 
       - name: Push changes to "live-min" branch
