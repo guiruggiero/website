@@ -22,10 +22,19 @@ jobs:
           npm install -g lightningcss-cli
           npm install -g terser
 
-      - name: Minify overwriting original files
+      - name: Minify HTML
+        continue-on-error: true
         run: |
           find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
+          
+      - name: Minify CSS
+        continue-on-error: true
+        run: |
           find . -name "*.css" -exec lightningcss -m {} -o {} \;
+          
+      - name: Minify JavaScript
+        continue-on-error: true
+        run: |
           find . -name "*.js" -exec terser {} -o {} --compress --mangle \;
 
       - name: Push changes to "live-min" branch
@@ -38,4 +47,4 @@ jobs:
 
       - name: Purge Cloudflare cache
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"purge_everything": true}'
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/index.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
