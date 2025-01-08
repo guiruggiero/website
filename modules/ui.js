@@ -109,8 +109,17 @@ export function expandChatWindow() {
     // Create messages container for correct scrolling
     let messagesContainer = document.createElement("div");
     messagesContainer.className = "messages-container";
+    messagesContainer.setAttribute("role", "log");
+    messagesContainer.setAttribute("aria-live", "polite");
     elements.chatWindow.appendChild(messagesContainer);
     elements.messagesContainer = messagesContainer;
+
+    // Create disclaimer
+    const disclaimer = document.createElement("div");
+    disclaimer.textContent = "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.";
+    disclaimer.setAttribute("ID", "disclaimer");
+    elements.disclaimer = disclaimer;
+    elements.chatWindow.appendChild(disclaimer);
 }
 
 // Animate the element in, regardless of content
@@ -135,11 +144,13 @@ export function addMessage(type, message, existingContainer = null) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", "user-message");
         messageElement.textContent = message;
+        messageElement.setAttribute("aria-label", "Your message: " + message);
         animateElement(messageElement);
     } else if (type == "bot") {
         let messageElement = existingContainer;
         messageElement.removeAttribute("id");
         messageElement.innerHTML = "";
+        messageElement.setAttribute("aria-label", "GuiPT response: " + message);
 
         // Replace the & character so Typed doesn't stop
         message = message.replace(/&/g, "&amp;");
@@ -181,6 +192,8 @@ export function showLoader() {
     // Create loader element
     const loaderElement = document.createElement("div");
     loaderElement.id = "loader";
+    loaderElement.setAttribute("role", "status");
+    loaderElement.setAttribute("aria-label", "GuiPT is thinking...");
     loaderContainer.appendChild(loaderElement);
     animateElement(loaderContainer);
     

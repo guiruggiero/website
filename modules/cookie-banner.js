@@ -28,4 +28,4 @@ class CookieConsent {
 
 document.addEventListener("DOMContentLoaded", () => {
     new CookieConsent();
-});
+})

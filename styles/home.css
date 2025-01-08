@@ -196,3 +196,9 @@ main {
         font-weight: 600;
         font-style: italic;
     }
+
+    #disclaimer {
+        color: #666666;
+        font-size: 0.7em;
+        text-align: center;
+    }

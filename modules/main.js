@@ -35,12 +35,14 @@ async function handleGuiPT() {
     UI.toggleInput();
     UI.toggleSubmitButton();
     if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
+    if (turnCount == 2) UI.elements.disclaimer.remove(); // Remove disclaimer on second message sent with chat window opened
     UI.addMessage("user", input);
     const loaderContainer = UI.showLoader();
 
     // Handle timeout
     const timeout = 31000; // 31 seconds
     timeoutFunction = setTimeout(() => {
+        loaderContainer.remove();
         UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
     }, timeout);
 
@@ -85,6 +87,7 @@ async function handleGuiPT() {
 
         // Only show error message if it's not a Firebase error 
         if (!error.toString().includes("Firebase")) {
+            loaderContainer.remove();
             UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
         }
 
@@ -96,25 +99,34 @@ async function handleGuiPT() {
     UI.inputFocus();
 }
 
+// Debounce function to limit input handling frequency
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 // Event handlers when page is done loading
 document.addEventListener("DOMContentLoaded", () => {
     // Initial UI setup
     UI.inputPlaceholderAndFocus();
 
-    // setTimeout(() => { // Debug: expand chat and show loeader without input
+    // setTimeout(() => { // Debug: expand chat and show loader without input
     //     UI.expandChatWindow();
     //     UI.showLoader();
     // }, 2000);
-
+    
     // Real-time input handling
-    UI.elements.input.addEventListener("input", UI.toggleSubmitButton);
+    UI.elements.input.addEventListener("input", debounce(UI.toggleSubmitButton, 150));
 
     // Input submission
     UI.elements.submit.addEventListener("click", () => {
         handleGuiPT();
         UI.inputFocus();
     });
-    UI.elements.input.addEventListener("keyup", (e) => {
+    UI.elements.input.addEventListener("keyup", debounce((e) => {
         if (e.key === "Enter") handleGuiPT();
-    });
+    }, 150));
 });
