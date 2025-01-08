@@ -117,7 +117,7 @@ export function expandChatWindow() {
     // Create disclaimer
     const disclaimer = document.createElement("div");
     disclaimer.textContent = "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.";
-    disclaimer.setAttribute("ID", "disclaimer");
+    disclaimer.id = "disclaimer";
     elements.disclaimer = disclaimer;
     elements.chatWindow.appendChild(disclaimer);
 }

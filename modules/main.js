@@ -8,6 +8,13 @@ let turnCount = 0;
 let chatStart, chatID;
 let timeoutFunction;
 let chatHistory = [], turnHistory;
+let isTimedOut = false;
+
+// Rate limiting
+const rateLimit = 5; // Max requests
+const timeWindow = 60000; // 1 minute
+let requestCount = 0;
+let windowStart = Date.now();
 
 // Orchestrate everything
 async function handleGuiPT() {
@@ -35,18 +42,40 @@ async function handleGuiPT() {
     UI.toggleInput();
     UI.toggleSubmitButton();
     if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
-    if (turnCount == 2) UI.elements.disclaimer.remove(); // Remove disclaimer on second message sent with chat window opened
+    if (turnCount == 2) UI.elements.disclaimer.remove(); // Remove disclaimer on second successful message sent with chat window opened
     UI.addMessage("user", input);
     const loaderContainer = UI.showLoader();
 
     // Handle timeout
-    const timeout = 31000; // 31 seconds
     timeoutFunction = setTimeout(() => {
+        isTimedOut = true;
         loaderContainer.remove();
         UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
-    }, timeout);
+        UI.toggleInput();
+        UI.inputFocus();
+    }, 31000); // 31 seconds
 
     try {
+        // Reset if time window has passed (for rate limiting)
+        const now = Date.now();
+        if (now - windowStart > timeWindow) {
+            requestCount = 0;
+            windowStart = now;
+        }
+        
+        // Check if rate limit is exceeded
+        if (requestCount >= rateLimit) {
+            loaderContainer.remove();
+            UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Please wait a bit to try again.");
+            clearTimeout(timeoutFunction);
+            setTimeout(() => { // Penalty, sit and wait without input
+                UI.toggleInput();
+                UI.inputFocus();
+            }, timeWindow - (now - windowStart));
+            return;
+        }
+        requestCount++;
+        
         // Call GuiPT
         const response = await callGuiPT(chatHistory, sanitizedInput);
 
@@ -82,6 +111,9 @@ async function handleGuiPT() {
         }
 
     } catch (error) {
+        // Error after timeout
+        if (isTimedOut) return;
+
         // Error before timeout
         clearTimeout(timeoutFunction);
 
