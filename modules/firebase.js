@@ -16,24 +16,35 @@ const env = "v1";
 
 // Create the chat log with the first turn
 export async function createLog(chatStart, turnHistory) {
-    const chatRef = await addDoc(collection(db, env), {
-        origin: "guiruggiero.com",
-        start: chatStart,
-        turnCount: 1,
-        turns: turnHistory
-    });
+    try {
+        const chatRef = await addDoc(collection(db, env), {
+            origin: "guiruggiero.com",
+            start: chatStart,
+            turnCount: 1,
+            turns: turnHistory
+        });
     
-    return chatRef.id;
+        return chatRef.id;
+
+    } catch (error) {
+        console.error("Firebase create: ", error);
+        return null;
+    }
 }
 
 // Log subsequent turns
 export async function logTurn(chatID, turnCount, duration, turnHistory) {
-    const chatRef = doc(db, env, chatID);
-    await updateDoc(chatRef, {
-        turnCount: turnCount,
-        duration: duration,
-        turns: turnHistory
-    });
+    try {
+        const chatRef = doc(db, env, chatID);
+        await updateDoc(chatRef, {
+            turnCount: turnCount,
+            duration: duration,
+            turns: turnHistory
+        });
+
+    } catch (error) {
+        console.error("Firebase update: ", error);
+    }
 }
 
 export {Timestamp};
