@@ -12,7 +12,10 @@ const firebaseConfig = {
 }
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
-const env = "v1";
+
+// Separates dev and prod in different collections
+let env = "v1";
+if (window.location.href.includes("ngrok")) env = "dev";
 
 // Create the chat log with the first turn
 export async function createLog(chatStart, turnHistory) {
