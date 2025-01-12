@@ -1,5 +1,5 @@
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-lite.js"
+import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-lite.js"
 
 // Initializations
 const firebaseConfig = {
@@ -13,7 +13,7 @@ const firebaseConfig = {
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
 
-// Separates dev and prod in different collections
+// Separate dev and prod in different collections
 let env = "v1";
 if (window.location.href.includes("ngrok")) env = "dev";
 
@@ -49,5 +49,3 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
         console.error("Firebase update: ", error);
     }
 }
-
-export {Timestamp};
