@@ -29,7 +29,7 @@ axiosInstance.interceptors.response.use(null, async (error) => {
         return Promise.reject(error);
     }
     
-    config.retryCount += 1;
+    config.retryCount++;
     const delay = config.retryDelay(config.retryCount);
     
     await new Promise(resolve => setTimeout(resolve, delay));
@@ -38,12 +38,15 @@ axiosInstance.interceptors.response.use(null, async (error) => {
 
 // Call GuiPT
 export async function callGuiPT(chatHistory, userMessage) {
-    const response = await axiosInstance.post("", null, {
+    return await axiosInstance.post("", null, {
         params: {
             history: chatHistory,
             prompt: userMessage
         }
-    });
 
-    return response.data;
+    }).catch(error => {
+        if (error.name == "GoogleGenerativeAIError") console.error(`GuiPT - ${error.message}:`, error);
+        else console.error("GuiPT:", error);
+        throw error;
+    });
 }

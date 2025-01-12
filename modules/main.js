@@ -9,6 +9,14 @@ let chatStart, chatID;
 let guiptResponse;
 let chatHistory = [], turnHistory;
 
+// Timeout error class
+class TimeoutError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "TimeoutError";
+    }
+}
+
 // Rate limiting
 const timeWindow = 60000; // 1 minute
 let requestCount = 0;
@@ -35,7 +43,9 @@ async function handleGuiPT() {
 
     // Don't act on input if input doesn't pass validation
     if (validationResult.assessment !== "OK") {
-        if (validationResult.assessment === "Too long") UI.clearInput(); // Likely copy/paste
+        // Likely copy/paste
+        if (validationResult.assessment == "Too long") UI.clearInput();
+
         if (validationResult.assessment !== "Empty") {
             if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
             UI.addMessage("error", validationResult.errorMessage);    
@@ -57,7 +67,9 @@ async function handleGuiPT() {
     if (requestCount >= 5) { // Max requests per minute
         const waitTime = timeWindow - (now - windowStart);
         UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again.");
-        setTimeout(() => { // Penalty, sit and wait without input
+
+        // Penalty, sit and wait without input
+        setTimeout(() => {
             UI.toggleSubmitButton();
             UI.toggleInput();
             UI.inputFocus();
@@ -75,7 +87,7 @@ async function handleGuiPT() {
     try {
         // Client timeout
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("main.js timeout")), 17000); // 17s
+            setTimeout(() => reject(new TimeoutError("Client timeout")), 17000); // 17s
         });
         
         // Call GuiPT while racing against the timeout
@@ -86,13 +98,15 @@ async function handleGuiPT() {
 
     } catch (error) {
         loaderContainer.remove();
-        if (error.message == "main.js timeout") {
+
+        // Only error I want to display a different message for
+        if (error.message == "Client timeout" || error instanceof TimeoutError) {
             UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
-        } else {
-            UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
-        }
-        console.error(error);
-        UI.populateInput(input); // Bring back user input
+            console.error(error);
+        } else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
+        
+        // Bring back user input
+        UI.populateInput(input);
         UI.toggleSubmitButton();
         UI.toggleInput();
         UI.inputFocus();
@@ -100,23 +114,23 @@ async function handleGuiPT() {
     }
 
     // Show response
-    UI.addMessage("bot", guiptResponse, loaderContainer);
+    UI.addMessage("bot", guiptResponse.data, loaderContainer);
     turnCount++;
 
     // Save turn in chat history
     chatHistory.push(
         {role: "user", parts: [{text: sanitizedInput}]},
-        {role: "model", parts: [{text: guiptResponse}]}
+        {role: "model", parts: [{text: guiptResponse.data}]}
     );
     
     // Turn to be logged
     const turnData = {
         user: sanitizedInput,
-        model: guiptResponse
+        model: guiptResponse.data
     };
 
     // Create log if first turn, otherwise update log
-    if (turnCount === 1) {
+    if (turnCount == 1) {
         turnHistory = {[turnCount]: turnData};
         chatID = await Firebase.createLog(chatStart, turnHistory);
     } else {
