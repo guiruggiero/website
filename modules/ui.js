@@ -118,6 +118,7 @@ export function expandChatWindow() {
     let messagesContainer = document.createElement("div");
     messagesContainer.className = "messages-container";
     messagesContainer.setAttribute("role", "log");
+    messagesContainer.setAttribute("aria-label", "Chat conversation with GuiPT");
     messagesContainer.setAttribute("aria-live", "polite");
     elements.chatWindow.appendChild(messagesContainer);
     elements.messagesContainer = messagesContainer;
