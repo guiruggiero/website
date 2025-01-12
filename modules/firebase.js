@@ -1,5 +1,5 @@
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-lite.js"
+import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-lite.js"
 
 // Initializations
 const firebaseConfig = {
@@ -12,28 +12,39 @@ const firebaseConfig = {
 }
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
-const env = "v1";
+
+// Separate dev and prod in different collections
+let env = "v1";
+if (window.location.href.includes("ngrok")) env = "dev";
 
 // Create the chat log with the first turn
 export async function createLog(chatStart, turnHistory) {
-    const chatRef = await addDoc(collection(db, env), {
-        origin: "guiruggiero.com",
-        start: chatStart,
-        turnCount: 1,
-        turns: turnHistory
-    });
-    
-    return chatRef.id;
+    try {
+        const chatRef = await addDoc(collection(db, env), {
+            origin: "guiruggiero.com",
+            start: chatStart,
+            turnCount: 1,
+            turns: turnHistory
+        });
+        return chatRef.id;
+
+    } catch (error) {
+        console.error("Firebase - create:", error);
+        return null;
+    }
 }
 
 // Log subsequent turns
 export async function logTurn(chatID, turnCount, duration, turnHistory) {
-    const chatRef = doc(db, env, chatID);
-    await updateDoc(chatRef, {
-        turnCount: turnCount,
-        duration: duration,
-        turns: turnHistory
-    });
-}
+    try {
+        const chatRef = doc(db, env, chatID);
+        await updateDoc(chatRef, {
+            turnCount: turnCount,
+            duration: duration,
+            turns: turnHistory
+        });
 
-export {Timestamp};
+    } catch (error) {
+        console.error("Firebase - update:", error);
+    }
+}

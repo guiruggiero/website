@@ -36,15 +36,25 @@ export function inputPlaceholderAndFocus() {
     });
 }
 
-// Allow/forbid submit button
+// Allow/forbid submit button according to input content
 export function toggleSubmitButton() {
     const hasContent = elements.input.value.trim().length > 0;
     elements.submit.classList.toggle("active", hasContent);
 }
 
-// Clear input box
+// Forbid submit button
+export function forbidSubmitButton() {
+    elements.submit.classList.toggle("active", false);
+}
+
+// Clear input
 export function clearInput() {
     elements.input.value = "";
+}
+
+// Populate input
+export function populateInput(text) {
+    elements.input.value = text;
 }
 
 // Close virtual keyboard
@@ -73,8 +83,8 @@ export function expandChatWindow() {
     elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
     
     // Set position to fixed immediately, but maintain current position
-    elements.chatContainer.style.position = "fixed";
     elements.chatContainer.style.top = `${initialTop}px`;
+    elements.chatContainer.style.position = "fixed";
     
     // Force a reflow
     elements.chatContainer.offsetHeight;
@@ -83,26 +93,24 @@ export function expandChatWindow() {
     elements.chatContainer.style.maxWidth = "750px";
     elements.chatContainer.style.width = "90%";
     elements.chatContainer.style.maxHeight = "600px";
+    elements.chatContainer.style.top = "70px";
     elements.chatContainer.style.minHeight = "265px";
     elements.chatContainer.style.height = "calc(100dvh - 130px)";
-    elements.chatContainer.style.top = "70px";
 
     // Input container styles
-    elements.inputContainer.style.padding = "10px";
     elements.inputContainer.style.backgroundColor = "#262626";
+    elements.inputContainer.style.padding = "10px";
 
     // Fade in inner content and hide logo/suggestions
-    setTimeout(() => {
-        elements.chatWindow.style.height = "calc(100% - 80px)";
-        elements.chatWindow.style.opacity = "1";
-        elements.chatWindow.style.padding = "0px 9px 0px 15px";
-        elements.chatWindow.style.marginTop = "20px";
-        elements.logo.style.opacity = "0";
-        elements.suggestions.style.opacity = "0";
+    elements.chatWindow.style.height = "calc(100% - 80px)";
+    elements.chatWindow.style.marginTop = "20px";
+    elements.chatWindow.style.padding = "0px 9px 0px 15px";
+    elements.chatWindow.style.opacity = "1";
+    elements.logo.style.opacity = "0";
+    elements.suggestions.style.opacity = "0";
 
-        // Show header after slight delay
-        setTimeout(elements.header.classList.add("visible"), 300);
-    }, 0);
+    // Show header after slight delay
+    setTimeout(() => elements.header.classList.add("visible"), 600);
 
     chatWindowExpanded = true;
 

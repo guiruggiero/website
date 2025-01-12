@@ -10,7 +10,6 @@ Disallow: /meetwith.guiruggiero.com/
 Disallow: /.github/
 Disallow: /archive/
 Disallow: /scheduling/
-Disallow: /who-gui-ni/
 
 # Protected redirects
 Disallow: /guipt/
