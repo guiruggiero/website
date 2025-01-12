@@ -36,15 +36,25 @@ export function inputPlaceholderAndFocus() {
     });
 }
 
-// Allow/forbid submit button
+// Allow/forbid submit button according to input content
 export function toggleSubmitButton() {
     const hasContent = elements.input.value.trim().length > 0;
     elements.submit.classList.toggle("active", hasContent);
 }
 
-// Clear input box
+// Forbid submit button
+export function forbidSubmitButton() {
+    elements.submit.classList.toggle("active", false);
+}
+
+// Clear input
 export function clearInput() {
     elements.input.value = "";
+}
+
+// Populate input
+export function populateInput(text) {
+    elements.input.value = text;
 }
 
 // Close virtual keyboard
@@ -92,17 +102,15 @@ export function expandChatWindow() {
     elements.inputContainer.style.backgroundColor = "#262626";
 
     // Fade in inner content and hide logo/suggestions
-    setTimeout(() => {
-        elements.chatWindow.style.height = "calc(100% - 80px)";
-        elements.chatWindow.style.opacity = "1";
-        elements.chatWindow.style.padding = "0px 9px 0px 15px";
-        elements.chatWindow.style.marginTop = "20px";
-        elements.logo.style.opacity = "0";
-        elements.suggestions.style.opacity = "0";
+    elements.chatWindow.style.height = "calc(100% - 80px)";
+    elements.chatWindow.style.opacity = "1";
+    elements.chatWindow.style.padding = "0px 9px 0px 15px";
+    elements.chatWindow.style.marginTop = "20px";
+    elements.logo.style.opacity = "0";
+    elements.suggestions.style.opacity = "0";
 
-        // Show header after slight delay
-        setTimeout(elements.header.classList.add("visible"), 300);
-    }, 0);
+    // Show header after slight delay
+    setTimeout(elements.header.classList.add("visible"), 300);
 
     chatWindowExpanded = true;
 

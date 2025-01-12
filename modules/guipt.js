@@ -7,7 +7,7 @@ const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/gui
 // Axios instance with retry configuration
 const axiosInstance = axios.create({
     baseURL: cloudFunctionURL,
-    timeout: 8000, // 8s
+    timeout: 4000, // 4s
     retry: 2, // Number of retry attempts
     retryDelay: (retryCount) => {
         return retryCount * 1000; // 1s, then 2s between retries
@@ -38,18 +38,12 @@ axiosInstance.interceptors.response.use(null, async (error) => {
 
 // Call GuiPT
 export async function callGuiPT(chatHistory, userMessage) {
-    try {
-        const response = await axiosInstance.post("", null, {
-            params: {
-                history: chatHistory,
-                prompt: userMessage
-            }
-        });
-    
-        return response.data;
+    const response = await axiosInstance.post("", null, {
+        params: {
+            history: chatHistory,
+            prompt: userMessage
+        }
+    });
 
-    } catch (error) {
-        console.error("GuiPT: ", error);
-        throw error;
-    }
+    return response.data;
 }

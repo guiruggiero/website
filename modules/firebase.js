@@ -30,7 +30,7 @@ export async function createLog(chatStart, turnHistory) {
         return chatRef.id;
 
     } catch (error) {
-        console.error("Firebase create: ", error);
+        console.error("Firebase create:", error);
         return null;
     }
 }
@@ -46,6 +46,6 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
         });
 
     } catch (error) {
-        console.error("Firebase update: ", error);
+        console.error("Firebase update:", error);
     }
 }
