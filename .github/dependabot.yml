@@ -17,7 +17,7 @@ updates:
       time: "08:00"
       timezone: "Europe/Berlin"
     groups:
-      version-updates:
+      new-versions:
         applies-to: version-updates
       security-patches:
         applies-to: security-updates
