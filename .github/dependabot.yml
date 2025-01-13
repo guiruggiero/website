@@ -19,5 +19,13 @@ updates:
     groups:
       new-versions:
         applies-to: version-updates
+        update-types:
+          - "patch"
+          - "minor"
+          - "major"
       security-patches:
         applies-to: security-updates
+        update-types:
+          - "patch"
+          - "minor"
+          - "major"
