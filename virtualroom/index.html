@@ -7,13 +7,12 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
         <link rel="preconnect" href="https://cdn.jsdelivr.net">
-		<link rel="preconnect" href="https://cal.com/">
-		<link rel="preconnect" href="https://app.cal.com/">
+		<link rel="preload" href="../images/google-meet.webp" as="image">
 
 		<meta charset="UTF-8">
 
 		<!-- Stylesheets -->
-		<link rel="stylesheet" href="../styles/scheduling.css">
+		<link rel="stylesheet" href="../styles/virtualroom.css">
 		<script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
 		<link rel="preload" href="../styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript><link rel="stylesheet" href="../styles/cookie-banner.css"></noscript>
@@ -45,7 +44,7 @@
 		</noscript>
 
 		<header>
-			<a href="https://guiruggiero.com/?utm_source=scheduling&utm_medium=header" aria-label="Gui Ruggiero homepage">
+			<a href="https://guiruggiero.com/?utm_source=virtualroom&utm_medium=header" aria-label="Gui Ruggiero homepage">
 				<picture>
 					<source srcset="../images/gr-logo-light.webp" type="image/webp">
 					<img src="../images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
@@ -64,18 +63,14 @@
         </header>
 		
 		<main>
-			<!-- Cal inline embed -->
-			<div id="my-cal-inline"></div>
-			<script type="text/javascript">
-				(function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
-				Cal("init", "chat", {origin:"https://cal.com"});
-				Cal.ns.chat("inline", {
-					elementOrSelector:"#my-cal-inline",
-					config: {"layout":"month_view","theme":"dark"},
-					calLink: "guiruggiero/chat",
-				});
-				Cal.ns.chat("ui", {"theme":"dark","cssVarsPerTheme":{"dark":{"cal-brand":"#2563eb"}},"hideEventTypeDetails":false,"layout":"month_view"});
-			</script>
+			<p>Click below to continue:</p>
+
+			<a href="https://meet.google.com/wrc-ntod-mus" target="_blank" aria-label="Google Meet link">
+				<picture id="destination">
+					<source srcset="../images/google-meet.webp" type="image/webp">
+					<img src="../images/google-meet.png" alt="Google Meet logo" width="300" height="58.36">
+				</picture>
+			</a>
 		</main>
 
 		<footer>
