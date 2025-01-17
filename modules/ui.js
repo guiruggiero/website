@@ -93,7 +93,7 @@ export function expandChatWindow() {
     elements.chatContainer.style.maxWidth = "750px";
     elements.chatContainer.style.width = "90%";
     elements.chatContainer.style.maxHeight = "600px";
-    elements.chatContainer.style.top = "70px";
+    elements.chatContainer.style.top = "60px";
     elements.chatContainer.style.minHeight = "265px";
     elements.chatContainer.style.height = "calc(100dvh - 130px)";
 
