@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     UI.elements.input.addEventListener("input", debounce(UI.toggleSubmitButton, 150));
 
     // Input submission
-    UI.elements.submit.addEventListener("click", handleGuiPT);
+    UI.elements.submit.addEventListener("pointerup", handleGuiPT);
     UI.elements.input.addEventListener("keyup", debounce((e) => {
         if (e.key === "Enter") handleGuiPT();
     }, 150));
