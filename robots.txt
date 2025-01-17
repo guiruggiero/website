@@ -10,13 +10,13 @@ Disallow: /meetwith.guiruggiero.com/
 Disallow: /.github/
 Disallow: /archive/
 Disallow: /scheduling/
+Disallow: /virtualroom/
 
 # Protected redirects
 Disallow: /guipt/
 Disallow: /meetwith/
 Disallow: /resume/
 Disallow: /test/
-Disallow: /virtualroom/
 Disallow: /whatsapp/
 
 # Disallow specific file types

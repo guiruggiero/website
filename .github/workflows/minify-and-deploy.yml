@@ -47,4 +47,4 @@ jobs:
 
       - name: Purge Cloudflare cache
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/index.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/index.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*", "https://guiruggiero.com/scheduling/*", "https://guiruggiero.com/virtualroom/*"]}'
