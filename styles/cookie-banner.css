@@ -6,7 +6,7 @@
     background-color: white;
     padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 5px #ffffff66;
     display: none;
     max-width: 235px;
     z-index: 9999;
