@@ -9,15 +9,15 @@ Disallow: /meetwith.guiruggiero.com/
 # Protected folders
 Disallow: /.github/
 Disallow: /archive/
+Disallow: /linkedin/
 Disallow: /scheduling/
 Disallow: /virtualroom/
+Disallow: /whatsapp/
 
 # Protected redirects
-Disallow: /guipt/
 Disallow: /meetwith/
 Disallow: /resume/
 Disallow: /test/
-Disallow: /whatsapp/
 
 # Disallow specific file types
 Disallow: /*.gitignore$
