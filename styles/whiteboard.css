@@ -1,0 +1,12 @@
+@import "global.css";
+
+main {
+    margin: 60px auto 0;
+}
+
+    #miro {
+        width: 100%;
+        max-width: 900px;
+        height: calc(100dvh - 130px);
+        max-height: 1100px;
+    }
