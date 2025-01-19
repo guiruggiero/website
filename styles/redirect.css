@@ -8,7 +8,7 @@ main {
         margin: 0 0 1.5em;
     }
 
-    .destination {
+    .redirect {
         font-size: 70px;
         transition: transform 0.2s ease;
         display: inline-block;
@@ -16,11 +16,11 @@ main {
         text-decoration: none;
     }
     
-        .destination:hover {
+        .redirect:hover {
             transform: translateY(-2px);
         }
         
-        .destination:active {
+        .redirect:active {
             transform: translateY(1px);
         }
 
