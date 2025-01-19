@@ -4,9 +4,13 @@ main {
     margin: 60px auto 0;
 }
 
-    #miro {
+    .embed {
         width: 100%;
         max-width: 900px;
         height: calc(100dvh - 130px);
         max-height: 1100px;
+    }
+
+    #gdocs {
+        height: calc(100dvw * 1.294);
     }

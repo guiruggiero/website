@@ -10,6 +10,7 @@ Disallow: /meetwith.guiruggiero.com/
 Disallow: /.github/
 Disallow: /archive/
 Disallow: /linkedin/
+Disallow: /resume/
 Disallow: /scheduling/
 Disallow: /virtualroom/
 Disallow: /whatsapp/
@@ -17,7 +18,6 @@ Disallow: /whiteboard/
 
 # Protected redirects
 Disallow: /meetwith/
-Disallow: /resume/
 Disallow: /test/
 
 # Disallow specific file types
