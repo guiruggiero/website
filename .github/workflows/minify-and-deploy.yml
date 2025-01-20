@@ -1,6 +1,7 @@
 name: Minify and deploy
 
 on:
+  workflow_dispatch:
   push:
     branches: [ live ]
 
@@ -14,7 +15,7 @@ jobs:
       - name: Install NodeJS
         uses: actions/setup-node@main
         with:
-          node-version: "20"
+          node-version: "22"
       
       - name: Install CLI tools
         run: |
