@@ -95,7 +95,7 @@ export function expandChatWindow() {
     elements.chatContainer.style.maxHeight = "800px";
     elements.chatContainer.style.top = "60px";
     elements.chatContainer.style.minHeight = "265px";
-    elements.chatContainer.style.height = "calc(100dvh - 130px)";
+    elements.chatContainer.style.height = "calc(100dvh - 111.667px)";
 
     // Input container styles
     elements.inputContainer.style.backgroundColor = "#262626";

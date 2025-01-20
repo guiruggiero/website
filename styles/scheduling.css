@@ -1,11 +1,7 @@
 @import "global.css";
 
-main {
-    margin: 60px auto 0;
+#my-cal-inline {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
 }
-
-    #my-cal-inline {
-        width: 100%;
-        height: 100%;
-        overflow: scroll;
-    }

@@ -1,16 +1,13 @@
 @import "global.css";
 
-main {
-    margin: 60px auto 0;
+.embed {
+    width: 100%;
+    height: calc(100dvh - 111.667px);
+    max-height: 1100px;
 }
 
-    .embed {
-        width: 100%;
-        max-width: 900px;
-        height: calc(100dvh - 130px);
-        max-height: 1100px;
-    }
-
+@media (max-width: 916.67px) {
     #gdocs {
-        height: calc(100dvw * 1.294);
+        max-height: calc(100dvw * 1.2);
     }
+}
