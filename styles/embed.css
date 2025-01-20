@@ -7,10 +7,12 @@ main {
     .embed {
         width: 100%;
         max-width: 900px;
-        height: calc(100dvh - 130px);
+        height: calc(100dvh - 111.667px);
         max-height: 1100px;
     }
 
+@media (max-width: 916.67px) {
     #gdocs {
-        height: calc(100dvw * 1.294);
+        max-height: calc(100dvw * 1.2);
     }
+}
