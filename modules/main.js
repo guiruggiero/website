@@ -48,7 +48,7 @@ async function handleGuiPT() {
 
         if (validationResult.assessment !== "Empty") {
             if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
-            UI.addMessage("error", validationResult.errorMessage);    
+            UI.addMessage("error", validationResult.errorMessage);
         }
         UI.toggleSubmitButton();
         UI.toggleInput();

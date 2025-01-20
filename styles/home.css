@@ -12,9 +12,8 @@ header {
     }
 
 main {
-    max-width: 900px;
     flex-direction: column;
-    margin: 120px auto 0; 
+    margin: 120px auto 0;
     position: relative;
     gap: 20px;
 }
