@@ -5,7 +5,6 @@ Allow: /
 # Unimportant folders
 Disallow: /.github/
 Disallow: /archive/
-Disallow: /resume
 
 # Sitemap location
 Sitemap: https://guiruggiero.com/sitemap.xml

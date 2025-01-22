@@ -7,12 +7,11 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
         <link rel="preconnect" href="https://cdn.jsdelivr.net">
-		<link rel="preconnect" href="https://drive.google.com">
 
 		<meta charset="UTF-8">
 
 		<!-- Stylesheets -->
-		<link rel="stylesheet" href="styles/embed.css">
+		<link rel="stylesheet" href="styles/resume.css">
 		<script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
 		<link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
@@ -35,6 +34,13 @@
 		<script>
 			(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
 		</script>
+
+		<!-- Search engine tags -->
+        <meta name="description" content="Chat with GuiPT, the AI assistant built by Gui Ruggiero. Explore his work; learn about his expertise in product management, machine learning, and human-computer interaction (HCI); and connect!">
+        <meta name="keywords" content="product, product manager, product management, PM, product leadership, innovation, technology, tech, human-computer interaction, HCI, artificial intelligence, AI, machine learning, ML, design, engineering, science, data science, expert, leader, leadership, global">
+        <meta http-equiv="content-language" content="en">
+        <meta name="author" content="Gui Ruggiero">
+        <link rel="canonical" href="https://guiruggiero.com/">
 	</head>
 
     <body>
@@ -44,28 +50,202 @@
 		</noscript>
 
 		<header>
-			<a href="https://guiruggiero.com/?utm_source=resume&utm_medium=header" aria-label="Gui Ruggiero homepage">
-				<picture>
-					<source srcset="images/gr-logo-light.webp" type="image/webp">
-					<img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
-				</picture>
-			</a>
+			<div class="header-container">
+				<a href="https://guiruggiero.com/?utm_source=resume&utm_medium=header" aria-label="Gui Ruggiero homepage">
+					<picture>
+						<source srcset="images/gr-logo-light.webp" type="image/webp">
+						<img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+					</picture>
+				</a>
 
-            <!-- <nav></nav> -->
+				<!-- <nav></nav> -->
 
-            <div id="social-links">
-                <a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
-                    <iconify-icon icon="cib:linkedin-in">
-                </a>
+				<div id="social-links">
+					<a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
+						<iconify-icon icon="cib:linkedin-in"></iconify-icon>
+					</a>
 
-                <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
-                    <iconify-icon icon="cib:github">
-                </a>
-            </div>
+					<a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
+						<iconify-icon icon="cib:github"></iconify-icon>
+					</a>
+				</div>
+			</div>
         </header>
 		
 		<main>
-			<iframe class="embed" id="gdocs" src="https://drive.google.com/file/d/1elsGxuaVwJx3PaMPzlct4Wcx0l-TEHjf/preview?embedded=true" frameborder="0" allow="autoplay; fullscreen">Loading...</iframe>
+			<!-- Name, contact, and PDF link -->
+			<div class="header">
+				<div class="header-content">
+					<div class="name">GUI RUGGIERO</div>
+					<div class="contact">Looking for contact info? <a href="https://guiruggiero.com/?utm_source=resume&utm_medium=body" aria-label="Gui Ruggiero homepage">Chat with GuiPT</a>!</div>
+				</div>
+
+				<a href="https://guiruggiero.com/resume-pdf.html" class="pdf">
+					<iconify-icon icon="vscode-icons:file-type-pdf2" class="pdf-icon"></iconify-icon>
+					<span class="pdf-label">PDF version</span>
+				</a>
+			</div>
+			
+			<!-- Professional experience section -->
+			<div class="section-title">EXPERIENCE</div>
+		
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">AMAZON</span>
+					<span class="date">2021-present</span>
+				</div>
+				
+				<div class="position-header">
+					<span class="position">Sr. Product Manager - Technical, Artificial Intelligence</span>
+					<span class="location">Aachen, Germany</span>
+				</div>
+				<ul>
+					<li>Building the next generation of spoken language processing AI models (LLMs)</li>
+				</ul>
+		
+				<div class="position-header">
+					<span class="position">Sr. Product Manager - Technical, Alexa Speech</span>
+					<span class="location">Seattle, WA</span>
+				</div>
+				<ul>
+					<li>Head of Entertainment domain, leading Science and Engineering; improved voice recognition for all devices (XXX MM users), with Fire TV reaching best-in-class within streaming category</li>
+					<li>Launched on-screen, word-by-word live transcription of speech on Alexa and Amazon apps in 4 countries (XX MM users); set up expansion plan to physical devices and other countries</li>
+				</ul>
+			
+				<div class="position-header">
+					<span class="position">Sr. Product Manager, Supply Chain Tech</span>
+					<span class="location">Seattle, WA</span>
+				</div>
+				<ul>
+					<li>Led Data Science in restructuring 10K-warehouse node-level forecast, focusing on Q4 peak model that achieved 16.9% weighted error (-177bps YoY); created roadmap to scale up</li>
+					<li>Planned and implemented custom product suppression rules that recovered 10K of the most important SKUs in Q4, increasing sales by $39M with only -$2M of profit loss</li>
+				</ul>
+			</div>
+			
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">VROOM</span>
+					<span class="date">2020</span>
+				</div>
+
+				<div class="position-header">
+					<span class="position">Product Management Intern</span>
+					<span class="location">New York, NY (remote)</span>
+				</div>
+				<ul>
+					<li>Oversaw team of 7 engineers, data scientists, and designers in building internal A/B testing platform from zero to one; shipped and live demoed to CEO, CPO, and 70 other employees</li>
+				</ul>
+			</div>
+			
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">15 SECONDS OF FAME</span>
+					<span class="date">2019</span>
+				</div>
+
+				<div class="position-header">
+					<span class="position">Product Management Intern</span>
+					<span class="location">Santa Monica, CA</span>
+				</div>
+				<ul>
+					<li>Designed web platform to enhance customer service, writing PRD with user journeys, wireframes, and acquisition strategy; presented to and got buy-in from CEO and Product team</li>
+				</ul>
+			</div>
+
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">99 (ACQUIRED BY DIDI)</span>
+					<span class="date">2017-2018</span>
+				</div>
+
+				<div class="position-header">
+					<span class="position">Product Owner</span>
+					<span class="location">São Paulo, Brazil</span>
+				</div>
+				<ul>
+					<li>Spearheaded 7-person cross-functional team in migrating Taxi operations to DiDi's app infrastructure, relying on customer feedback to localize and adapt features to X MM users</li>
+					<li>Reshaped driver acquisition funnel based on competitive analysis and government API availability for document verification, reducing user registration steps by 70% and time by 50%</li>
+				</ul>
+				
+				<div class="position-header">
+					<span class="position">Operations & Growth Manager</span>
+					<span class="location">São Paulo, Brazil</span>
+				</div>
+				<ul>
+					<li>Coordinated 6 engineers in developing 3 driver app features, gathering insights from historical data, driver behavior, and user interviews to increase supply by 20% and satisfaction by 40%</li>
+					<li>Expanded private car service to São Paulo outskirts (8M people) based on field research with customers and competitive map, growing rides by 60% in 2 months</li>
+				</ul>
+			</div>
+			
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">PROCTER & GAMBLE</span>
+					<span class="date">2012-2015</span>
+				</div>
+
+				<div class="position-header">
+					<span class="position">Ecommerce Brazil Manager</span>
+					<span class="location">São Paulo, Brazil</span>
+				</div>
+				<ul>
+					<li>Managed cross-functional team of 14 across 6 departments, securing buy-in from brands' and geographies' top management by promoting channel's strategic importance</li>
+					<li>Negotiated joint long-term plans with top customers, quadrupling net sales in 2 years and nominated for "eCommerce Innovation Prize" in sales category (5 nominated industry-wide)</li>
+				</ul>
+			
+				<div class="position-header">
+					<span class="position">Sales Supervisor - Ecommerce</span>
+					<span class="location">São Paulo, Brazil</span>
+				</div>
+				<ul>
+					<li>Created eCommerce channel; designed go-to-market strategy and structured multifunctional team, growing net sales by 70% and awarded "Thought Leader" (out of 95K employees)</li>
+				</ul>
+			</div>
+			
+			<!-- Education section -->
+			<div class="section-title">EDUCATION</div>
+			
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">UNIVERSITY OF MICHIGAN</span>
+					<span class="location">Ann Arbor, MI</span>
+				</div>
+
+				<div class="job-header">
+					<span class="company">Ross School of Business / School of Information</span>
+				</div>
+				<div class="position-header">
+					<span class="degree">Master of Business Administration / Master of Science in Information (dual degree)</span>
+				</div>
+				<ul>
+					<li>Sanger Leadership Center Board member, Admissions Ambassador, Global Ambassador</li>
+				</ul>
+			</div>
+
+			<div class="experience-item">
+				<div class="job-header">
+					<span class="company">UNIVERSIDADE DE SãO PAULO</span>
+					<span class="location">São Paulo, Brazil</span>
+				</div>
+				
+				<div class="job-header">
+					<span class="company">Escola Politécnica</span>
+				</div>
+				<div class="position-header">
+					<span class="degree">Bachelor of Science in Electrical Engineering</span>
+				</div>
+				<ul>
+					<li>Athletics President, led 26 people in organizing 30 varsity sports; Founder of Varsity Tennis team, awarded "Best Sports Director" and "Player of the Year"</li>
+				</ul>
+			</div>
+			
+			<!-- Additional information section -->
+			<div class="section-title">ADDITIONAL</div>
+			
+			<ul>
+				<li>Hobbyist coder in Python, VBA, SQL, HTML/CSS, JavaScript; developing an app in React Native</li>
+				<li>Fluent in Portuguese and English; proficient in Italian and Spanish; learning German</li>
+				<li>Sports fanatic; former competitive tennis player; wreck SCUBA diver; solo skydiver</li>
+			</ul>
 		</main>
 
 		<footer>
