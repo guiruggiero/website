@@ -2,24 +2,24 @@
 
 GuiPT is an innovative AI-powered chat application that provides an interactive conversational experience. Built with a focus on performance, security, and user experience, this web application integrates advanced technologies to create a seamless interaction platform.
 
-        GitHub Copilot
-        Welcome to the repository for Gui's personal website and utilities. This project showcases my personal portfolio, blog, and various utilities that I have implemented. The website is built using modern web technologies and practices.
+Welcome to the repository of Gui's personal website and utilities. The homepage features
+ This showcaThe homepagses my personal portfolio, blog, and various utilities that I have implemented. The website is built using modern web technologies and practices.
 
-        Link to guipt repo
+Link to guipt repo https://github.com/guiruggiero/guipt
 
 Built by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=website).
+
+
 
 ## ✨ Features
 
 ### AI-powered conversation
 - Real-time interaction with a custom AI assistant (GuiPT)
-- Multilingual support (including Portuguese)
-- Intelligent response generation
+- Contextual memory/carryover for long-term conversations
 
 ### Input validation and security
 - Robust input sanitization
 - Character and length restrictions
-- Protection against potentially harmful inputs
 
 ### Performance pptimization
 - Rate limiting to prevent abuse
@@ -32,21 +32,14 @@ Built by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=we
 - Environment-based logging (development and production)
 
 ### Security
-- Input sanitization
 - Character set validation
-- Rate limiting
 - Timeout protection
-- Environment-specific logging
 
 ### Deployment
 - Hosted on GitHub Pages
 - Cloudflare cache purging
 - Automatic minification via GitHub Actions
 
-        GitHub Copilot
-        - **Personal Portfolio**: A showcase of my projects, skills, and experiences.
-        - **Blog**: A platform where I share my thoughts, tutorials, and articles on various topics.
-        - **Utilities**: Various tools and utilities that I have developed for personal use.
         - **Responsive Design**: The website is fully responsive and works on all devices, from desktops to mobile phones.
         - **Interactive UI**: Smooth animations and interactive elements to enhance user experience.
 
@@ -54,65 +47,50 @@ Built by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=we
         - custom 404 page
         - cookie consent using local storage
         - HTML resume for indexing
+        - Embedded utilities for scheduling meetings and whiteboard
+        - Branded redirects for key services
+
+
 
 ## 🛠️ Technologies
 
 ### Frontend
-- Vanilla JavaScript
 - HTML5
 - CSS3
-- Iconify for icons
+- JavaScript (vanilla)
 
 ### Backend & services
-- Google Cloud Functions
+- Custom text LLM API ([GuiPT](https://github.com/guiruggiero/guipt))
+- GitHub Pages, Actions, Dependabot
+- Cloudflare
+- Google Analytics, Tag Manager, Drive
 - Firebase Firestore
-- Cloudflare for cache management
-- Node.js (v22+)
-
-### AI integration
-- Custom AI service (GuiPT)
-- Axios for API communication with retry mechanisms
-
-### Development & deployment
-- GitHub Actions for CI/CD
-- Automated minification workflow
-- Environment-specific configurations
-
-        GitHub Copilot
-        - **HTML**: For the structure and content of the website.
-        - **CSS**: For styling and layout.
-        - **JavaScript**: For interactivity and dynamic content.
+- Cal.com
+- jsDelivr
 
 ## 📦 Dependencies
 
-### NPM Packages
-- `html-minifier`
-- `lightningcss-cli`
-- `terser`
+### Development
+- `cwebp-bin` - WebP image conversion
+- `http-server` - local development server
+- `ngrok` - local development tunneling
+- `eslint` - code linting
 
-### CDN Libraries
-- Axios
-- Iconify
+### Deployment
+- `html-minifier` - HTML minification
+- `lightningcss-cli` - CSS minification
+- `terser` - JavaScript minification
 
-### External Services
-- Firebase (Authentication & Firestore)
-- Google Tag Manager
-- Cal.com (Scheduling)
-- Cloudflare
-
-        GitHub Copilot
-        - **[Bootstrap](https://getbootstrap.com/)**: Used for responsive design and pre-built components.
-        - **[jQuery](https://jquery.com/)**: Simplifies DOM manipulation and event handling.
-        - **[Font Awesome](https://fontawesome.com/)**: Provides icons and vector graphics.
-        - **[Animate.css](https://animate.style/)**: A CSS library for animations.
-        - **[Sass](https://sass-lang.com/)**: A CSS pre-processor for more efficient and maintainable styles.
+### Runtime
+- `iconify-icon` - icons library
+- `typed.js` - animated typing effect
+- `axios` - API communication
+- `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
 
 ---
 
-### 📄 License
-
+#### 📄 License
 This project is licensed under the [MIT License](LICENSE). Attribution is required.
 
-### ⚠️ Disclaimer
-
-This software is provided "as is" without any warranties. Use at your own risk. The author is not responsible for any consequences of using this software. Please use it responsibly and ensure you comply with all relevant terms of service and regulations.
+#### ⚠️ Disclaimer
+This software is provided "as is" without any warranties. Use at your own risk. The author is not responsible for any consequences of using this software.
