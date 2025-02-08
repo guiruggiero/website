@@ -1,91 +1,90 @@
-# Gui Ruggiero's personal website and utilities
+# 🚀 Gui's digital Swiss Army knife
 
-GuiPT is an innovative AI-powered chat application that provides an interactive conversational experience. Built with a focus on performance, security, and user experience, this web application integrates advanced technologies to create a seamless interaction platform.
+Welcome to the codebase powering my corner of the internet! This isn't your average personal website - it's a playground of utilities and AI-powered goodness that makes both my life and yours more interesting.
 
-Welcome to the repository of Gui's personal website and utilities. The homepage features
- This showcaThe homepagses my personal portfolio, blog, and various utilities that I have implemented. The website is built using modern web technologies and practices.
+Star of the show? Meet [GuiPT](https://github.com/guiruggiero/guipt), my AI alter-ego powered by Google Gemini Flash. Think ChatGPT, but with a PhD in All Things Gui™. Ask it anything about me, my work, or why I really dislike tomatoes (spoiler: I have no idea).
 
-Link to guipt repo https://github.com/guiruggiero/guipt
+The rest of the site is my professional highlight reel and a collection of utilities I built because it's fun and, well... why not make life easier?
 
-Built by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=website).
-
-
+Built with lots of ☕ by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=website).
 
 ## ✨ Features
 
-### AI-powered conversation
-- Real-time interaction with a custom AI assistant (GuiPT)
-- Contextual memory/carryover for long-term conversations
-
-### Input validation and security
-- Robust input sanitization
-- Character and length restrictions
-
-### Performance pptimization
+### AI assistant
+- Real-time interaction with custom AI assistant [GuiPT](https://github.com/guiruggiero/guipt)
+- Context carryover in long conversations
+- Detailed and environment-based chat logging
 - Rate limiting to prevent abuse
-- Timeout handling for API calls
-- Minification of HTML, CSS, and JavaScript
 
-#### Logging and analytics
-- Firebase integration for chat logging
-- Capture of conversation metrics (turn count, duration)
-- Environment-based logging (development and production)
+### User experience
+- Responsive design
+- Interactive UI with smooth animations
+- Cookie consent using local storage
+- Custom 404 page and favicons
+- Fast loading time with preloading, preconnecting, and image optimization
+- Graceful failures handling API call timeouts
 
-### Security
-- Character set validation
-- Timeout protection
+### Performance & safety
+- Automated minification of code and cache purging at build time
+- Safe input sanitization and restrictions
+- Automatic API call retries
 
-### Deployment
-- Hosted on GitHub Pages
-- Cloudflare cache purging
-- Automatic minification via GitHub Actions
+### Utilities
+- Branded redirects to key online profiles or services
+- Embedded collaboration utilities
+- Automatic dependency update tracking
 
-        - **Responsive Design**: The website is fully responsive and works on all devices, from desktops to mobile phones.
-        - **Interactive UI**: Smooth animations and interactive elements to enhance user experience.
-
-        Add
-        - custom 404 page
-        - cookie consent using local storage
-        - HTML resume for indexing
-        - Embedded utilities for scheduling meetings and whiteboard
-        - Branded redirects for key services
-
-
+### Optimization
+- Optimized meta tags for search engine and social media
+- Optimized sitemap.xml and robots.txt
+- Maintainable and reusable modular files and components
 
 ## 🛠️ Technologies
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript (vanilla)
+### Core stack
+- HTML5, CSS3, JavaScript (vanilla)
+- Custom AI assistant API [GuiPT](https://github.com/guiruggiero/guipt)
 
-### Backend & services
-- Custom text LLM API ([GuiPT](https://github.com/guiruggiero/guipt))
-- GitHub Pages, Actions, Dependabot
-- Cloudflare
-- Google Analytics, Tag Manager, Drive
-- Firebase Firestore
-- Cal.com
-- jsDelivr
+### Infrastructure
+- GitHub Pages - hosting
+- Firebase Cloud Functions - GuiPT backend
+- Cloudflare - CDN, redirects, and cache management
+- jsDelivr - dependencies CDN
+
+### Development
+- GitHub Actions - automated deployments
+- GitHub Dependabot - dependency management
+
+### Analytics
+- Firebase Firestore - chat logging
+- Google Analytics - traffic tracking
+- Google Tag Manager - analytics management
+
+### External services
+- Cal.com - meeting scheduling
+- Miro - whiteboard
+- Google Drive - file storage
 
 ## 📦 Dependencies
 
-### Development
-- `cwebp-bin` - WebP image conversion
-- `http-server` - local development server
-- `ngrok` - local development tunneling
-- `eslint` - code linting
+### UI Components & Interactions
+- `iconify-icon` - icons library
+- `typed.js` - animated typing effect
 
-### Deployment
+### API & data management
+- `axios` - API communication
+- `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
+
+### Build & optimization
 - `html-minifier` - HTML minification
 - `lightningcss-cli` - CSS minification
 - `terser` - JavaScript minification
+- `cwebp-bin` - WebP image conversion
 
-### Runtime
-- `iconify-icon` - icons library
-- `typed.js` - animated typing effect
-- `axios` - API communication
-- `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
+### Development
+- `http-server` - local development server
+- `ngrok` - local development tunneling
+- `eslint` - code linting
 
 ---
 
