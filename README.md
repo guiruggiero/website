@@ -6,8 +6,6 @@ Star of the show? Meet [GuiPT](https://github.com/guiruggiero/guipt), my AI alte
 
 The rest of the site is my professional highlight reel and a collection of utilities I built because it's fun and, well... why not make life easier?
 
-Built with lots of ☕ by [Gui Ruggiero](https://guiruggiero.com/?utm_source=github&utm_medium=website).
-
 ## ✨ Features
 
 ### AI assistant
