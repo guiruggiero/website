@@ -2,14 +2,14 @@
 
 Welcome to the codebase powering my corner of the internet! This isn't your average personal website - it's a playground of utilities and AI-powered goodness that makes both my life and yours more interesting.
 
-Star of the show? Meet [GuiPT](https://github.com/guiruggiero/guipt), my AI alter-ego powered by Google Gemini Flash. Think ChatGPT, but with a PhD in All Things Gui™. Ask it anything about me, my work, or why I really dislike tomatoes (spoiler: I have no idea).
+Star of the show? Meet GuiPT, my AI alter-ego. Think ChatGPT, but with a PhD in All Things Gui™ and a better name. I'm probably biased there. Ask it anything about me, my work, or if I like tomatoes (spoiler: I don't).
 
 The rest of the site is my professional highlight reel and a collection of utilities I built because it's fun and, well... why not make life easier?
 
 ## ✨ Features
 
 ### AI assistant
-- Real-time interaction with custom AI assistant [GuiPT](https://github.com/guiruggiero/guipt)
+- Real-time interaction with custom AI assistant GuiPT
 - Context carryover in long conversations
 - Detailed and environment-based chat logging
 - Rate limiting to prevent abuse
@@ -41,11 +41,10 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### Core stack
 - HTML5, CSS3, JavaScript (vanilla)
-- Custom AI assistant API [GuiPT](https://github.com/guiruggiero/guipt)
+- [GuiPT API](https://github.com/guiruggiero/guipt)
 
 ### Infrastructure
 - GitHub Pages - hosting
-- Firebase Cloud Functions - GuiPT backend
 - Cloudflare - CDN, redirects, and cache management
 - jsDelivr - dependencies CDN
 
