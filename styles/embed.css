@@ -1,6 +1,7 @@
 @import "global.css";
 
 .embed {
+    border: 0;
     width: 100%;
     height: calc(100dvh - 111.667px);
     max-height: 1100px;

@@ -1,6 +1,11 @@
 # robots.txt for guiruggiero.com
 User-agent: *
 Allow: /
+Allow: /resume
+Allow: /sitemap.xml
+
+# Rate limiting
+Crawl-delay: 10
 
 # Unimportant folders
 Disallow: /.github/
