@@ -69,56 +69,75 @@ main {
     }
 
     .experience-item {
+        display: flex;
+        align-items: flex-start;
         margin-bottom: 20px;
         width: 100%;
     }
 
-        .job-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 4px;
+        .company-logo {
+            width: 70px;
+            aspect-ratio: 1/1;
+            margin-right: 12px;
+            flex-shrink: 0;
+            border-radius: 8px;
         }
 
-            .company {
-                font-weight: bold;
-                font-size: 16px;
-                border-bottom: 2px solid #2563eb;
-            }
-            
-            .date {
-                font-weight: bold;
-                font-size: 0.95em;
-            }
-
-        .position-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 4px;
+        .job-details {
+            flex-grow: 1;
         }
 
-            .position {
-                font-weight: 600;
+            .job-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                margin-bottom: 4px;
             }
 
-            .location {
-                font-style: italic;
-                font-size: 0.95em;
+                .company {
+                    font-weight: bold;
+                    font-size: 16px;
+                    border-bottom: 2px solid #2563eb;
+                }
+                
+                .date {
+                    font-weight: bold;
+                    font-size: 0.95em;
+                }
+
+            .position-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                margin-bottom: 4px;
             }
 
-            .degree {
-                margin: 4px 0;
-            }
+                .position {
+                    font-weight: 600;
+                }
+
+                .location {
+                    font-style: italic;
+                    font-size: 0.95em;
+                    padding-left: 20px;
+                    text-align: right;
+                }
+
+                .degree {
+                    margin: 1px 0;
+                }
 
         ul {
-            margin: 8px 0 15px 20px;
+            margin: 4px 0 12px 0;
             width: 100%;
+            list-style-position: inside;
         }
 
             li {
-                margin-bottom: 8px;
+                margin-bottom: 4px;
                 line-height: 1.5;
+                text-indent: -1.5em;
+                padding-left: 1.5em;
             }
 
                 ul:last-of-type {
@@ -126,10 +145,6 @@ main {
                 }
 
 @media (max-width: 600px) {
-    main {
-        padding: 15px;
-    }
-
         .header {
             grid-template-columns: 1fr;
             gap: 15px;
@@ -149,11 +164,20 @@ main {
                     padding-bottom: 0;
                 }
 
+        .company-logo {
+            width: 45px;
+            margin-right: 8px;
+        }
+
             .position-header {
                 flex-direction: column;
             }
             
                 .position {
                     margin-bottom: 3px;
+                }
+
+                .location {
+                    padding-left: 0;
                 }
 }
