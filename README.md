@@ -33,8 +33,8 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Automatic dependency update tracking
 
 ### Optimization
-- Optimized meta tags for search engine and social media
-- Optimized sitemap.xml and robots.txt
+- Meta tags and JSON-LD for search engine and social media
+- Simple sitemap.xml and robots.txt
 - Maintainable and reusable modular files and components
 
 ## 🛠️ Technologies
