@@ -8,8 +8,8 @@
     "iconify-icon": "^2.2.0",
     "typed.js": "^2.1.0",
     "axios": "^1.7.9",
-    "firebase": "^11.3.0",
-    "firebase-firestore-lite": "^11.2.0"
+    "firebase": "^11.3.1",
+    "firebase-firestore-lite": "^11.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.18.0",

@@ -1,7 +1,7 @@
 import * as UI from "./ui.js";
 import * as Validation from "./validation.js";
 import * as Firebase from "./firebase.js";
-import { callGuiPT } from "./guipt.js";
+import {callGuiPT} from "./guipt.js";
 
 // Initializations
 let turnCount = 0, messageCount = 0;
