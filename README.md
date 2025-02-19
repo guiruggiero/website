@@ -1,6 +1,6 @@
 # 🚀 Gui's digital Swiss Army knife
 
-Welcome to the codebase powering my corner of the internet! This isn't your average personal website - it's a playground of utilities and AI-powered goodness that makes both my life and yours more interesting.
+Welcome to the codebase powering my corner of the internet! This isn't your average personal website - it's a playground of utilities and AI-powered goodness that makes both my day and yours more interesting.
 
 Star of the show? Meet GuiPT, my AI alter-ego. Think ChatGPT, but with a PhD in All Things Gui™ and a better name. I'm probably biased there. Ask it anything about me, my work, or if I like tomatoes (spoiler: I don't).
 
