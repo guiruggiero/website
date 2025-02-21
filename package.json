@@ -12,8 +12,8 @@
     "firebase-firestore-lite": "^11.3.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "eslint": "^9.18.0",
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.1",
     "globals": "^16.0.0",
     "cwebp-bin": "^8.0.0",
     "http-server": "^14.1.1",
