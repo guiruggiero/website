@@ -1,3 +1,8 @@
+[![CodeQL](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql)
+[![Dependencies](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates)
+[![Minification](https://github.com/guiruggiero/website/actions/workflows/minify-and-deploy.yml/badge.svg?branch=live&event=push)](https://github.com/guiruggiero/website/actions/workflows/minify-and-deploy.yml)
+[![Deployment](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment/badge.svg?branch=live-min)](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment)
+
 # 🚀 Gui's digital Swiss Army knife
 
 Welcome to the codebase powering my corner of the internet! This isn't your average personal website - it's a playground of utilities and AI-powered goodness that makes both my day and yours more interesting.
