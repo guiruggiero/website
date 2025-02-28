@@ -25,7 +25,6 @@ export function inputFocus() {
 
 // Type input placeholder and then focus
 export function inputPlaceholderAndFocus() {
-    // eslint-disable-next-line no-undef
     new Typed(elements.input, {
         strings: ["^500 Ask me anything about Gui..."], // Waits 500ms before typing
         contentType: "null",
@@ -170,7 +169,6 @@ export function addMessage(type, message, existingContainer = null) {
         });
 
         // Type response
-        // eslint-disable-next-line no-undef
         new Typed(messageElement, {
             strings: [message],
             contentType: "html",
