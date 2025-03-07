@@ -8,6 +8,7 @@ export default [
       globals: {
         ...globals.browser,
         Typed: true,
+        axios: true,
       },
     },
   },
