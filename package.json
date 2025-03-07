@@ -7,13 +7,13 @@
   "dependencies": {
     "iconify-icon": "^2.2.0",
     "typed.js": "^2.1.0",
-    "axios": "^1.7.9",
-    "firebase": "^11.3.1",
-    "firebase-firestore-lite": "^11.3.1"
+    "axios": "^1.8.2",
+    "firebase": "^11.4.0",
+    "firebase-firestore-lite": "^11.4.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.20.0",
-    "eslint": "^9.20.1",
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
     "globals": "^16.0.0",
     "cwebp-bin": "^8.0.0",
     "http-server": "^14.1.1",

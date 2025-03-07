@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js";
 
 // Initialization
