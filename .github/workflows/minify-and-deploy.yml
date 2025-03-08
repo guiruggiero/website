@@ -1,4 +1,5 @@
-name: Minify and deploy
+name: Code minification
+description: Minify code and push for deployment to GitHub Pages
 
 on:
   workflow_dispatch:
@@ -23,17 +24,17 @@ jobs:
           npm install -g lightningcss-cli
           npm install -g terser
 
-      - name: Minify HTML
+      - name: Minify HTML with HTMLMinifier
         continue-on-error: true
         run: |
           find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
           
-      - name: Minify CSS
+      - name: Minify CSS with Lightning CSS
         continue-on-error: true
         run: |
           find . -name "*.css" -exec lightningcss -m {} -o {} \;
           
-      - name: Minify JavaScript
+      - name: Minify JavaScript with Terser
         continue-on-error: true
         run: |
           find . -name "*.js" -exec terser {} -o {} --compress --mangle \;
@@ -46,6 +47,6 @@ jobs:
           git commit -m "Automated minification and deployment of ${{ github.sha }}"
           git push --force -u origin live:live-min
 
-      - name: Purge Cloudflare cache
+      - name: Purge Cloudflare cache for HTML/CSS/JavaScript only
         run: |
           curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'

@@ -1,4 +1,5 @@
-name: Purge Cloudflare cache
+name: Cache purge
+description: Purge all Cloudflare cache
 
 on: workflow_dispatch
 
