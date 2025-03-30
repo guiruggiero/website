@@ -1,5 +1,7 @@
 /* eslint-disable max-len */
 
+// Backup of the Firebase Function used for Who-Gui-Ni (dedicated prompt because of different name)
+
 const {GoogleGenerativeAI, HarmCategory, HarmBlockThreshold} = require("@google/generative-ai");
 const fs = require("fs");
 const {onRequest} = require("firebase-functions/v2/https");
