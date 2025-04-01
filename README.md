@@ -1,6 +1,6 @@
 [![CodeQL](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql)
 [![Dependencies](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates)
-[![Minification](https://github.com/guiruggiero/website/actions/workflows/minify-and-deploy.yml/badge.svg?branch=live&event=push)](https://github.com/guiruggiero/website/actions/workflows/minify-and-deploy.yml)
+[![Code minification](https://github.com/guiruggiero/website/actions/workflows/minification.yml/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/minification.yml)
 [![Deployment](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment/badge.svg?branch=live-min)](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment)
 
 # 🚀 Gui's digital Swiss Army knife
