@@ -86,7 +86,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 ### Development
 - `http-server` - local development server
 - `ngrok` - local development tunneling
-- `eslint` - code linting
+- `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
 
 ---
 
