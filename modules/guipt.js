@@ -10,11 +10,11 @@ const axiosInstance = axios.create({
     retry: 2, // Number of retry attempts
     retryDelay: (retryCount) => {
         return retryCount * 1000; // 1s, then 2s between retries
-    }
+    },
 });
 
 // Interceptor to handle retries
-axiosInstance.interceptors.response.use(null, async (error) => {
+axiosInstance.interceptors.response.use(null, async(error) => {
     const config = error.config;
     
     // Only retry on network errors or 5xx responses
@@ -40,8 +40,8 @@ export async function callGuiPT(chatHistory, userMessage) {
     return await axiosInstance.post("", null, {
         params: {
             history: chatHistory,
-            prompt: userMessage
-        }
+            prompt: userMessage,
+        },
 
     }).catch(error => {
         if (error.name == "GoogleGenerativeAIError") console.error(`GuiPT - ${error.message}:`, error);

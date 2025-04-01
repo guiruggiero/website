@@ -1,5 +1,5 @@
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/11.5.0/firebase-firestore-lite.js"
+import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-lite.js";
 
 // Initializations
 const firebaseConfig = {
@@ -8,8 +8,8 @@ const firebaseConfig = {
     projectId: "guiruggiero",
     storageBucket: "guiruggiero.appspot.com",
     messagingSenderId: "49247152565",
-    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc"
-}
+    appId: "1:49247152565:web:eb614bed7a4cf43ed611fc",
+};
 const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
 
@@ -24,7 +24,7 @@ export async function createLog(chatStart, turnHistory) {
             origin: "guiruggiero.com",
             start: chatStart,
             turnCount: 1,
-            turns: turnHistory
+            turns: turnHistory,
         });
         return chatRef.id;
 
@@ -41,7 +41,7 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
         await updateDoc(chatRef, {
             turnCount: turnCount,
             duration: duration,
-            turns: turnHistory
+            turns: turnHistory,
         });
 
     } catch (error) {

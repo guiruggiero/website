@@ -13,7 +13,7 @@ export const elements = {
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
-    suggestions: document.querySelector("#suggestions")
+    suggestions: document.querySelector("#suggestions"),
 };
 
 // Focus on input without opening virtual keyboard
@@ -31,7 +31,7 @@ export function inputPlaceholderAndFocus() {
         attr: "placeholder",
         typeSpeed: 10,
         showCursor: false,
-        onComplete: inputFocus
+        onComplete: inputFocus,
     });
 }
 
@@ -179,7 +179,7 @@ export function addMessage(type, message, existingContainer = null) {
             },
             onComplete: () => {
                 resizeObserver.disconnect();
-            }
+            },
         });
     } else { // Error message
         const messageElement = document.createElement("div");
