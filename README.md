@@ -1,6 +1,6 @@
 [![CodeQL](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql)
-[![Dependencies](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates)
-[![Code minification](https://github.com/guiruggiero/website/actions/workflows/minification.yml/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/minification.yml)
+[![Dependabot](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates)
+[![Code minification](https://github.com/guiruggiero/website/actions/workflows/minification.yml/badge.svg?branch=live)](https://github.com/guiruggiero/website/actions/workflows/minification.yml)
 [![Deployment](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment/badge.svg?branch=live-min)](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment)
 
 # 🚀 Gui's digital Swiss Army knife
@@ -86,7 +86,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 ### Development
 - `http-server` - local development server
 - `ngrok` - local development tunneling
-- `eslint` - code linting
+- `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
 
 ---
 
