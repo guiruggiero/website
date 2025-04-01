@@ -93,7 +93,7 @@ async function handleGuiPT() {
         // Call GuiPT while racing against the timeout
         guiptResponse = await Promise.race([
             callGuiPT(chatHistory, sanitizedInput),
-            timeoutPromise
+            timeoutPromise,
         ]);
 
     } catch (error) {
@@ -120,13 +120,13 @@ async function handleGuiPT() {
     // Save turn in chat history
     chatHistory.push(
         {role: "user", parts: [{text: sanitizedInput}]},
-        {role: "model", parts: [{text: guiptResponse.data}]}
+        {role: "model", parts: [{text: guiptResponse.data}]},
     );
     
     // Turn to be logged
     const turnData = {
         user: sanitizedInput,
-        model: guiptResponse.data
+        model: guiptResponse.data,
     };
 
     // Create log if first turn, otherwise update log
@@ -149,7 +149,7 @@ async function handleGuiPT() {
 // Debounce function to limit input handling frequency
 function debounce(func, wait) {
     let timeout;
-    return function (...args) {
+    return function(...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };

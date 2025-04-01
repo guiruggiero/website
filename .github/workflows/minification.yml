@@ -4,7 +4,7 @@ description: Minify code and push for deployment to GitHub Pages
 on:
   workflow_dispatch:
   push:
-    branches: [ live ]
+    branches: [live]
 
 jobs:
   minify-and-deploy:

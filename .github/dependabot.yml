@@ -1,10 +1,33 @@
 version: 2
 
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "saturday"
+      interval: weekly
+      day: saturday
       time: "08:00"
-      timezone: "Europe/Berlin"
+      timezone: Europe/Berlin
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "08:00"
+      timezone: Europe/Berlin
+    allow:
+      - dependency-type: development
+    groups:
+      new-versions:
+        applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+          - major
+      security-patches:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+          - major
