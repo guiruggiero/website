@@ -23,6 +23,7 @@ export default [
         ...globals.browser,
         Typed: true,
         axios: true,
+        Sentry: true,
       },
     },
 		rules: {

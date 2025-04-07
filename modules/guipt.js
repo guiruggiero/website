@@ -44,8 +44,14 @@ export async function callGuiPT(chatHistory, userMessage) {
         },
 
     }).catch(error => {
-        if (error.name == "GoogleGenerativeAIError") console.error(`GuiPT - ${error.message}:`, error);
-        else console.error("GuiPT:", error);
+        // Add context to the error but don't report it
+        error.axiosContext = {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            retryCount: error.config?.retryCount || 0,
+        };
+
+        // Rethrow error
         throw error;
     });
 }

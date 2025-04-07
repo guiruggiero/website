@@ -61,6 +61,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Firebase Firestore - chat logging
 - Google Analytics - traffic tracking
 - Google Tag Manager - analytics management
+- Sentry - error tracking and monitoring for debugging
 
 ### External services
 - Cal.com - meeting scheduling
@@ -87,6 +88,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - `http-server` - local development server
 - `ngrok` - local development tunneling
 - `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
+- `@sentry/browser` - Sentry integration
 
 ---
 

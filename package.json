@@ -11,14 +11,15 @@
   "autoUpdatedDependencies": {
     "axios": "^1.8.4",
     "iconify-icon": "^2.3.0",
-    "typed.js": "^2.1.0"
+    "typed.js": "^2.1.0",
+    "@sentry/node": "^9.11.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
+    "@eslint/js": "^9.24.0",
     "@html-eslint/eslint-plugin": "^0.37.0",
     "@html-eslint/parser": "^0.37.0",
     "@stylistic/eslint-plugin-js": "^4.2.0",
-    "eslint": "^9.23.0",
+    "eslint": "^9.24.0",
     "eslint-plugin-yml": "^1.17.0",
     "globals": "^16.0.0"
   },

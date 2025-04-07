@@ -9,6 +9,24 @@ let chatStart, chatID;
 let guiptResponse;
 let chatHistory = [], turnHistory;
 
+// Global error handler
+window.addEventListener("error", (event) => {
+    Sentry.captureException(event.error, {contexts: {
+        file: event.filename,
+        line: event.lineno,
+        column: event.colno,
+        errorMessage: event.error.message,
+    }});
+});
+
+// Unhandled promise rejection handler
+window.addEventListener("unhandledrejection", (event) => {
+    Sentry.captureException(event.reason, {contexts: {
+        status: "unhandled promise rejection",
+        name: event.reason.name || event.reason.constructor.name,
+    }});
+});
+
 // Timeout error class
 class TimeoutError extends Error {
     constructor(message) {
@@ -53,6 +71,18 @@ async function handleGuiPT() {
         UI.toggleSubmitButton();
         UI.toggleInput();
         UI.inputFocus();
+
+        // Capture error with context
+        Sentry.captureException(new Error("Failed validation"), {contexts: {
+            file: "main.js",
+            turnCount: turnCount + 1,
+            userInput: input,
+            userInputLength: input.length,
+            sanitizedInput,
+            sanitizedInputLength: sanitizedInput.length,
+            validationResult,
+        }});
+
         return;
     }
 
@@ -74,6 +104,16 @@ async function handleGuiPT() {
             UI.toggleInput();
             UI.inputFocus();
         }, waitTime);
+
+        // Capture error with context
+        Sentry.captureException(new Error("Exceeded rate limit"), {contexts: {
+            file: "main.js",
+            turnCount: turnCount + 1,
+            userInput: input,
+            sanitizedInput,
+            requestCount,
+        }});
+
         return;
     }
     requestCount++;
@@ -100,16 +140,26 @@ async function handleGuiPT() {
         loaderContainer.remove();
 
         // Only error I want to display a different message for
-        if (error.message == "Client timeout" || error instanceof TimeoutError) {
-            UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
-            console.error(error);
-        } else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
+        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
+        else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
         
         // Bring back user input
         UI.populateInput(input);
         UI.toggleSubmitButton();
         UI.toggleInput();
         UI.inputFocus();
+
+        // Capture error with context
+        Sentry.captureException(error, {contexts: {
+            file: error.axiosContext ? "guipt.js" : "main.js",
+            turnCount: turnCount + 1,
+            userInput: input,
+            sanitizedInput,
+            chatID,
+            chatHistory,
+            axiosContext: error.axiosContext || {},
+        }});
+
         return;
     }
 
@@ -160,7 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial UI setup
     UI.inputPlaceholderAndFocus();
 
-    // setTimeout(() => { // Debug: expand chat and show loader without input
+    // Debug: expand chat and show loader without input
+    // setTimeout(() => {
     //     UI.expandChatWindow();
     //     UI.showLoader();
     // }, 2000);
@@ -170,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Input submission
     UI.elements.submit.addEventListener("pointerup", handleGuiPT);
-    UI.elements.input.addEventListener("keyup", debounce((e) => {
-        if (e.key === "Enter") handleGuiPT();
+    UI.elements.input.addEventListener("keyup", debounce((event) => {
+        if (event.key === "Enter") handleGuiPT();
     }, 150));
 });
