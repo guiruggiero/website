@@ -4,10 +4,11 @@
 		<!-- Sentry -->
 		<script>
 			window.sentryOnLoad = function () {
-				Sentry.init({environment: window.location.href.includes("ngrok") ? "dev" : "v1",});
-				Sentry.setTag("screenWidth", window.innerWidth);
-				Sentry.setTag("screenHeight", window.innerHeight);
-				Sentry.setTag("userAgent", navigator.userAgent);
+				Sentry.init({environment: window.location && window.location.href.includes("ngrok") ? "dev" : "v1"});
+				window.location && Sentry.setTag("page", window.location.pathname);
+				window.innerWidth && Sentry.setTag("screenWidth", window.innerWidth);
+				window.innerHeight && Sentry.setTag("screenHeight", window.innerHeight);
+				navigator.userAgent && Sentry.setTag("userAgent", navigator.userAgent);
 			};
 		</script>
 		<script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
