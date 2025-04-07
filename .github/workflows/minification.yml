@@ -22,9 +22,9 @@ jobs:
       
       - name: Install CLI tools
         run: |
-          npm install html-minifier
-          npm install lightningcss-cli
-          npm install terser
+          npm install -g html-minifier
+          npm install -g lightningcss-cli
+          npm install -g terser
           npm install @sentry/cli
 
       - name: Minify HTML with HTMLMinifier
