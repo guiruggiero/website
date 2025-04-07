@@ -20,9 +20,10 @@ jobs:
       
       - name: Install CLI tools
         run: |
-          npm install -g html-minifier
-          npm install -g lightningcss-cli
-          npm install -g terser
+          npm install html-minifier
+          npm install lightningcss-cli
+          npm install terser
+          npm install @sentry/cli
 
       - name: Minify HTML with HTMLMinifier
         continue-on-error: true
@@ -37,7 +38,16 @@ jobs:
       - name: Minify JavaScript with Terser
         continue-on-error: true
         run: |
-          find . -name "*.js" -exec terser {} -o {} --compress --mangle \;
+          find . -name "*.js" -exec terser {} -o {} --compress --mangle --source-map \;
+
+      - name: Update Sentry source maps
+        uses: getsentry/action-release@main
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: guiruggiero
+          SENTRY_PROJECT: website
+        with:
+          sourcemaps: ./modules
 
       - name: Push changes to "live-min" branch
         run: |
