@@ -29,6 +29,12 @@ export async function createLog(chatStart, turnHistory) {
         return chatRef.id;
 
     } catch (error) {
+        // Capture error with context - TODO: right context?
+        Sentry.captureException(error, {contexts: {
+            // status: error.response?.status,
+        }});
+        
+        // Print error to console - TODO: needed?
         console.error("Firebase - create:", error);
         return null;
     }
@@ -45,6 +51,12 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
         });
 
     } catch (error) {
+        // Capture error with context - TODO: right context?
+        Sentry.captureException(error, {contexts: {
+            // status: error.response?.status,
+        }});
+        
+        // Print error to console - TODO: needed?
         console.error("Firebase - update:", error);
     }
 }

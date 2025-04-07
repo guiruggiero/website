@@ -44,8 +44,18 @@ export async function callGuiPT(chatHistory, userMessage) {
         },
 
     }).catch(error => {
+        // Capture error with context - TODO: needed if handled in main.js (rethrown)? Also, right context?
+        Sentry.captureException(error, {contexts: {
+            // status: error.response?.status,
+            // statusText: error.response?.statusText,
+            // retryCount: error.config?.retryCount || 0,
+        }});
+
+        // Print error to console - TODO: needed?
         if (error.name == "GoogleGenerativeAIError") console.error(`GuiPT - ${error.message}:`, error);
         else console.error("GuiPT:", error);
+
+        // Rethrow error
         throw error;
     });
 }

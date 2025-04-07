@@ -11,7 +11,8 @@
   "autoUpdatedDependencies": {
     "axios": "^1.8.4",
     "iconify-icon": "^2.3.0",
-    "typed.js": "^2.1.0"
+    "typed.js": "^2.1.0",
+    "@sentry/node": "^9.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",

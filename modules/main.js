@@ -53,6 +53,9 @@ async function handleGuiPT() {
         UI.toggleSubmitButton();
         UI.toggleInput();
         UI.inputFocus();
+
+        // TODO: Capture error with context
+
         return;
     }
 
@@ -74,6 +77,9 @@ async function handleGuiPT() {
             UI.toggleInput();
             UI.inputFocus();
         }, waitTime);
+
+        // TODO: Capture error with context
+
         return;
     }
     requestCount++;
@@ -110,6 +116,17 @@ async function handleGuiPT() {
         UI.toggleSubmitButton();
         UI.toggleInput();
         UI.inputFocus();
+
+        // Capture error with context - TODO: settle on format and right context
+        Sentry.captureException(error, {contexts: {
+            // turnCount,
+            // inputLength: sanitizedInput.length,
+            // chatID,
+        }});
+        // Sentry.captureException(error, {
+        //     extra: extraInfo
+        // });
+
         return;
     }
 
