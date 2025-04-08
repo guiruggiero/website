@@ -1,31 +1,36 @@
 name: Code minification
-description: Minify code and push for deployment to GitHub Pages
 
 on:
   workflow_dispatch:
   push:
     branches: [live]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   minify-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install NodeJS
-        uses: actions/setup-node@main
+        uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       
       - name: Install CLI tools
         run: |
-          npm install -g html-minifier
-          npm install -g lightningcss-cli
-          npm install -g terser
-          npm install @sentry/cli
+          npm cache clean --force
+          npm install -g html-minifier@latest
+          npm install -g lightningcss-cli@latest
+          npm install -g terser@latest
+          npm install @sentry/cli@latest
 
       - name: Minify HTML with HTMLMinifier
         continue-on-error: true
@@ -38,9 +43,8 @@ jobs:
           find . -name "*.css" -exec lightningcss -m {} -o {} \;
           
       - name: Minify JavaScript with Terser
-        continue-on-error: true
         run: |
-          find . -name "*.js" -exec terser {} -o {} --compress --mangle --source-map \;
+          find . -name "*.js" -print0 | xargs -0 -I {} sh -c 'terser "$1" --compress --mangle --source-map "includeSources,filename=\"$1.map\",url=\"$1.map\"" -o "$1"' sh {}
 
       - name: Upload source maps to Sentry
         uses: getsentry/action-release@v3
@@ -61,4 +65,4 @@ jobs:
 
       - name: Purge Cloudflare cache for HTML/CSS/JavaScript only
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/695e9b8ac40b9d3c7274284cd5f4650f/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
