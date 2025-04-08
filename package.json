@@ -33,5 +33,8 @@
   "scripts": {
     "terser-minify": "find . -name '*.js' -print0 | xargs -0 -I {} sh -c 'terser \"$1\" --compress --mangle --source-map \"includeSources,filename=\\\"$1.map\\\",url=\\\"$1.map\\\"\" -o \"$1\"' sh {}",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org guiruggiero --project website ./modules && sentry-cli sourcemaps upload --org guiruggiero --project website ./modules"
+  },
+  "dependencies": {
+    "@sentry/cli": "^2.43.0"
   }
 }

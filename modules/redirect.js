@@ -1,14 +1,4 @@
-const instruction = document.querySelector(".instruction");
-const destination = document.querySelector(".destination");
-const redirect = document.querySelector(".redirect");
-
-document.addEventListener("DOMContentLoaded", () => {
-    destination.addEventListener("pointerup", () => {
-        setTimeout(() => {
-            redirect.style.opacity = "1";
-            redirect.style.pointerEvents = "auto";
-            instruction.style.opacity = "0.5";
-            destination.style.opacity = "0.5";
-        }, 500);
-    });
-});
+const instruction=document.querySelector(".instruction"),destination=document.querySelector(".destination"),redirect=document.querySelector(".redirect");document.addEventListener("DOMContentLoaded",(()=>{destination.addEventListener("pointerup",(()=>{setTimeout((()=>{redirect.style.opacity="1",redirect.style.pointerEvents="auto",instruction.style.opacity="0.5",destination.style.opacity="0.5"}),500)}))}));
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="222a3fa3-2a66-5897-a7d7-066eebfdb426")}catch(e){}}();
+//# sourceMappingURL=./modules/redirect.js.map
+//# debugId=222a3fa3-2a66-5897-a7d7-066eebfdb426

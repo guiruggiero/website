@@ -1,39 +1,4 @@
-// Sanitize potentially harmful characters
-export function sanitizeInput(input) {
-    return input
-        .replace(/[\s\t\r\n]+/g, " ") // Normalize whitespace
-        .trim() // Remove whitespace from both ends
-        .replace(/<[^>]+>/g, ""); // Remove HTML tags
-}
-
-// Assess guardrails
-export function validateInput(input) {
-    // Empty input
-    if (!input || input == " ") {
-        return {
-            assessment: "Empty",
-            errorMessage: "",
-        };
-    }
-
-    // Length limit
-    if (input.length > 200) {
-        return {
-            assessment: "Too long",
-            errorMessage: "⚠️ Would you mind shortening your message a bit, please?",
-        };
-    }
-
-    // Character set
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // Excludes @$%&/+
-        return {
-            assessment: "Forbidden characters",
-            errorMessage: "⚠️ Please use only letters, numbers, and common punctuation.",
-        };
-    }
-
-    return {
-        assessment: "OK",
-        errorMessage: "",
-    };
-}
+export function sanitizeInput(e){return e.replace(/[\s\t\r\n]+/g," ").trim().replace(/<[^>]+>/g,"")}export function validateInput(e){return e&&" "!=e?e.length>200?{assessment:"Too long",errorMessage:"⚠️ Would you mind shortening your message a bit, please?"}:/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(e)?{assessment:"OK",errorMessage:""}:{assessment:"Forbidden characters",errorMessage:"⚠️ Please use only letters, numbers, and common punctuation."}:{assessment:"Empty",errorMessage:""}}
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="cfd39cae-19f0-550b-bece-5c1440e4696b")}catch(e){}}();
+//# sourceMappingURL=./modules/validation.js.map
+//# debugId=cfd39cae-19f0-550b-bece-5c1440e4696b

@@ -1,31 +1,4 @@
-class CookieConsent {
-    constructor() {
-        this.cookieConsent = document.createElement("div");
-        this.cookieConsent.className = "cookie-consent";
-        this.cookieConsent.innerHTML = `
-            <p>This site uses butter cookies from Google to analyze traffic.</p>
-            <button>OK, got it! 🍪</button>
-        `;
-        
-        this.cookieConsent.querySelector("button").addEventListener("click", () => this.acceptCookies());
-        
-        document.body.appendChild(this.cookieConsent);
-        this.checkCookieConsent();
-    }
-
-    checkCookieConsent() {
-        const hasConsent = localStorage.getItem("cookieConsent");
-        if (!hasConsent) {
-            this.cookieConsent.classList.add("show");
-        }
-    }
-
-    acceptCookies() {
-        localStorage.setItem("cookieConsent", "true");
-        this.cookieConsent.classList.remove("show");
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    new CookieConsent();
-});
+class CookieConsent{constructor(){this.cookieConsent=document.createElement("div"),this.cookieConsent.className="cookie-consent",this.cookieConsent.innerHTML="\n            <p>This site uses butter cookies from Google to analyze traffic.</p>\n            <button>OK, got it! 🍪</button>\n        ",this.cookieConsent.querySelector("button").addEventListener("click",(()=>this.acceptCookies())),document.body.appendChild(this.cookieConsent),this.checkCookieConsent()}checkCookieConsent(){localStorage.getItem("cookieConsent")||this.cookieConsent.classList.add("show")}acceptCookies(){localStorage.setItem("cookieConsent","true"),this.cookieConsent.classList.remove("show")}}document.addEventListener("DOMContentLoaded",(()=>{new CookieConsent}));
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="b5ef5481-3ff7-561b-acba-58cf21be6468")}catch(e){}}();
+//# sourceMappingURL=./modules/cookie-banner.js.map
+//# debugId=b5ef5481-3ff7-561b-acba-58cf21be6468
