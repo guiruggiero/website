@@ -1,5 +1,8 @@
 name: Cache purge
 
+permissions:
+  contents: read
+
 on: workflow_dispatch
 
 concurrency:
