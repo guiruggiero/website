@@ -1,5 +1,8 @@
 name: Code minification
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
   push:
@@ -23,37 +26,22 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      
+
       - name: Install CLI tools
         run: |
-          npm cache clean --force
-          npm install -g html-minifier@latest
-          npm install -g lightningcss-cli@latest
-          npm install -g terser@latest
-          npm install @sentry/cli@latest
+          npm install -g html-minifier@latest lightningcss-cli@latest terser@latest
 
       - name: Minify HTML with HTMLMinifier
-        continue-on-error: true
         run: |
-          find . -name "*.html" -exec html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js \;
-          
+          find . -maxdepth 1 -name "*.html" -print0 | xargs -0 -P 4 -I {} html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js || exit 1
+
       - name: Minify CSS with Lightning CSS
-        continue-on-error: true
         run: |
-          find . -name "*.css" -exec lightningcss -m {} -o {} \;
-          
+          find ./styles -name "*.css" -print0 | xargs -0 -P 4 -I {} lightningcss -m {} -o {} || exit 1
+
       - name: Minify JavaScript with Terser
         run: |
-          find . -name "*.js" -print0 | xargs -0 -I {} sh -c 'terser "$1" --compress --mangle --source-map "includeSources,filename=\"$1.map\",url=\"$1.map\"" -o "$1"' sh {}
-
-      - name: Upload source maps to Sentry
-        uses: getsentry/action-release@v3
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: guiruggiero
-          SENTRY_PROJECT: website
-        with:
-          sourcemaps: ./modules
+          find ./modules -name "*.js" -print0 | xargs -0 -P 4 -I {} sh -c 'terser "$1" --compress --mangle -o "$1" || exit 1' sh {}
 
       - name: Push changes to "live-min" branch
         run: |
@@ -64,5 +52,9 @@ jobs:
           git push --force -u origin live:live-min
 
       - name: Purge Cloudflare cache for HTML/CSS/JavaScript only
+        env:
+          ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          EMAIL: ${{ secrets.EMAIL_GUI }}
+          AUTH_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_CACHE }}
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE_ID/purge_cache" -H "X-Auth-Email: ${{ SECRETS.EMAIL_GUI }}" -H "Authorization: Bearer ${{ SECRETS.CLOUDFLARE_PURGE_CACHE }}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache" -H "X-Auth-Email: ${EMAIL}" -H "Authorization: Bearer ${AUTH_TOKEN}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
