@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<meta charset="UTF-8">
+
+		<!-- Browser tags -->
+		<title>Gui Ruggiero - AI and Tech expert, Product leader</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
+		<meta name="theme-color" content="#1a1a1a">
+
 		<!-- Sentry -->
 		<script>
 			window.sentryOnLoad = function () {
@@ -21,19 +30,11 @@
 		<link rel="preconnect" href="https://cdn.jsdelivr.net">
 		<link rel="preconnect" href="https://miro.com">
 
-		<meta charset="UTF-8">
-
 		<!-- Stylesheets -->
 		<link rel="stylesheet" href="styles/embed.css">
 		<script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
 		<link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
-
-		<!-- Browser tags -->
-		<title>Gui Ruggiero - AI and Tech expert, Product leader</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="theme-color" content="#1a1a1a">
 
 		<!-- Favicons -->
 		<link rel="icon" type="image/x-icon" href="images/favicon.ico">
@@ -106,7 +107,7 @@
 				class="embed"
 				src="https://miro.com/app/live-embed/o9J_leJ97dk=/?embedId=286702970889"
 				frameborder="0"
-				allowfullscreen allow="fullscreen; clipboard-read; clipboard-write">
+				allow="fullscreen; clipboard-read; clipboard-write">
 				Loading...
 			</iframe>
 		</main>
@@ -116,6 +117,23 @@
 		</footer>
 
 		<!-- Script -->
-		<script src="modules/cookie-banner.js" defer></script>
+		<script>
+			// Load script dynamically
+			function loadScript(path, attributes) {
+				const script = document.createElement("script");
+				
+				// Apply all attributes
+				for (const [key, value] of Object.entries(attributes)) script[key] = value
+
+				// Prod uses minified version
+				if (!window.location.href.includes("ngrok")) script.src = path // Prod
+				else script.src = path.replace(".min.js", ".js") // Dev
+				
+				document.body.appendChild(script);
+			}
+
+			// Load script
+			loadScript("modules/cookie-banner.min.js", {defer: true});
+		</script>
 	</body>
 </html>

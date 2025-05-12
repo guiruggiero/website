@@ -52,9 +52,9 @@ jobs:
         with:
           sourcemaps: ./modules
 
-      - name: DDelete unminified JavaScript and source maps
+      - name: Delete unminified JavaScript
         run: |
-          find ./modules \( -name "*.map" -o \( -name "*.js" -not -name "*.min.js" \) \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
+          find ./modules \( -name "*.js" -not -name "*.min.js" \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
 
       - name: Push changes to "live-min" branch
         run: |
