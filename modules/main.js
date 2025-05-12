@@ -1,22 +1,3 @@
-// Import modules with fallback
-async function importWithFallback(path) {
-    if (!window.location.href.includes("ngrok")) return await import(path);
-    else return await import(path.replace(".min.js", ".js"));
-}
-
-// Dynamically import all modules
-let UI = await importWithFallback("./ui.min.js");
-let Validation = await importWithFallback("./validation.min.js");
-let Firebase = await importWithFallback("./firebase.min.js");
-const GuiPTModule = await importWithFallback("./guipt.min.js");
-let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
-
-// Initializations
-let turnCount = 0, messageCount = 0;
-let chatStart, chatID;
-let guiptResponse;
-let chatHistory = [], turnHistory;
-
 // Global error handler
 window.addEventListener("error", (event) => {
     Sentry.captureException(event.error, {contexts: {
@@ -30,10 +11,29 @@ window.addEventListener("error", (event) => {
 // Unhandled promise rejection handler
 window.addEventListener("unhandledrejection", (event) => {
     Sentry.captureException(event.reason, {contexts: {
-        status: "unhandled promise rejection",
+        status: "Unhandled promise rejection",
         name: event.reason.name || event.reason.constructor.name,
     }});
 });
+
+// Import module dynamically
+async function importDynamically(path) {
+    if (!window.location.href.includes("ngrok")) return await import(path);
+    else return await import(path.replace(".min.js", ".js"));
+}
+
+// Import modules
+let UI = await importDynamically("./ui.min.js");
+let Validation = await importDynamically("./validation.min.js");
+let Firebase = await importDynamically("./firebase.min.js");
+const GuiPTModule = await importDynamically("./guipt.min.js");
+let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
+
+// Initializations
+let turnCount = 0, messageCount = 0;
+let chatStart, chatID;
+let guiptResponse;
+let chatHistory = [], turnHistory;
 
 // Timeout error class
 class TimeoutError extends Error {
