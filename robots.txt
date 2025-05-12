@@ -9,7 +9,6 @@ Crawl-delay: 10
 
 # Unimportant folders
 Disallow: /.github/
-Disallow: /archive/
 
 # Sitemap location
 Sitemap: https://guiruggiero.com/sitemap.xml
