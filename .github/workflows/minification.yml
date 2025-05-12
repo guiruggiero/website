@@ -31,17 +31,30 @@ jobs:
         run: |
           npm install -g html-minifier@latest lightningcss-cli@latest terser@latest
 
-      - name: Minify HTML with HTMLMinifier
+      - name: Minify HTML
         run: |
           find . -maxdepth 1 -name "*.html" -print0 | xargs -0 -P 4 -I {} html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js || exit 1
 
-      - name: Minify CSS with Lightning CSS
+      - name: Minify CSS
         run: |
           find ./styles -name "*.css" -print0 | xargs -0 -P 4 -I {} lightningcss -m {} -o {} || exit 1
 
-      - name: Minify JavaScript with Terser
+      - name: Minify JavaScript and create source maps
         run: |
-          find ./modules -name "*.js" -print0 | xargs -0 -P 4 -I {} sh -c 'terser "$1" --compress --mangle -o "$1" || exit 1' sh {}
+          find ./modules -name "*.js" -print0 | xargs -0 -P 4 -I {} sh -c 'terser "$1" --compress --mangle --source-map "filename=\"${1%.js}.min.js.map\",url=\"${1%.js}.min.js.map\"" -o "${1%.js}.min.js" || exit 1' sh {}
+
+      - name: Upload source to Sentry
+        uses: getsentry/action-release@v3
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: guiruggiero
+          SENTRY_PROJECT: website
+        with:
+          sourcemaps: ./modules
+
+      - name: DDelete unminified JavaScript and source maps
+        run: |
+          find ./modules \( -name "*.map" -o \( -name "*.js" -not -name "*.min.js" \) \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
 
       - name: Push changes to "live-min" branch
         run: |

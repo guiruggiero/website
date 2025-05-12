@@ -5,14 +5,14 @@
   "version": "2.0",
   "main": "modules/main.js",
   "manualUpdateDependencies": {
-    "firebase": "^11.6.0",
-    "firebase-firestore-lite": "^11.6.0"
+    "firebase": "^11.7.1",
+    "firebase-firestore-lite": "^11.7.1"
   },
   "autoUpdatedDependencies": {
-    "axios": "^1.8.4",
-    "iconify-icon": "^2.3.0",
+    "axios": "^1.9.0",
+    "iconify-icon": "^3.0.0",
     "typed.js": "^2.1.0",
-    "@sentry/node": "^9.11.0"
+    "@sentry/node": "^9.17.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
@@ -24,14 +24,8 @@
     "globals": "^16.1.0"
   },
   "ghActionsDependencies": {
-    "@sentry/cli": "^2.43.0",
-    "cwebp-bin": "^8.0.0",
     "html-minifier": "^4.0.0",
-    "lightningcss-cli": "^1.29.3",
+    "lightningcss-cli": "^1.30.0",
     "terser": "^5.39.0"
-  },
-  "scripts": {
-    "terser-minify": "find . -name '*.js' -print0 | xargs -0 -I {} sh -c 'terser \"$1\" --compress --mangle --source-map \"includeSources,filename=\\\"$1.map\\\",url=\\\"$1.map\\\"\" -o \"$1\"' sh {}",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org guiruggiero --project website ./modules && sentry-cli sourcemaps upload --org guiruggiero --project website ./modules"
   }
 }
