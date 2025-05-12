@@ -17,16 +17,16 @@ window.addEventListener("unhandledrejection", (event) => {
 });
 
 // Import module dynamically
-async function importDynamically(path) {
+async function importModule(path) {
     if (!window.location.href.includes("ngrok")) return await import(path);
     else return await import(path.replace(".min.js", ".js"));
 }
 
 // Import modules
-let UI = await importDynamically("./ui.min.js");
-let Validation = await importDynamically("./validation.min.js");
-let Firebase = await importDynamically("./firebase.min.js");
-const GuiPTModule = await importDynamically("./guipt.min.js");
+let UI = await importModule("./ui.min.js");
+let Validation = await importModule("./validation.min.js");
+let Firebase = await importModule("./firebase.min.js");
+const GuiPTModule = await importModule("./guipt.min.js");
 let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
 
 // Initializations
@@ -239,6 +239,6 @@ if (document.readyState === "loading") {
     // Page is still loading
     document.addEventListener("DOMContentLoaded", start);
 } else {
-    // DOMContentLoaded already fired, or page is "interactive" or "complete" - safe to start
+    // DOMContentLoaded already fired, safe to start
     start();
 }
