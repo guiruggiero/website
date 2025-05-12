@@ -1,5 +1,6 @@
 class CookieConsent {
     constructor() {
+        // Create banner
         this.cookieConsent = document.createElement("div");
         this.cookieConsent.className = "cookie-consent";
         this.cookieConsent.innerHTML = `
@@ -7,25 +8,20 @@ class CookieConsent {
             <button>OK, got it! 🍪</button>
         `;
         
-        this.cookieConsent.querySelector("button").addEventListener("click", () => this.acceptCookies());
+        // Dismiss banner on button press and save consent
+        this.cookieConsent.querySelector("button").addEventListener("pointerup", () => {
+            localStorage.setItem("cookieConsent", "true");
+            this.cookieConsent.classList.remove("show");
+        });
         
+        // Show banner
         document.body.appendChild(this.cookieConsent);
-        this.checkCookieConsent();
-    }
-
-    checkCookieConsent() {
-        const hasConsent = localStorage.getItem("cookieConsent");
-        if (!hasConsent) {
-            this.cookieConsent.classList.add("show");
-        }
-    }
-
-    acceptCookies() {
-        localStorage.setItem("cookieConsent", "true");
-        this.cookieConsent.classList.remove("show");
+        this.cookieConsent.classList.add("show");
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    new CookieConsent();
-});
+// Check for consent
+const hasConsent = localStorage.getItem("cookieConsent");
+if (!hasConsent) {
+    new CookieConsent(); // New banner if no consent given
+}
