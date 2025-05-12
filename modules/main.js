@@ -1,7 +1,15 @@
-import * as UI from "./ui.js";
-import * as Validation from "./validation.js";
-import * as Firebase from "./firebase.js";
-import {callGuiPT} from "./guipt.js";
+// Import modules with fallback
+async function importWithFallback(path) {
+    if (!window.location.href.includes("ngrok")) return await import(path);
+    else return await import(path.replace(".min.js", ".js"));
+}
+
+// Dynamically import all modules
+let UI = await importWithFallback("./ui.min.js");
+let Validation = await importWithFallback("./validation.min.js");
+let Firebase = await importWithFallback("./firebase.min.js");
+const GuiPTModule = await importWithFallback("./guipt.min.js");
+let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
 
 // Initializations
 let turnCount = 0, messageCount = 0;
@@ -205,8 +213,8 @@ function debounce(func, wait) {
     };
 }
 
-// Event handlers when page is done loading
-document.addEventListener("DOMContentLoaded", () => {
+// Run when page is done loading
+function start() {
     // Initial UI setup
     UI.inputPlaceholderAndFocus();
 
@@ -224,4 +232,13 @@ document.addEventListener("DOMContentLoaded", () => {
     UI.elements.input.addEventListener("keyup", debounce((event) => {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
-});
+}
+
+// Check if page is already loaded
+if (document.readyState === "loading") {
+    // Page is still loading
+    document.addEventListener("DOMContentLoaded", start);
+} else {
+    // DOMContentLoaded already fired, or page is "interactive" or "complete" - safe to start
+    start();
+}
