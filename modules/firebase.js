@@ -32,8 +32,8 @@ export async function createLog(chatStart, turnHistory) {
         Sentry.captureException(error, {contexts: {
             logDetails: {
                 operation: "create",
-                turnHistory,
             },
+            turnHistory,
         }});
         
         // Needs to return something to continue execution
@@ -58,8 +58,8 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
                 operation: "update",
                 chatID,
                 turnNumber: turnCount,
-                turnHistory,
             },
+            turnHistory,
         }});
     }
 }

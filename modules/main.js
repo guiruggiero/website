@@ -172,9 +172,9 @@ async function handleGuiPT() {
                 userInput: input,
                 sanitizedInput,
                 chatID,
-                chatHistory,
                 axiosContext: error.axiosContext || "No axiosContext present",
             },
+            turnHistory,
         }});
 
         return;
