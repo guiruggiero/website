@@ -1,18 +1,23 @@
 // Global error handler
 window.addEventListener("error", (event) => {
     Sentry.captureException(event.error, {contexts: {
-        file: event.filename,
-        line: event.lineno,
-        column: event.colno,
-        errorMessage: event.error.message,
+        globalError: {
+            file: event.filename,
+            line: event.lineno,
+            column: event.colno,
+            errorMessage: event.error.message,
+        },
     }});
 });
 
 // Unhandled promise rejection handler
 window.addEventListener("unhandledrejection", (event) => {
     Sentry.captureException(event.reason, {contexts: {
-        status: "Unhandled promise rejection",
-        name: event.reason.name || event.reason.constructor.name,
+        unhandledPromise: {
+            status: "Unhandled promise rejection",
+            name: event.reason.name || event.reason.constructor.name,
+            reasonDetails: String(event.reason),
+        },
     }});
 });
 
@@ -82,13 +87,14 @@ async function handleGuiPT() {
 
         // Capture error with context
         Sentry.captureException(new Error("Failed validation"), {contexts: {
-            file: "main.js",
-            turnCount: turnCount + 1,
-            userInput: input,
-            userInputLength: input.length,
-            sanitizedInput,
-            sanitizedInputLength: sanitizedInput.length,
-            validationResult,
+            turnDetails: {
+                turnNumber: turnCount + 1,
+                userInput: input,
+                userInputLength: input.length,
+                sanitizedInput,
+                sanitizedInputLength: sanitizedInput.length,
+                validationResult,
+            },
         }});
 
         return;
@@ -115,11 +121,12 @@ async function handleGuiPT() {
 
         // Capture error with context
         Sentry.captureException(new Error("Exceeded rate limit"), {contexts: {
-            file: "main.js",
-            turnCount: turnCount + 1,
-            userInput: input,
-            sanitizedInput,
-            requestCount,
+            sessionDetails: {
+                requestCount,
+                turnCount: turnCount + 1,
+                lastUserInput: input,
+                lastSanitizedInput: sanitizedInput,
+            },
         }});
 
         return;
@@ -159,13 +166,15 @@ async function handleGuiPT() {
 
         // Capture error with context
         Sentry.captureException(error, {contexts: {
-            file: error.axiosContext ? "guipt.js" : "main.js",
-            turnCount: turnCount + 1,
-            userInput: input,
-            sanitizedInput,
-            chatID,
-            chatHistory,
-            axiosContext: error.axiosContext || {},
+            turnDetails: {
+                file: error.axiosContext ? "guipt.js" : "main.js",
+                turnNumber: turnCount + 1,
+                userInput: input,
+                sanitizedInput,
+                chatID,
+                chatHistory,
+                axiosContext: error.axiosContext || "No axiosContext present",
+            },
         }});
 
         return;
