@@ -53,6 +53,10 @@ jobs:
         with:
           sourcemaps: ./modules
 
+      - name: Delete unminified JavaScript
+        run: |
+          find ./modules \( -name "*.js" -not -name "*.min.js" \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
+
       - name: Push changes to "live-min" branch
         run: |
           git config user.name "github-actions[bot]"
@@ -61,10 +65,10 @@ jobs:
           git commit -m "Automated minification and deployment of ${{ github.sha }}"
           git push --force -u origin live:live-min
 
-      - name: Purge Cloudflare cache for HTML/CSS/JavaScript only
+      - name: Purge Cloudflare cache
         env:
           ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           EMAIL: ${{ secrets.EMAIL_GUI }}
           AUTH_TOKEN: ${{ secrets.CLOUDFLARE_PURGE_CACHE }}
         run: |
-          curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache" -H "X-Auth-Email: ${EMAIL}" -H "Authorization: Bearer ${AUTH_TOKEN}" -H "Content-Type: application/json" --data '{"files": ["https://guiruggiero.com/*.html", "https://guiruggiero.com/styles/*", "https://guiruggiero.com/modules/*"]}'
+          curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache" -H "X-Auth-Email: ${EMAIL}" -H "Authorization: Bearer ${AUTH_TOKEN}" -H "Content-Type: application/json" --data '{"purge_everything": true}'
