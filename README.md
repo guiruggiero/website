@@ -88,7 +88,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - `http-server` - local development server
 - `ngrok` - local development tunneling
 - `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
-- `@sentry/browser` - Sentry integration
+- `@sentry/node` and `getsentry/action-release` - Sentry integration
 
 ---
 
