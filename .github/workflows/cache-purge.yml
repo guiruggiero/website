@@ -13,7 +13,7 @@ jobs:
   purge-cloudflare-cache:
     runs-on: ubuntu-latest
     steps:
-      - name: Purge all Cloudflare cache
+      - name: Purge Cloudflare cache
         env:
           ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
           EMAIL: ${{ secrets.EMAIL_GUI }}
