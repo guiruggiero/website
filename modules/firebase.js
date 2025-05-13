@@ -30,10 +30,10 @@ export async function createLog(chatStart, turnHistory) {
     } catch (error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
-            file: "firebase.js",
-            operation: "create",
-            turnCount: 1,
-            turnHistory,
+            logDetails: {
+                operation: "create",
+                turnHistory,
+            },
         }});
         
         // Needs to return something to continue execution
@@ -54,11 +54,12 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
     } catch (error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
-            file: "firebase.js",
-            operation: "update",
-            chatID,
-            turnCount,
-            turnHistory,
+            logDetails: {
+                operation: "update",
+                chatID,
+                turnNumber: turnCount,
+                turnHistory,
+            },
         }});
     }
 }
