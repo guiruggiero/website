@@ -53,6 +53,10 @@ jobs:
         with:
           sourcemaps: ./modules
 
+      - name: Delete unminified JavaScript
+        run: |
+          find ./modules \( -name "*.js" -not -name "*.min.js" \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
+
       - name: Push changes to "live-min" branch
         run: |
           git config user.name "github-actions[bot]"
