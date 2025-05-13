@@ -61,7 +61,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Firebase Firestore - chat logging
 - Google Analytics - traffic tracking
 - Google Tag Manager - analytics management
-- Sentry - error tracking and monitoring for debugging
+- Sentry - error tracking and monitoring
 
 ### External services
 - Cal.com - meeting scheduling

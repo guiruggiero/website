@@ -6,6 +6,7 @@ import htmlParser from "@html-eslint/parser";
 import eslintPluginYml from "eslint-plugin-yml";
 
 /** @type {import("eslint").Linter.Config[]} */
+
 export default [
   // Base JavaScript configuration
   js.configs.recommended,
@@ -68,6 +69,7 @@ export default [
   // YAML configuration
   ...eslintPluginYml.configs["flat/standard"],
   {
+    files: ["**/*.yml"],
     rules: {
       "yml/no-empty-mapping-value": "warn",
     },
