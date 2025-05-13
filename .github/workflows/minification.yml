@@ -41,7 +41,8 @@ jobs:
 
       - name: Minify JavaScript and create source maps
         run: |
-          find ./modules -name "*.js" -print0 | xargs -0 -P 4 -I {} sh -c 'terser "$1" --module --compress --mangle --source-map "filename=\"$(basename "$1" .js).min.js.map\",url=\"$(basename "$1" .js).min.js.map\"" -o "${1%.js}.min.js" || exit 1' sh {}
+          cd modules/
+          find . -name "*.js" -print0 | xargs -0 -P 4 -I {} sh -c 'terser "$1" --module --compress --mangle --source-map "filename=\"$(basename "$1" .js).min.js.map\",url=\"$(basename "$1" .js).min.js.map\",root=\"https://guiruggiero.com/modules\"" -o "${1%.js}.min.js" || exit 1' sh {}
 
       - name: Upload source to Sentry
         uses: getsentry/action-release@v3
