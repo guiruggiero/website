@@ -27,5 +27,10 @@
     "html-minifier": "^4.0.0",
     "lightningcss-cli": "^1.30.0",
     "terser": "^5.39.2"
+  },
+  "scripts": {
+    "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
+    "function": "firebase deploy --only functions",
+    "ngrok": "ngrok http 8081 --domain=probable-firmly-gobbler.ngrok-free.app"
   }
 }
