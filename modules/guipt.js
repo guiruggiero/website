@@ -1,7 +1,7 @@
 import "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js";
 
 // Initialization
-const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
+const cloudFunctionURL = "https://guipt.guiruggiero.com/";
 
 // Axios instance with retry configuration
 const axiosInstance = axios.create({
