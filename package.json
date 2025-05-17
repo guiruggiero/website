@@ -5,8 +5,8 @@
   "version": "2.0",
   "main": "modules/main.js",
   "manualUpdateDependencies": {
-    "firebase": "^11.7.1",
-    "firebase-firestore-lite": "^11.7.1"
+    "firebase": "^11.7.3",
+    "firebase-firestore-lite": "^11.7.3"
   },
   "autoUpdatedDependencies": {
     "axios": "^1.9.0",
@@ -26,6 +26,6 @@
   "ghActionsDependencies": {
     "html-minifier": "^4.0.0",
     "lightningcss-cli": "^1.30.0",
-    "terser": "^5.39.0"
+    "terser": "^5.39.2"
   }
 }
