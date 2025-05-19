@@ -33,6 +33,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Automated minification of code and cache purging at build time
 - Safe input sanitization and restrictions
 - Automatic API call retries
+- Code vulnerability and quality scanning
 
 ### Utilities
 - Branded redirects to key online profiles or services
@@ -58,6 +59,8 @@ The rest of the site is my professional highlight reel and a collection of utili
 ### Development
 - GitHub Actions - automated deployments
 - GitHub Dependabot - dependency management
+- Snyk - vulnerability scanning
+- SonarQube - code quality and security
 
 ### Analytics
 - Firebase Firestore - chat logging
