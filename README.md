@@ -1,4 +1,6 @@
 [![CodeQL](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/github-code-scanning/codeql)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=guiruggiero_website&metric=bugs)](https://sonarcloud.io/summary/new_code?id=guiruggiero_website)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=guiruggiero_website&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=guiruggiero_website)
 [![Dependabot](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/guiruggiero/website/actions/workflows/dependabot/dependabot-updates)
 [![Code minification](https://github.com/guiruggiero/website/actions/workflows/minification.yml/badge.svg?branch=live)](https://github.com/guiruggiero/website/actions/workflows/minification.yml)
 [![Deployment](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment/badge.svg?branch=live-min)](https://github.com/guiruggiero/website/actions/workflows/pages/pages-build-deployment)
