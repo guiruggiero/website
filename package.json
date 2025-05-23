@@ -30,6 +30,6 @@
   },
   "scripts": {
     "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
-    "ngrok": "ngrok http 8081 --domain=probable-firmly-gobbler.ngrok-free.app"
+    "tunnel": "lt --port 8081 --subdomain ngrok --print-requests"
   }
 }
