@@ -1,9 +1,9 @@
 // Sanitize potentially harmful characters
 export function sanitizeInput(input) {
     return input
-        .replace(/[\s\t\r\n]+/g, " ") // Normalize whitespace
+        .replace(/\s+/g, " ") // Normalize whitespace
         .trim() // Remove whitespace from both ends
-        .replace(/<[^>]+>/g, ""); // Remove HTML tags
+        .replace(/<[^>]*?>/g, ""); // Remove HTML tags
 }
 
 // Assess guardrails

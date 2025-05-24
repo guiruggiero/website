@@ -8,6 +8,10 @@ main {
         margin: 0 0 1.5em;
     }
 
+    .instruction-agendado {
+        margin: 4em 0 1.5em;
+    }
+
     .destination {
         font-size: 70px;
         transition: transform 0.2s ease;
