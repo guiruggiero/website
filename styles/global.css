@@ -1,8 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 
+:root {
+    --primary-bg-color: #1a1a1a;
+    --primary-text-color: #ffffffd9;
+    --secondary-bg-color: #262626; /* For chat input, etc. */
+    --header-footer-bg-color: #1a1a1a;
+    --footer-text-color: #666666;
+    --accent-color: #2563eb;
+    --icon-color: #ffffffd9;
+    --logo-filter: none;
+}
+
+html.light-theme {
+    --primary-bg-color: #f4f4f4;
+    --primary-text-color: #212121;
+    --secondary-bg-color: #eeeeee;
+    --header-footer-bg-color: #f4f4f4;
+    --footer-text-color: #757575;
+    --accent-color: #1976D2;
+    --icon-color: #212121;
+    --logo-filter: none;
+}
+
 * {
     font-family: "Poppins", sans-serif !important;
-    color: #ffffffd9;
+    color: var(--primary-text-color);
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -12,7 +34,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100dvh;
-    background-color: #1a1a1a;
+    background-color: var(--primary-bg-color);
 }
 
     header {
@@ -23,7 +45,7 @@ body {
         left: 0;
         right: 0;
         z-index: 20;
-        background-color: #1a1a1a;
+        background-color: var(--header-footer-bg-color);
     }
 
         .header-container {
@@ -66,7 +88,7 @@ body {
                 }
 
                     #social-links iconify-icon:hover {
-                        color: #2563eb;
+                        color: var(--accent-color);
                     }
 
     main {
@@ -86,9 +108,34 @@ body {
         margin: 0 auto;
         display: flex;
         align-items: center;
-        color: #666666;
+        color: var(--footer-text-color);
         text-align: center;
         justify-content: center;
         font-size: 0.9em;
         padding: 15px 0;
     }
+
+/* Theme Toggle Button Styles */
+#theme-toggle {
+    background: transparent;
+    border: none;
+    color: var(--icon-color); /* Icon color via text color inheritance */
+    cursor: pointer;
+    padding: 0; /* Remove default button padding */
+    margin-left: 10px; /* Space it from social links */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#theme-toggle iconify-icon {
+    font-size: 25px; /* Match social icons */
+    display: flex; /* Ensure icon itself is centered if it has internal padding */
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease; /* Smooth transition for hover */
+}
+
+#theme-toggle:hover iconify-icon {
+    color: var(--accent-color);
+}

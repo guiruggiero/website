@@ -58,8 +58,9 @@ main {
             font-size: 30px;
             font-weight: bold;
             transition: all 0.3s ease;
+            color: var(--accent-color);
         }
 
         .redirect a:hover {
-            color: #2563eb;
+            color: var(--accent-color); /* Consider a different effect if base is already accent */
         }

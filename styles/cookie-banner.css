@@ -3,10 +3,10 @@
     position: fixed;
     bottom: 50px;
     right: 20px;
-    background-color: white;
+    background-color: var(--secondary-bg-color);
     padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px #ffffff66;
+    box-shadow: 0 2px 5px var(--primary-text-color); /* Original: #ffffff66. Alpha lost, color adapts. */
     display: none;
     max-width: 235px;
     z-index: 9999;
@@ -21,12 +21,13 @@
     }
 
     .cookie-consent p {
-        color: #262626;
+        color: var(--primary-text-color);
         margin: 0;
     }
 
     .cookie-consent button {
-        background-color: #2563eb;
+        background-color: var(--accent-color);
+        color: var(--primary-text-color); /* Assuming this provides good contrast on accent color */
         border: none;
         padding: 8px 12px;
         border-radius: 8px;
@@ -36,5 +37,6 @@
     }
 
         .cookie-consent button:hover {
-            background-color: #1d4ed8;
+            background-color: var(--accent-color); /* Original: #1d4ed8 (darker blue) */
+            opacity: 0.85; /* Simulating darker shade with opacity */
         }
