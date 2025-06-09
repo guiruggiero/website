@@ -27,21 +27,6 @@ async function importModule(path) {
     else return await import(path.replace(".min.js", ".js"));
 }
 
-// Import Theme Toggle module first to apply theme immediately
-let ThemeToggle;
-try {
-    ThemeToggle = await importModule("./theme-toggle.min.js");
-    if (ThemeToggle && typeof ThemeToggle.initThemeToggle === 'function') {
-        ThemeToggle.initThemeToggle();
-    } else {
-        console.error("ThemeToggle module loaded but initThemeToggle function not found.");
-    }
-} catch (error) {
-    console.error("Error initializing ThemeToggle:", error);
-    // Optionally, send to Sentry if configured here
-    // Sentry.captureException(error, { level: "error", extra: { module: "ThemeToggle" } });
-}
-
 // Import modules
 let UI = await importModule("./ui.min.js");
 let Validation = await importModule("./validation.min.js");

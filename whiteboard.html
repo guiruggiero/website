@@ -9,22 +9,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-
-		<script>
-		  (function() {
-			let preferredTheme = localStorage.getItem('themePreference') || 'dark';
-			let metaTag = document.querySelector('meta[name="theme-color"]');
-			// Ensure class is applied to <html> element (document.documentElement)
-			if (preferredTheme === 'light') {
-			  document.documentElement.classList.add('light-theme');
-			  if (metaTag) metaTag.setAttribute('content', '#f4f4f4');
-			} else {
-			  // Explicitly remove if 'dark' or no preference, to handle cases where it might be wrongly set
-			  document.documentElement.classList.remove('light-theme');
-			  if (metaTag) metaTag.setAttribute('content', '#1a1a1a');
-			}
-		  })();
-		</script>
+		<script src="modules/theme-toggle.js"></script>
 
 		<!-- Sentry -->
 		<script>
@@ -152,23 +137,5 @@
 			// Load script
 			loadScript("modules/cookie-banner.min.js", {type: "module", defer: true});
 		</script>
-    <script type="module">
-      // Dynamically construct path for theme-toggle.js (or .min.js)
-      let themeTogglePath = './modules/theme-toggle.js';
-      if (!window.location.href.includes("ngrok")) {
-        themeTogglePath = './modules/theme-toggle.min.js';
-      }
-
-      // Import and initialize
-      import(themeTogglePath)
-        .then(module => {
-          if (module.initThemeToggle) {
-            module.initThemeToggle();
-          } else {
-            console.error('Error: initThemeToggle function not found in theme-toggle module.');
-          }
-        })
-        .catch(err => console.error('Failed to load theme-toggle module:', err));
-    </script>
 	</body>
 </html>

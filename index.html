@@ -9,22 +9,7 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-
-		<script>
-		  (function() {
-			let preferredTheme = localStorage.getItem('themePreference') || 'dark';
-			let metaTag = document.querySelector('meta[name="theme-color"]');
-			// Ensure class is applied to <html> element (document.documentElement)
-			if (preferredTheme === 'light') {
-			  document.documentElement.classList.add('light-theme');
-			  if (metaTag) metaTag.setAttribute('content', '#f4f4f4');
-			} else {
-			  // Explicitly remove if 'dark' or no preference, to handle cases where it might be wrongly set
-			  document.documentElement.classList.remove('light-theme');
-			  if (metaTag) metaTag.setAttribute('content', '#1a1a1a');
-			}
-		  })();
-		</script>
+		<script src="modules/theme-toggle.js"></script>
 
 		<!-- Sentry -->
 		<script>
