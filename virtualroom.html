@@ -118,22 +118,9 @@
 
 		<!-- Scripts -->
 		<script>
-			// This script assumes getScriptPath is available from modules/utils.js, loaded in the <head>.
-			const scriptsToLoad = [
-				{ name: 'redirect', attributes: { type: 'module', defer: true } },
-				{ name: 'cookie-banner', attributes: { type: 'module', defer: true } }
-			];
-
-			scriptsToLoad.forEach(scriptConfig => {
-				const scriptEl = document.createElement('script');
-				scriptEl.src = getScriptPath(scriptConfig.name);
-				if (scriptConfig.attributes) {
-					for (const [key, value] of Object.entries(scriptConfig.attributes)) {
-						scriptEl[key] = value;
-					}
-				}
-				document.body.appendChild(scriptEl);
-			});
+			// Assumes getScriptPath is available from modules/utils.js loaded in <head>
+			document.write(`<script src="${getScriptPath('redirect')}" type="module" defer><\/script>`);
+			document.write(`<script src="${getScriptPath('cookie-banner')}" type="module" defer><\/script>`);
 		</script>
 	</body>
 </html>
