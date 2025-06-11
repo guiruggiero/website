@@ -9,7 +9,8 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-		<script src="modules/theme-toggle.js"></script>
+		<script src="modules/utils.js"></script>
+		<script>document.write(`<script src="${getScriptPath('theme-toggle')}"><\/script>`)</script>
 
 		<!-- Sentry -->
 		<script>
@@ -124,22 +125,21 @@
 
 		<!-- Scripts -->
 		<script>
-			// Load script dynamically
-			function loadScript(path, attributes) {
-				const script = document.createElement("script");
-				
-				// Apply all attributes
-				for (const [key, value] of Object.entries(attributes)) script[key] = value
+			// This script assumes getScriptPath is available from modules/utils.js, loaded in the <head>.
+			const scriptsToLoad = [
+				{ name: 'cookie-banner', attributes: { type: 'module', defer: true } }
+			];
 
-				// Prod uses minified version
-				if (!window.location.href.includes("ngrok")) script.src = path // Prod
-				else script.src = path.replace(".min.js", ".js") // Dev
-				
-				document.body.appendChild(script);
-			}
-
-			// Load script
-			loadScript("modules/cookie-banner.min.js", {type: "module", defer: true});
+			scriptsToLoad.forEach(scriptConfig => {
+				const scriptEl = document.createElement('script');
+				scriptEl.src = getScriptPath(scriptConfig.name);
+				if (scriptConfig.attributes) {
+					for (const [key, value] of Object.entries(scriptConfig.attributes)) {
+						scriptEl[key] = value;
+					}
+				}
+				document.body.appendChild(scriptEl);
+			});
 		</script>
 	</body>
 </html>
