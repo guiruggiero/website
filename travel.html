@@ -9,8 +9,13 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-		<script src="modules/utils.js"></script>
-		<script>document.write(`<script src="${getScriptPath('theme-toggle')}"><\/script>`)</script>
+		<script>
+			function getScriptPath(baseName) {
+				if (window.location.href.includes("ngrok")) return `modules/${baseName}.js`;
+				else return `modules/${baseName}.min.js`;
+			};
+		</script>
+		<script>document.write(`<script src="${getScriptPath("theme-toggle")}"><\/script>`)</script>
 
 		<!-- Sentry -->
 		<script>
@@ -118,9 +123,8 @@
 
 		<!-- Scripts -->
 		<script>
-			// Assumes getScriptPath is available from modules/utils.js loaded in <head>
-			document.write(`<script src="${getScriptPath('redirect')}" type="module" defer><\/script>`);
-			document.write(`<script src="${getScriptPath('cookie-banner')}" type="module" defer><\/script>`);
+			document.write(`<script src="${getScriptPath("redirect")}" type="module" defer><\/script>`);
+			document.write(`<script src="${getScriptPath("cookie-banner")}" type="module" defer><\/script>`);
 		</script>
 	</body>
 </html>
