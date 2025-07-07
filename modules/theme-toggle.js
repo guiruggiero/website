@@ -1,67 +1,88 @@
-// modules/theme-toggle.js
-(function() {
-    // --- Part 1: Immediate Theme Application ---
-    const preferredTheme = localStorage.getItem('themePreference') || 'dark';
-    const metaTag = document.querySelector('meta[name="theme-color"]');
-    const lightThemeColor = '#f4f4f4'; // Value for light theme's --header-footer-bg-color
-    const darkThemeColor = '#1a1a1a';  // Value for dark theme's --header-footer-bg-color
+let preferredTheme = localStorage.getItem("themePreference") || "dark";
+const metaTag = document.querySelector("meta[name='theme-color']");
+const darkThemeColor = "#1a1a1a"; // --primary-bg-color
+const lightThemeColor = "#f4f4f4"; // --primary-bg-color
 
-    // Apply theme class to <html> and update meta tag
-    if (preferredTheme === 'light') {
-        document.documentElement.classList.add('light-theme');
-        if (metaTag) {
-            metaTag.setAttribute('content', lightThemeColor);
-        }
-    } else {
-        document.documentElement.classList.remove('light-theme');
-        if (metaTag) {
-            metaTag.setAttribute('content', darkThemeColor);
+// Set initial theme based on saved preference
+if (preferredTheme === "light") {
+    document.documentElement.classList.add("light-theme");
+    metaTag.setAttribute("content", lightThemeColor);
+}
+
+// Update icons and ARIA label
+function updateIcons(theme) {
+    const GRlogo = document.querySelector("header picture");
+    const toggleButton = document.getElementById("theme-toggle");
+    
+    if (GRlogo && toggleButton) {
+        const GRlogoSource = GRlogo.querySelector("source");
+        const GRlogoImg = GRlogo.querySelector("img");
+        
+        if (theme === "light") {
+            if (GRlogoSource && GRlogoImg) {
+                GRlogoSource.setAttribute("srcset", "images/gr-logo-dark.webp");
+                GRlogoImg.setAttribute("src", "images/gr-logo-dark.png");
+            }
+            if (toggleButton) {
+                toggleButton.innerHTML = "<iconify-icon icon='ph:moon-bold'></iconify-icon>";
+                toggleButton.setAttribute("aria-label", "Switch to dark theme");
+            }
+        } else {
+            if (GRlogoSource && GRlogoImg) {
+                GRlogoSource.setAttribute("srcset", "images/gr-logo-light.webp");
+                GRlogoImg.setAttribute("src", "images/gr-logo-light.png");
+            }
+            if (toggleButton) {
+                toggleButton.innerHTML = "<iconify-icon icon='ph:sun-bold'></iconify-icon>";
+                toggleButton.setAttribute("aria-label", "Switch to light theme");
+            }
         }
     }
+}
 
-    // --- Part 2: Event Listener Setup (after DOM is loaded) ---
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButton = document.getElementById('theme-toggle');
-        // The metaTag is already queried and available from the outer scope.
-        // Re-querying lightThemeColor and darkThemeColor is not necessary as they are constants.
-
-        if (toggleButton) {
-            // Function to update button icon and ARIA label based on current theme
-            function updateToggleButtonUI(isLightTheme) {
-                if (isLightTheme) {
-                    toggleButton.innerHTML = '<iconify-icon icon="ph:moon-bold"></iconify-icon>';
-                    toggleButton.setAttribute('aria-label', 'Switch to dark theme');
-                } else {
-                    toggleButton.innerHTML = '<iconify-icon icon="ph:sun-bold"></iconify-icon>';
-                    toggleButton.setAttribute('aria-label', 'Switch to light theme');
-                }
+// Update icons immediately if light theme is preferred
+if (preferredTheme === "light") {
+    // Try to update immediately if elements exist
+    updateIcons(preferredTheme);
+    
+    // Set up an observer in case elements aren't ready yet
+    if (!document.querySelector("header picture")) {
+        const observer = new MutationObserver(() => {
+            if (document.querySelector("header picture")) {
+                updateIcons(preferredTheme);
+                observer.disconnect();
             }
+        });
+        observer.observe(document.documentElement, {childList: true, subtree: true});
+    }
+}
 
-            // Set initial state of the toggle button's UI
-            updateToggleButtonUI(document.documentElement.classList.contains('light-theme'));
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleButton = document.getElementById("theme-toggle");
 
-            // Event listener for the toggle button
-            toggleButton.addEventListener('click', function() {
-                const isNowLight = document.documentElement.classList.toggle('light-theme');
+    // Event listener for the toggle button
+    toggleButton.addEventListener("pointerup", () => {
 
-                // Update meta tag content based on the new theme
-                if (isNowLight) {
-                    if (metaTag) {
-                        metaTag.setAttribute('content', lightThemeColor);
-                    }
-                } else {
-                    if (metaTag) {
-                        metaTag.setAttribute('content', darkThemeColor);
-                    }
-                }
+        // Toggle the theme
+        if (document.documentElement.classList.toggle("light-theme")) {
+            preferredTheme = "light";
 
-                // Update the button's appearance
-                updateToggleButtonUI(isNowLight);
+            // Update theme and icons
+            metaTag.setAttribute("content", lightThemeColor);
+            updateIcons("light");
 
-                // Save the new theme preference
-                localStorage.setItem('themePreference', isNowLight ? 'light' : 'dark');
-            });
+            // Save the new theme preference
+            localStorage.setItem("themePreference", "light");
+
+        } else {
+            preferredTheme = "dark";
+
+            // Update theme and icons
+            metaTag.setAttribute("content", darkThemeColor);
+            updateIcons("dark");
+
+            // Save the new theme preference
+            localStorage.setItem("themePreference", "dark");
         }
-        // If toggleButton is not found, no error is thrown, but functionality won't be available.
     });
-})();
+});
