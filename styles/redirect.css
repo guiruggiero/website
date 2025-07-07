@@ -60,6 +60,6 @@ main {
         }
 
             .redirect a:hover {
-                color: var(--accent-color); /* Consider a different effect if base is already accent */
+                color: var(--accent-color);
                 transition: color 0.3s ease;
             }

@@ -29,11 +29,10 @@ main {
             .contact a {
                 text-decoration: none;
                 font-weight: bold;
-                color: var(--accent-color);
             }
 
                 .contact a:hover {
-                    color: var(--accent-color); /* Consider filter: brightness(120%) for visual change */
+                    color: var(--accent-color);
                     transition: color 0.3s ease;
                 }
 
