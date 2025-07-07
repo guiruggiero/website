@@ -97,7 +97,7 @@ export function expandChatWindow() {
     elements.chatContainer.style.height = "calc(100dvh - 111.667px)";
 
     // Input container styles
-    elements.inputContainer.style.backgroundColor = "var(--secondary-bg-color)"; // Use CSS variable
+    elements.inputContainer.style.backgroundColor = "var(--secondary-bg-color)";
     elements.inputContainer.style.padding = "10px";
 
     // Fade in inner content and hide logo/suggestions
