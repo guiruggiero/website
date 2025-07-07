@@ -57,10 +57,9 @@ main {
             text-decoration: none;
             font-size: 30px;
             font-weight: bold;
-            transition: all 0.3s ease;
-            color: var(--accent-color);
         }
 
-        .redirect a:hover {
-            color: var(--accent-color); /* Consider a different effect if base is already accent */
-        }
+            .redirect a:hover {
+                color: var(--accent-color); /* Consider a different effect if base is already accent */
+                transition: color 0.3s ease;
+            }

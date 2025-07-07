@@ -29,12 +29,12 @@ main {
             .contact a {
                 text-decoration: none;
                 font-weight: bold;
-                transition: all 0.3s ease;
-                color: var(--accent-color); /* Added default color */
+                color: var(--accent-color);
             }
 
                 .contact a:hover {
                     color: var(--accent-color); /* Consider filter: brightness(120%) for visual change */
+                    transition: color 0.3s ease;
                 }
 
             .pdf {
@@ -54,11 +54,11 @@ main {
                 .pdf-label {
                     font-size: 10px;
                     font-weight: bold;
-                    transition: all 0.3s ease;
                 }
 
                     .pdf:hover .pdf-label {
                         color: var(--accent-color);
+                        transition: color 0.3s ease;
                 }
 
     .section-title {
