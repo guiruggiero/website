@@ -14,7 +14,6 @@ main {
 
     .destination {
         font-size: 70px;
-        transition: transform 0.2s ease;
         display: inline-block;
         cursor: pointer;
         text-decoration: none;
@@ -22,6 +21,7 @@ main {
     
         .destination:hover {
             transform: translateY(-2px);
+            transition: transform 0.2s ease;
         }
         
         .destination:active {
@@ -57,9 +57,9 @@ main {
             text-decoration: none;
             font-size: 30px;
             font-weight: bold;
-            transition: all 0.3s ease;
         }
 
-        .redirect a:hover {
-            color: #2563eb;
-        }
+            .redirect a:hover {
+                color: var(--accent-color);
+                transition: color 0.3s ease;
+            }

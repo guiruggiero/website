@@ -22,6 +22,4 @@ class CookieConsent {
 
 // Check for consent
 const hasConsent = localStorage.getItem("cookieConsent");
-if (!hasConsent) {
-    new CookieConsent(); // New banner if no consent given
-}
+if (!hasConsent) new CookieConsent(); // New banner if no consent given

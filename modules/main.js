@@ -244,10 +244,5 @@ function start() {
 }
 
 // Check if page is already loaded
-if (document.readyState === "loading") {
-    // Page is still loading
-    document.addEventListener("DOMContentLoaded", start);
-} else {
-    // DOMContentLoaded already fired, safe to start
-    start();
-}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); // Page is still loading
+else start(); // DOMContentLoaded already fired, safe to start

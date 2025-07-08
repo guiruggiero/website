@@ -11,12 +11,6 @@ main {
         align-items: center;
     }
 
-        .error-icon {
-            font-size: 200px;
-            color: #2563eb;
-            z-index: 1;
-        }
-
         .error-text {
             color: #ffffff;
             font-size: 35px;
@@ -24,6 +18,12 @@ main {
             position: absolute;
             z-index: 2;
             transform: translateX(7px);
+        }
+        
+        .error-icon {
+            font-size: 200px;
+            color: var(--accent-color);
+            z-index: 1;
         }
 
     .funny {
@@ -42,9 +42,9 @@ main {
             text-decoration: none;
             font-size: 30px;
             font-weight: bold;
-            transition: all 0.3s ease;
         }
 
-        .redirect a:hover {
-            color: #2563eb;
-        }
+            .redirect a:hover {
+                color: var(--accent-color);
+                transition: color 0.3s ease;
+            }
