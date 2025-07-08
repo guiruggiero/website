@@ -33,9 +33,8 @@ main {
         max-width: 600px;
         background-color: var(--secondary-bg-color);
         border-radius: 8px;
-        box-shadow: 0 15px 30px var(--box-shadow-color);
         overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67), color 0s, background-color 0s;
         z-index: 10;
     }
 
@@ -44,7 +43,7 @@ main {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            transition: all 0.4s ease;
+            transition: all 0.4s ease, color 0s, background-color 0s;
             opacity: 0;
             scrollbar-gutter: stable;
             scroll-behavior: smooth;
@@ -88,6 +87,7 @@ main {
 
                     .user-message {
                         background-color: var(--accent-color);
+                        color: #ffffffd9;
                         align-self: flex-end;
                         margin-left: auto;
                         margin-right: 8px;
@@ -128,7 +128,7 @@ main {
             display: flex;
             align-items: center;
             background-color: var(--primary-bg-color);
-            transition: all 0.4s ease;
+            transition: all 0.4s ease, color 0s, background-color 0s;
         }
 
             input {
@@ -138,8 +138,7 @@ main {
                 border: none;
                 border-radius: 8px;
                 background-color: var(--tertiary-bg-color);
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 8px 2px var(--box-shadow-color);
+                transition: all 0.3s ease, color 0s, background-color 0s;
                 width: 100%;
                 caret-color: var(--primary-text-color);
             }
@@ -154,7 +153,6 @@ main {
 
             #submit {
                 background-color: var(--accent-color);
-                color: #ffffff99;
                 border: none;
                 border-radius: 8px;
                 cursor: pointer;
@@ -165,9 +163,6 @@ main {
                 opacity: 0.3;
                 transition: all 0.3s ease;
                 pointer-events: none;
-                display: flex;
-                justify-content: center;
-                align-items: center;
             }
 
                 #submit iconify-icon {
@@ -175,6 +170,7 @@ main {
                     width: 1em;
                     height: 1em;
                     font-size: 1.5em;
+                    color: #ffffffd9;
                 }
 
                 #submit.active {
@@ -184,7 +180,6 @@ main {
 
                     #submit.active:hover {
                         filter: brightness(85%);
-                        box-shadow: 0 5px 10px var(--box-shadow-color);
                     }
 
     #suggestions {

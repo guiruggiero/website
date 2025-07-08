@@ -14,7 +14,6 @@ main {
 
     .destination {
         font-size: 70px;
-        transition: transform 0.2s ease;
         display: inline-block;
         cursor: pointer;
         text-decoration: none;
@@ -22,6 +21,7 @@ main {
     
         .destination:hover {
             transform: translateY(-2px);
+            transition: transform 0.2s ease;
         }
         
         .destination:active {

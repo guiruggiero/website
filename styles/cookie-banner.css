@@ -6,7 +6,6 @@
     background-color: var(--cookie-banner-bg-color);
     padding: 12px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px var(--primary-text-color);
     display: none;
     max-width: 235px;
     z-index: 9999;
@@ -37,5 +36,5 @@
 
         .cookie-consent button:hover {
             background-color: #1d4ed8;
-            transition: color 0.3s ease;
+            transition: background-color 0.3s ease;
         }

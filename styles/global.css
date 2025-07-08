@@ -16,7 +16,6 @@
     --tertiary-bg-color: #333333;
     --accent-color: #2563eb;
     --error-message-bg-color: #480b0b;
-    --box-shadow-color: #00000033;
     --cookie-banner-bg-color: #ffffff;
     --cookie-banner-text-color: #262626;
 }
@@ -24,12 +23,11 @@
 html.light-theme {
     --primary-bg-color: #f4f4f4;
     --primary-text-color: #212121;
-    --secondary-bg-color: #eeeeee;
+    --secondary-bg-color: #e7e7e7;
     --secondary-text-color: #757575;
-    --tertiary-bg-color: #333333; /* TODO */
+    --tertiary-bg-color: #d7d7d7;
     --accent-color: #2563eb;
-    --error-message-bg-color: #480b0b; /* TODO */
-    --box-shadow-color: #00000033; /* TODO */
+    --error-message-bg-color: #ffd7dd;
     --cookie-banner-bg-color: #262626;
     --cookie-banner-text-color: #ffffff;
 }
@@ -70,11 +68,11 @@ html.light-theme {
                         height: 34px;
                         width: auto;
                         display: block;
-                        transition: opacity 0.3s ease;
                     }
                     
                         header picture:hover {
                             opacity: 0.7;
+                            transition: opacity 0.3s ease;
                         }
 
                     #theme-toggle {
@@ -83,7 +81,6 @@ html.light-theme {
                         cursor: pointer;
                         display: flex;
                         align-items: center;
-                        justify-content: center;
                     }
 
                         #theme-toggle iconify-icon {
@@ -105,8 +102,6 @@ html.light-theme {
                         text-decoration: none;
                         font-size: 25px;
                         display: flex;
-                        align-items: center;
-                        justify-content: center;
                     }
 
                         #social-links iconify-icon:hover {
@@ -130,9 +125,7 @@ html.light-theme {
             max-width: 750px;
             margin: 0 auto;
             display: flex;
-            align-items: center;
             color: var(--secondary-text-color);
-            text-align: center;
             justify-content: center;
             font-size: 0.9em;
             padding: 15px 0;
