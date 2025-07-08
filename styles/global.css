@@ -13,7 +13,10 @@
     --primary-text-color: #ffffffd9;
     --secondary-bg-color: #262626;
     --secondary-text-color: #666666;
+    --tertiary-bg-color: #333333;
     --accent-color: #2563eb;
+    --error-message-bg-color: #480b0b;
+    --box-shadow-color: #00000033;
     --cookie-banner-bg-color: #ffffff;
     --cookie-banner-text-color: #262626;
 }
@@ -23,7 +26,10 @@ html.light-theme {
     --primary-text-color: #212121;
     --secondary-bg-color: #eeeeee;
     --secondary-text-color: #757575;
+    --tertiary-bg-color: #333333; /* TODO */
     --accent-color: #2563eb;
+    --error-message-bg-color: #480b0b; /* TODO */
+    --box-shadow-color: #00000033; /* TODO */
     --cookie-banner-bg-color: #262626;
     --cookie-banner-text-color: #ffffff;
 }

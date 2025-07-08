@@ -33,7 +33,7 @@ main {
         max-width: 600px;
         background-color: var(--secondary-bg-color);
         border-radius: 8px;
-        box-shadow: 0 15px 30px #00000033; /* Keeping universal dark shadow */
+        box-shadow: 0 15px 30px var(--box-shadow-color);
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
         z-index: 10;
@@ -55,14 +55,13 @@ main {
             }
 
             #chat-window::-webkit-scrollbar-thumb {
-                background-color: var(--secondary-text-color); /* More neutral for scrollbar */
+                background-color: var(--secondary-text-color);
                 opacity: 0.5;
                 border-radius: 3px;
             }
             
             #chat-window:hover::-webkit-scrollbar-thumb {
                 background-color: var(--accent-color);
-                opacity: 1; /* Full opacity on hover */
             }
 
             .messages-container {
@@ -82,7 +81,7 @@ main {
                 }
 
                     .message a {
-                        color: var(--primary-text-color); /* Will adapt to theme */
+                        color: var(--primary-text-color);
                         text-decoration: none;
                         font-weight: bold;
                     }
@@ -92,27 +91,24 @@ main {
                         align-self: flex-end;
                         margin-left: auto;
                         margin-right: 8px;
-                        /* color for user message text is var(--primary-text-color) inherited from '*' */
                     }
 
                     .bot-message {
-                        background-color: var(--secondary-bg-color);
+                        background-color: var(--tertiary-bg-color);
                         align-self: flex-start;
                         margin-left: 8px;
-                        /* color for bot message text is var(--primary-text-color) inherited from '*' */
                     }
 
                     .error-message {
-                        background-color: #480b0b; /* Keeping specific error color */
+                        background-color: var(--error-message-bg-color);
                         align-self: center;
                         margin-inline: auto;
-                        /* color for error message text is var(--primary-text-color) inherited from '*' */
                     }
 
                 #loader {
                     width: 30px;
                     height: 21.27px;
-                    --_g: no-repeat radial-gradient(circle closest-side, var(--primary-text-color) 60%, var(--secondary-bg-color));
+                    --_g: no-repeat radial-gradient(circle closest-side, var(--primary-text-color) 60%, var(--tertiary-bg-color));
                     background: 
                         var(--_g) 0%   50%,
                         var(--_g) 50%  50%,
@@ -128,28 +124,28 @@ main {
                         80% {background-position: 0%  50%, 50%  50%,100% 100%}
                     }
 
-        #input-container { /* This is the narrow, unexpanded input container */
+        #input-container {
             display: flex;
             align-items: center;
             background-color: var(--primary-bg-color);
             transition: all 0.4s ease;
         }
 
-            input { /* This is the actual input field */
+            input {
                 flex-grow: 1;
                 padding: 8px 12px;
                 font-size: 1em;
                 border: none;
                 border-radius: 8px;
-                background-color: var(--secondary-bg-color); /* Changed from #333333 */
+                background-color: var(--tertiary-bg-color);
                 transition: all 0.3s ease;
-                box-shadow: 0 4px 8px 2px #00000033; /* Keeping universal dark shadow */
+                box-shadow: 0 4px 8px 2px var(--box-shadow-color);
                 width: 100%;
-                caret-color: var(--primary-text-color); /* Changed from #ffffff */
+                caret-color: var(--primary-text-color);
             }
 
                 input::placeholder {
-                    color: var(--secondary-text-color); /* Changed from #666666 */
+                    color: var(--secondary-text-color);
                 }
 
                 input:focus {
@@ -158,8 +154,7 @@ main {
 
             #submit {
                 background-color: var(--accent-color);
-                color: var(--primary-text-color);
-                opacity: 0.6; /* Applied opacity here directly */
+                color: #ffffff99;
                 border: none;
                 border-radius: 8px;
                 cursor: pointer;
@@ -188,20 +183,19 @@ main {
                 }
 
                     #submit.active:hover {
-                        background-color: var(--accent-color); /* Original: #1d4ed8 */
-                        filter: brightness(85%); /* Using filter to darken on hover */
-                        box-shadow: 0 5px 10px #00000033; /* Keeping universal dark shadow */
+                        filter: brightness(85%);
+                        box-shadow: 0 5px 10px var(--box-shadow-color);
                     }
 
     #suggestions {
-        color: var(--secondary-text-color); /* Changed from #666666 */
+        color: var(--secondary-text-color);
         font-size: 1em;
         font-weight: 600;
         font-style: italic;
     }
 
     #disclaimer {
-        color: var(--secondary-text-color); /* Changed from #666666 */
+        color: var(--secondary-text-color);
         font-size: 0.7em;
         text-align: center;
     }
