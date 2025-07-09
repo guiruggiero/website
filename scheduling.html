@@ -9,13 +9,19 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-		<script>
-			function getScriptPath(baseName) {
-				if (window.location.href.includes("ngrok")) return `modules/${baseName}.js`;
-				else return `modules/${baseName}.min.js`;
-			};
+		<script> // Helper function to load JS modules dynamically
+			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
+				const script = document.createElement("script");
+				const isDev = window.location.href.includes("ngrok");
+				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
+				script.type = type;
+				if (defer) script.defer = true;
+				if (crossorigin) script.crossorigin = crossorigin;
+				const parent = target === "body" ? document.body : document.head;
+				parent.appendChild(script);
+			}
 		</script>
-		<script>document.write(`<script src="${getScriptPath("theme-toggle")}" type="module"><\/script>`);</script>
+		<script>loadScript("theme-toggle");</script>
 
 		<!-- Sentry -->
 		<script>
@@ -148,8 +154,8 @@
 
 		<!-- Script -->
 		<script>
-			document.write(`<script src="${getScriptPath("redirect")}" type="module" defer><\/script>`);
-			document.write(`<script src="${getScriptPath("cookie-banner")}" type="module" defer><\/script>`);
+			loadScript("redirect", {defer: true, target: "body"});
+			loadScript("cookie-banner", {defer: true, target: "body"});
 		</script>
 	</body>
 </html>

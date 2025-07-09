@@ -10,12 +10,13 @@
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
 		<script> // Helper function to load JS modules dynamically
-			function loadScript(baseName, {defer, target = "head"} = {}) {
+			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
 				const script = document.createElement("script");
 				const isDev = window.location.href.includes("ngrok");
 				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
-				script.type = "module";
+				script.type = type;
 				if (defer) script.defer = true;
+				if (crossorigin) script.crossorigin = crossorigin;
 				const parent = target === "body" ? document.body : document.head;
 				parent.appendChild(script);
 			}
