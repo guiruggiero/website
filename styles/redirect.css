@@ -54,12 +54,13 @@ main {
     }
 
         .redirect a {
+            color: var(--accent-color);
             text-decoration: none;
             font-size: 30px;
             font-weight: bold;
         }
 
             .redirect a:hover {
-                color: var(--accent-color);
-                transition: color 0.3s ease;
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
             }

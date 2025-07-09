@@ -11,25 +11,27 @@
 :root {
     --primary-bg-color: #1a1a1a;
     --primary-text-color: #ffffffd9;
-    --secondary-bg-color: #262626;
+    --secondary-bg-color: #272727;
     --secondary-text-color: #666666;
     --tertiary-bg-color: #333333;
     --accent-color: #2563eb;
+    --secondary-accent-color: #133275;
     --error-message-bg-color: #480b0b;
-    --cookie-banner-bg-color: #ffffff;
+    --cookie-banner-bg-color: #ffffffd9;
     --cookie-banner-text-color: #262626;
 }
 
 html.light-theme {
     --primary-bg-color: #f4f4f4;
     --primary-text-color: #212121;
-    --secondary-bg-color: #e7e7e7;
+    --secondary-bg-color: #e5e5e5;
     --secondary-text-color: #757575;
     --tertiary-bg-color: #d7d7d7;
     --accent-color: #2563eb;
+    --secondary-accent-color: #adc4f7;
     --error-message-bg-color: #ffd7dd;
     --cookie-banner-bg-color: #262626;
-    --cookie-banner-text-color: #ffffff;
+    --cookie-banner-text-color: #ffffffd9;
 }
 
     body {
@@ -47,6 +49,7 @@ html.light-theme {
             left: 0;
             right: 0;
             z-index: 20;
+            background-color: var(--primary-bg-color);
         }
 
             .header-container {
