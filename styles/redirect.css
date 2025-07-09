@@ -4,11 +4,19 @@ main {
     margin: 120px auto 0;
 }
 
-    #travel-map {
-        width: 100%;
+    .travel-map-container {
+        display: block;
+        aspect-ratio: 1080/699;
+        overflow: hidden;
         margin-top: -60px;
-        margin-bottom: 40px;
+        margin-bottom: 45px;
     }
+
+        #travel-map {
+            width: 100%;
+            height: auto;
+            transform: translateY(-16.79%); /* Remove header */
+        }
 
     .instruction {
         margin: 0 0 1.5em;
