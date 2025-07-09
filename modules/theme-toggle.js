@@ -54,9 +54,9 @@ if (preferredTheme === "light") {
     updateIcons(preferredTheme);
     
     // Set up an observer in case elements aren't ready yet
-    if (!document.querySelector("header picture")) {
+    if (!document.querySelector("header picture") || !document.getElementById("theme-toggle")) {
         const observer = new MutationObserver(() => {
-            if (document.querySelector("header picture")) {
+            if (document.querySelector("header picture") && document.getElementById("theme-toggle")) {
                 updateIcons(preferredTheme);
                 observer.disconnect();
             }
@@ -67,6 +67,7 @@ if (preferredTheme === "light") {
 
 document.addEventListener("DOMContentLoaded", () => {
     const toggleButton = document.getElementById("theme-toggle");
+    updateIcons(preferredTheme);
 
     // Event listener for the toggle button
     toggleButton.addEventListener("pointerup", () => {
