@@ -23,6 +23,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### User experience
 - Responsive design
+- Light and dark modes/themes
 - Interactive UI with smooth animations
 - Cookie consent using local storage
 - Custom 404 page and favicons

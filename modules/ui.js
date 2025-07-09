@@ -97,7 +97,7 @@ export function expandChatWindow() {
     elements.chatContainer.style.height = "calc(100dvh - 111.667px)";
 
     // Input container styles
-    elements.inputContainer.style.backgroundColor = "#262626";
+    elements.inputContainer.style.backgroundColor = "var(--secondary-bg-color)";
     elements.inputContainer.style.padding = "10px";
 
     // Fade in inner content and hide logo/suggestions
@@ -138,7 +138,7 @@ function animateElement(element) {
     element.style.opacity = "0";
     element.style.transform = "translateY(10px)";
     element.offsetHeight;
-    element.style.transition = "all 0.5s ease";
+    element.style.transition = "all 0.5s ease, color 0s, background-color 0s";
     element.style.opacity = "1";
     element.style.transform = "translateY(0)";
     

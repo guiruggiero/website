@@ -15,7 +15,7 @@ main {
         .header-content {
             grid-column: 2;
             text-align: center;
-            border-bottom: 4px solid #2563eb;
+            border-bottom: 4px solid var(--secondary-accent-color);
             padding-bottom: 15px;
         }
 
@@ -27,13 +27,14 @@ main {
             }
 
             .contact a {
+                color: var(--accent-color);
                 text-decoration: none;
                 font-weight: bold;
-                transition: all 0.3s ease;
             }
 
                 .contact a:hover {
-                    color: #2563eb;
+                    opacity: 0.7;
+                    transition: opacity 0.3s ease;
                 }
 
             .pdf {
@@ -53,18 +54,18 @@ main {
                 .pdf-label {
                     font-size: 10px;
                     font-weight: bold;
-                    transition: all 0.3s ease;
                 }
 
                     .pdf:hover .pdf-label {
-                        color: #2563eb;
+                        color: var(--accent-color);
+                        transition: color 0.3s ease;
                 }
 
     .section-title {
         font-weight: bold;
         font-size: 20px;
         margin-bottom: 10px;
-        border-bottom: 3px solid #2563eb;
+        border-bottom: 3px solid var(--secondary-accent-color);
         padding-bottom: 4px;
     }
 
@@ -97,7 +98,7 @@ main {
                 .company {
                     font-weight: bold;
                     font-size: 16px;
-                    border-bottom: 2px solid #2563eb;
+                    border-bottom: 2px solid var(--secondary-accent-color);
                 }
                 
                 .date {
