@@ -4,6 +4,20 @@ main {
     margin: 120px auto 0;
 }
 
+    .travel-map-container {
+        display: block;
+        aspect-ratio: 1080/699;
+        overflow: hidden;
+        margin-top: -60px;
+        margin-bottom: 45px;
+    }
+
+        #travel-map {
+            width: 100%;
+            height: auto;
+            transform: translateY(-16.79%); /* Remove header */
+        }
+
     .instruction {
         margin: 0 0 1.5em;
     }
@@ -28,6 +42,10 @@ main {
             transform: translateY(1px);
         }
 
+    #amazon {
+        color: #ff9900;
+    }
+    
     #linkedin {
         width: 70px;
         height: 70px;
@@ -38,10 +56,6 @@ main {
 
     #whatsapp {
         border-radius: 8px;
-    }
-
-    #amazon {
-        color: #ff9900;
     }
 
     .redirect {
