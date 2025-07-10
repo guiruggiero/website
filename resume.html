@@ -9,6 +9,19 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
+		<script> // Helper function to load JS modules dynamically
+			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
+				const script = document.createElement("script");
+				const isDev = window.location.href.includes("ngrok");
+				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
+				script.type = type;
+				if (defer) script.defer = true;
+				if (crossorigin) script.crossorigin = crossorigin;
+				const parent = target === "body" ? document.body : document.head;
+				parent.appendChild(script);
+			}
+		</script>
+		<script>loadScript("theme-toggle");</script>
 
 		<!-- Sentry -->
 		<script>
@@ -24,6 +37,7 @@
 
 		<!-- Preconnects and preloads -->
 		<link rel="preload" href="images/gr-logo-light.webp" as="image">
+		<link rel="preload" href="images/gr-logo-dark.webp" as="image">
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
@@ -35,13 +49,21 @@
 		<link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 		<noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
 
-		<!-- Favicons -->
-		<link rel="icon" type="image/x-icon" href="images/favicon.ico">
-		<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-		<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-		<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-		<link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192.png">
-		<link rel="icon" type="image/png" sizes="512x512" href="images/android-chrome-512x512.png">
+		<!-- Favicons for dark mode -->
+		<link rel="icon" type="image/x-icon" href="images/favicon-light.ico" media="(prefers-color-scheme: dark)">
+		<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16-light.png" media="(prefers-color-scheme: dark)">
+		<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32-light.png" media="(prefers-color-scheme: dark)">
+		<link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192-light.png" media="(prefers-color-scheme: dark)">
+		<link rel="icon" type="image/png" sizes="512x512" href="images/android-chrome-512x512-light.png" media="(prefers-color-scheme: dark)">
+		<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon-light.png" media="(prefers-color-scheme: dark)">
+
+		<!-- Favicons for light mode -->
+		<link rel="icon" type="image/x-icon" href="images/favicon-dark.ico" media="(prefers-color-scheme: light)">
+		<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16-dark.png" media="(prefers-color-scheme: light)">
+		<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32-dark.png" media="(prefers-color-scheme: light)">
+		<link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192-dark.png" media="(prefers-color-scheme: light)">
+		<link rel="icon" type="image/png" sizes="512x512" href="images/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
+		<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
 
 		<!-- Google Tag Manager -->
 		<script>
@@ -86,14 +108,16 @@
 
 		<header>
 			<div class="header-container">
-				<a href="https://guiruggiero.com/?utm_source=resume&utm_medium=header" aria-label="Gui Ruggiero homepage">
-					<picture>
-						<source srcset="images/gr-logo-light.webp" type="image/webp">
-						<img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
-					</picture>
-				</a>
+				<div class="logo-theme-toggle">
+					<a href="https://guiruggiero.com/?utm_source=resume&utm_medium=header" aria-label="Gui Ruggiero homepage">
+						<picture>
+							<source srcset="images/gr-logo-light.webp" type="image/webp">
+							<img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+						</picture>
+					</a>
 
-				<!-- <nav></nav> -->
+					<button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+				</div>
 
 				<div id="social-links">
 					<a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
@@ -115,8 +139,8 @@
 					<div class="contact">Looking for contact info? <a href="https://guiruggiero.com/?utm_source=resume&utm_medium=body" aria-label="Gui Ruggiero homepage">Chat with GuiPT</a>!</div>
 				</div>
 
-				<a href="https://guiruggiero.com/resume-pdf.html" class="pdf">
-					<iconify-icon icon="vscode-icons:file-type-pdf2" class="pdf-icon"></iconify-icon>
+				<a href="https://guiruggiero.com/resume-pdf" class="pdf">
+					<iconify-icon icon="teenyicons:pdf-solid" class="pdf-icon"></iconify-icon>
 					<span class="pdf-label">PDF version</span>
 				</a>
 			</div>
@@ -337,23 +361,6 @@
 		</footer>
 
 		<!-- Script -->
-		<script>
-			// Load script dynamically
-			function loadScript(path, attributes) {
-				const script = document.createElement("script");
-				
-				// Apply all attributes
-				for (const [key, value] of Object.entries(attributes)) script[key] = value
-
-				// Prod uses minified version
-				if (!window.location.href.includes("ngrok")) script.src = path // Prod
-				else script.src = path.replace(".min.js", ".js") // Dev
-				
-				document.body.appendChild(script);
-			}
-
-			// Load script
-			loadScript("modules/cookie-banner.min.js", {type: "module", defer: true});
-		</script>
+		<script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
 	</body>
 </html>

@@ -31,11 +31,10 @@ main {
     #chat-container {
         width: 100%;
         max-width: 600px;
-        background-color: #262626;
+        background-color: var(--secondary-bg-color);
         border-radius: 8px;
-        box-shadow: 0 15px 30px #00000033;
         overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+        transition: all 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67), color 0s, background-color 0s;
         z-index: 10;
     }
 
@@ -44,7 +43,7 @@ main {
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            transition: all 0.4s ease;
+            transition: all 0.4s ease, color 0s, background-color 0s;
             opacity: 0;
             scrollbar-gutter: stable;
             scroll-behavior: smooth;
@@ -55,13 +54,13 @@ main {
             }
 
             #chat-window::-webkit-scrollbar-thumb {
-                background-color: #2563eb4d;
+                background-color: var(--secondary-text-color);
                 border-radius: 3px;
             }
             
-            #chat-window:hover::-webkit-scrollbar-thumb {
-                background-color: #2563eb;
-            }
+                #chat-window:hover::-webkit-scrollbar-thumb {
+                    background-color: var(--accent-color);
+                }
 
             .messages-container {
                 margin-top: auto;
@@ -80,26 +79,30 @@ main {
                 }
 
                     .message a {
-                        color: #ffffff;
+                        color: var(--accent-color);
                         text-decoration: none;
-                        font-weight: bold;
                     }
+                    
+                        .message a:hover {
+                            opacity: 0.7;
+                            transition: opacity 0.3s ease;
+                        }
 
                     .user-message {
-                        background-color: #2563eb;
+                        background-color: var(--secondary-accent-color);
                         align-self: flex-end;
                         margin-left: auto;
                         margin-right: 8px;
                     }
 
                     .bot-message {
-                        background-color: #333333;
+                        background-color: var(--tertiary-bg-color);
                         align-self: flex-start;
                         margin-left: 8px;
                     }
 
                     .error-message {
-                        background-color: #480b0b;
+                        background-color: var(--error-message-bg-color);
                         align-self: center;
                         margin-inline: auto;
                     }
@@ -107,7 +110,7 @@ main {
                 #loader {
                     width: 30px;
                     height: 21.27px;
-                    --_g: no-repeat radial-gradient(circle closest-side,#ffffffd9 60%,#333333);
+                    --_g: no-repeat radial-gradient(circle closest-side, var(--primary-text-color) 60%, var(--tertiary-bg-color));
                     background: 
                         var(--_g) 0%   50%,
                         var(--_g) 50%  50%,
@@ -126,8 +129,8 @@ main {
         #input-container {
             display: flex;
             align-items: center;
-            background-color: #1a1a1a;
-            transition: all 0.4s ease;
+            background-color: var(--primary-bg-color);
+            transition: all 0.4s ease, color 0s, background-color 0s;
         }
 
             input {
@@ -136,15 +139,14 @@ main {
                 font-size: 1em;
                 border: none;
                 border-radius: 8px;
-                background-color: #333333;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 8px 2px #00000033;
+                background-color: var(--tertiary-bg-color);
+                transition: all 0.3s ease, color 0s, background-color 0s;
                 width: 100%;
-                caret-color: #ffffff;
+                caret-color: var(--primary-text-color);
             }
 
                 input::placeholder {
-                    color: #666666;
+                    color: var(--secondary-text-color);
                 }
 
                 input:focus {
@@ -152,8 +154,7 @@ main {
                 }
 
             #submit {
-                background-color: #2563eb;
-                color: #ffffff99;
+                background-color: var(--accent-color);
                 border: none;
                 border-radius: 8px;
                 cursor: pointer;
@@ -161,12 +162,9 @@ main {
                 width: 40px;
                 padding: 8px;
                 margin-left: 10px;
-                opacity: 0.3;
+                opacity: 0.4;
                 transition: all 0.3s ease;
                 pointer-events: none;
-                display: flex;
-                justify-content: center;
-                align-items: center;
             }
 
                 #submit iconify-icon {
@@ -174,6 +172,7 @@ main {
                     width: 1em;
                     height: 1em;
                     font-size: 1.5em;
+                    color: #ffffffd9;
                 }
 
                 #submit.active {
@@ -182,19 +181,18 @@ main {
                 }
 
                     #submit.active:hover {
-                        background-color: #1d4ed8;
-                        box-shadow: 0 5px 10px #00000033;
+                        opacity: 0.7;
                     }
 
     #suggestions {
-        color: #666666;
+        color: var(--secondary-text-color);
         font-size: 1em;
         font-weight: 600;
         font-style: italic;
     }
 
     #disclaimer {
-        color: #666666;
+        color: var(--secondary-text-color);
         font-size: 0.7em;
         text-align: center;
     }
