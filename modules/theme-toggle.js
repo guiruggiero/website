@@ -21,7 +21,7 @@ function updateIcons(theme) {
     const GRiconSource = GRicon?.querySelector("source");
     const GRiconImg = GRicon?.querySelector("img");
     const toggleButton = document.getElementById("theme-toggle");
-     
+    
     if (theme === "light") {
         GRlogoSource?.setAttribute("srcset", "images/gr-logo-dark.webp");
         GRlogoImg?.setAttribute("src", "images/gr-logo-dark.png");
