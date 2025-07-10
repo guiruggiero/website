@@ -23,10 +23,11 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### User experience
 - Responsive design
-- Light and dark modes/themes
+- Light and dark themes
 - Interactive UI with smooth animations
 - Cookie consent using local storage
-- Custom 404 page and favicons
+- Custom 404 page
+- Transparent favicons for light and dark browser modes
 - Fast loading time with preloading, preconnecting, and image optimization
 - Graceful failures handling API call timeouts
 
