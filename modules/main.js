@@ -226,6 +226,7 @@ function debounce(func, wait) {
 function start() {
     // Initial UI setup
     UI.inputPlaceholderAndFocus();
+    UI.displayExamplePrompts();
 
     // Debug: expand chat and show loader without input
     // setTimeout(() => {

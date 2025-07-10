@@ -198,3 +198,33 @@ main {
         font-size: 0.7em;
         text-align: center;
     }
+
+/* Prompt Pills */
+#prompt-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px; /* Add gap between pills */
+    margin-bottom: 16px; /* Add some space below the container */
+}
+
+.prompt-pill {
+    background-color: #333; /* Dark background */
+    color: #fff; /* White text */
+    border-radius: 16px; /* Rounded corners */
+    padding: 8px 16px; /* Padding around text */
+    margin: 4px; /* Margin around pill */
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.prompt-pill:hover {
+    background-color: #444; /* Slightly lighter background on hover */
+}
+
+.prompt-pill.disabled {
+    background-color: #555; /* Different background for disabled state */
+    color: #888; /* Lighter text for disabled state */
+    cursor: not-allowed;
+}

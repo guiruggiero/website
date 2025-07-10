@@ -1,5 +1,15 @@
 import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
 
+export const examplePrompts = [
+    "What is your name?",
+    "How can you help me?",
+    "What is the weather like today?",
+    "Tell me a joke.",
+    "What is the meaning of life?",
+    "Can you write a poem?",
+    "What are your limitations?"
+];
+
 // Initialization
 export let chatWindowExpanded = false;
 
@@ -13,8 +23,61 @@ export const elements = {
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
-    suggestions: document.querySelector("#suggestions"),
+    promptPillsContainer: document.querySelector("#prompt-pills-container"),
 };
+
+// Function to shuffle an array (Fisher-Yates shuffle)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Display example prompts as pills
+export function displayExamplePrompts() {
+    if (!elements.promptPillsContainer) return; // Exit if container not found
+
+    elements.promptPillsContainer.innerHTML = ""; // Clear existing pills
+
+    const shuffledPrompts = [...examplePrompts]; // Create a copy to shuffle
+    shuffleArray(shuffledPrompts);
+
+    // Randomly select 2 or 3 prompts
+    const count = Math.random() < 0.5 ? 2 : 3;
+    const selectedPrompts = shuffledPrompts.slice(0, count);
+
+    selectedPrompts.forEach(promptText => {
+        const pill = document.createElement("div");
+        pill.textContent = promptText;
+        pill.classList.add("prompt-pill");
+        pill.addEventListener("click", () => {
+            // Disable all pills
+            const allPills = document.querySelectorAll(".prompt-pill");
+            allPills.forEach(p => {
+                p.classList.add("disabled");
+                p.style.pointerEvents = "none";
+            });
+
+            const currentPromptText = pill.textContent; // Get text from the clicked pill
+            elements.input.value = ""; // Clear the input field first
+
+            new Typed(elements.input, {
+                strings: [currentPromptText],
+                typeSpeed: 30, // Faster typing speed
+                showCursor: false,
+                attr: "value", // Make sure Typed.js updates the input's value
+                onComplete: () => {
+                    elements.submit.classList.add("active"); // Activate submit button
+                    setTimeout(() => {
+                        elements.submit.click(); // Programmatically click submit
+                    }, 250); // Short delay
+                },
+            });
+        });
+        elements.promptPillsContainer.appendChild(pill);
+    });
+}
 
 // Focus on input without opening virtual keyboard
 export function inputFocus() {
@@ -106,7 +169,9 @@ export function expandChatWindow() {
     elements.chatWindow.style.padding = "0px 9px 0px 15px";
     elements.chatWindow.style.opacity = "1";
     elements.logo.style.opacity = "0";
-    elements.suggestions.style.opacity = "0";
+    if (elements.promptPillsContainer) {
+        elements.promptPillsContainer.style.display = "none";
+    }
 
     // Show header after slight delay
     setTimeout(() => elements.header.classList.add("visible"), 600);
