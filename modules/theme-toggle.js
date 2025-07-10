@@ -11,40 +11,34 @@ if (preferredTheme === "light") {
 
 // Update icons and ARIA label
 function updateIcons(theme) {
-    const GRlogo = document.querySelector("#logo picture");
-    const GRicon = document.querySelector(".header-container picture");
-    const toggleButton = document.getElementById("theme-toggle");
-    
     // Home logo
-    if (GRlogo) {
-        const GRlogoSource = GRlogo.querySelector("source");
-        const GRlogoImg = GRlogo.querySelector("img");
+    const GRlogo = document.querySelector("#logo picture");
+    const GRlogoSource = GRlogo?.querySelector("source");
+    const GRlogoImg = GRlogo?.querySelector("img");
+    
+    // Header logo and theme toggle icons
+    const GRicon = document.querySelector(".header-container picture");
+    const GRiconSource = GRicon?.querySelector("source");
+    const GRiconImg = GRicon?.querySelector("img");
+    const toggleButton = document.getElementById("theme-toggle");
+     
+    if (theme === "light") {
+        GRlogoSource?.setAttribute("srcset", "images/gr-logo-dark.webp");
+        GRlogoImg?.setAttribute("src", "images/gr-logo-dark.png");
 
-        if (theme === "light") {
-            GRlogoSource.setAttribute("srcset", "images/gr-logo-dark.webp");
-            GRlogoImg.setAttribute("src", "images/gr-logo-dark.png");
-        } else {
-            GRlogoSource.setAttribute("srcset", "images/gr-logo-light.webp");
-            GRlogoImg.setAttribute("src", "images/gr-logo-light.png");
-        }
-    }
+        GRiconSource?.setAttribute("srcset", "images/gr-logo-dark.webp");
+        GRiconImg?.setAttribute("src", "images/gr-logo-dark.png");
+        if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:moon-bold'></iconify-icon>";
+        toggleButton?.setAttribute("aria-label", "Switch to dark theme");
 
-    // Header
-    if (GRicon && toggleButton) {
-        const GRiconSource = GRicon.querySelector("source");
-        const GRiconImg = GRicon.querySelector("img");
-        
-        if (theme === "light") {
-            GRiconSource.setAttribute("srcset", "images/gr-logo-dark.webp");
-            GRiconImg.setAttribute("src", "images/gr-logo-dark.png");
-            toggleButton.innerHTML = "<iconify-icon icon='ph:moon-bold'></iconify-icon>";
-            toggleButton.setAttribute("aria-label", "Switch to dark theme");
-        } else {
-            GRiconSource.setAttribute("srcset", "images/gr-logo-light.webp");
-            GRiconImg.setAttribute("src", "images/gr-logo-light.png");
-            toggleButton.innerHTML = "<iconify-icon icon='ph:sun-bold'></iconify-icon>";
-            toggleButton.setAttribute("aria-label", "Switch to light theme");
-        }
+    } else {
+        GRlogoSource?.setAttribute("srcset", "images/gr-logo-light.webp");
+        GRlogoImg?.setAttribute("src", "images/gr-logo-light.png");
+
+        GRiconSource?.setAttribute("srcset", "images/gr-logo-light.webp");
+        GRiconImg?.setAttribute("src", "images/gr-logo-light.png");
+        if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:sun-bold'></iconify-icon>";
+        toggleButton?.setAttribute("aria-label", "Switch to light theme");
     }
 }
 
@@ -54,9 +48,9 @@ if (preferredTheme === "light") {
     updateIcons(preferredTheme);
     
     // Set up an observer in case elements aren't ready yet
-    if (!document.querySelector("header picture") || !document.getElementById("theme-toggle")) {
+    if (!document.querySelector(".header-container picture") || !document.getElementById("theme-toggle")) {
         const observer = new MutationObserver(() => {
-            if (document.querySelector("header picture") && document.getElementById("theme-toggle")) {
+            if (document.querySelector(".header-container picture") && document.getElementById("theme-toggle")) {
                 updateIcons(preferredTheme);
                 observer.disconnect();
             }
