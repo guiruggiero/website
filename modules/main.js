@@ -225,8 +225,7 @@ function debounce(func, wait) {
 // Run when page is done loading
 function start() {
     // Initial UI setup
-    UI.inputPlaceholderAndFocus();
-    UI.displayExamplePrompts();
+    setTimeout(() => UI.inputPlaceholderAndFocus(), 500);
 
     // Debug: expand chat and show loader without input
     // setTimeout(() => {
@@ -242,6 +241,8 @@ function start() {
     UI.elements.input.addEventListener("keyup", debounce((event) => {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
+
+    setTimeout(() => UI.displayPromptPills(), 3000); // TODO 5: inactivity without typing?
 }
 
 // Check if page is already loaded

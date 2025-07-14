@@ -184,45 +184,35 @@ main {
                         opacity: 0.7;
                     }
 
-    #suggestions {
-        color: var(--secondary-text-color);
-        font-size: 1em;
-        font-weight: 600;
-        font-style: italic;
-    }
-
     #disclaimer {
         color: var(--secondary-text-color);
         font-size: 0.7em;
         text-align: center;
     }
 
-/* Prompt Pills */
-#prompt-pills-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px; /* Add gap between pills */
-    margin-bottom: 16px; /* Add some space below the container */
-}
+    #prompt-pills-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
 
-.prompt-pill {
-    background-color: #333; /* Dark background */
-    color: #fff; /* White text */
-    border-radius: 16px; /* Rounded corners */
-    padding: 8px 16px; /* Padding around text */
-    margin: 4px; /* Margin around pill */
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-}
+        .prompt-pill {
+            background-color: var(--tertiary-bg-color);
+            border-radius: 16px;
+            padding: 8px 16px;
+            margin: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: opacity 0.3s ease;
+        }
 
-.prompt-pill:hover {
-    background-color: #444; /* Slightly lighter background on hover */
-}
+            .prompt-pill:hover {
+                opacity: 0.7;
+            }
 
-.prompt-pill.disabled {
-    background-color: #555; /* Different background for disabled state */
-    color: #888; /* Lighter text for disabled state */
-    cursor: not-allowed;
-}
+            .prompt-pill.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }

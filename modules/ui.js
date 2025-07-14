@@ -1,15 +1,5 @@
 import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
 
-export const examplePrompts = [
-    "What is your name?",
-    "How can you help me?",
-    "What is the weather like today?",
-    "Tell me a joke.",
-    "What is the meaning of life?",
-    "Can you write a poem?",
-    "What are your limitations?"
-];
-
 // Initialization
 export let chatWindowExpanded = false;
 
@@ -26,59 +16,6 @@ export const elements = {
     promptPillsContainer: document.querySelector("#prompt-pills-container"),
 };
 
-// Function to shuffle an array (Fisher-Yates shuffle)
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-// Display example prompts as pills
-export function displayExamplePrompts() {
-    if (!elements.promptPillsContainer) return; // Exit if container not found
-
-    elements.promptPillsContainer.innerHTML = ""; // Clear existing pills
-
-    const shuffledPrompts = [...examplePrompts]; // Create a copy to shuffle
-    shuffleArray(shuffledPrompts);
-
-    // Randomly select 2 or 3 prompts
-    const count = Math.random() < 0.5 ? 2 : 3;
-    const selectedPrompts = shuffledPrompts.slice(0, count);
-
-    selectedPrompts.forEach(promptText => {
-        const pill = document.createElement("div");
-        pill.textContent = promptText;
-        pill.classList.add("prompt-pill");
-        pill.addEventListener("click", () => {
-            // Disable all pills
-            const allPills = document.querySelectorAll(".prompt-pill");
-            allPills.forEach(p => {
-                p.classList.add("disabled");
-                p.style.pointerEvents = "none";
-            });
-
-            const currentPromptText = pill.textContent; // Get text from the clicked pill
-            elements.input.value = ""; // Clear the input field first
-
-            new Typed(elements.input, {
-                strings: [currentPromptText],
-                typeSpeed: 30, // Faster typing speed
-                showCursor: false,
-                attr: "value", // Make sure Typed.js updates the input's value
-                onComplete: () => {
-                    elements.submit.classList.add("active"); // Activate submit button
-                    setTimeout(() => {
-                        elements.submit.click(); // Programmatically click submit
-                    }, 250); // Short delay
-                },
-            });
-        });
-        elements.promptPillsContainer.appendChild(pill);
-    });
-}
-
 // Focus on input without opening virtual keyboard
 export function inputFocus() {
     elements.input.setAttribute("readonly", "readonly");
@@ -86,10 +23,10 @@ export function inputFocus() {
     elements.input.removeAttribute("readonly");
 }
 
-// Type input placeholder and then focus
+// Type input placeholder and focus
 export function inputPlaceholderAndFocus() {
     new Typed(elements.input, {
-        strings: ["^500 Ask me anything about Gui..."], // Waits 500ms before typing
+        strings: ["^1 Ask me anything about Gui..."], // ^1 for leading space
         contentType: "null",
         attr: "placeholder",
         typeSpeed: 10,
@@ -163,15 +100,13 @@ export function expandChatWindow() {
     elements.inputContainer.style.backgroundColor = "var(--secondary-bg-color)";
     elements.inputContainer.style.padding = "10px";
 
-    // Fade in inner content and hide logo/suggestions
+    // Fade in inner content and hide logo and prompt pills
     elements.chatWindow.style.height = "calc(100% - 80px)";
     elements.chatWindow.style.marginTop = "20px";
     elements.chatWindow.style.padding = "0px 9px 0px 15px";
     elements.chatWindow.style.opacity = "1";
     elements.logo.style.opacity = "0";
-    if (elements.promptPillsContainer) {
-        elements.promptPillsContainer.style.display = "none";
-    }
+    elements.promptPillsContainer.style.display = "none"; // TODO 3: use display instead of opacity everywhere?
 
     // Show header after slight delay
     setTimeout(() => elements.header.classList.add("visible"), 600);
@@ -271,4 +206,75 @@ export function showLoader() {
     
     // For reuse with bot message
     return loaderContainer;
+}
+
+// Example prompts to pick from
+const examplePrompts = [
+    "Who is Gui?",
+    "What's Gui's professional background?",
+    "Tell me about Gui's education",
+    "Where is Gui from?",
+    "What are Gui's hobbies?",
+    "How can I get in touch with Gui?",
+    "Tell me a fun fact about Gui",
+    "Where has Gui lived?",
+    "How do you pronounce \"Gui\"?",
+    "What kind of products does Gui build?",
+    "What's Gui's product management experience?",
+    "What's Gui's role in AI?",
+];
+
+// Shuffle an array (Fisher-Yates)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Display example prompts as pills
+export function displayPromptPills() {
+    // Copy prompts, shuffle, and select 3
+    const shuffledPrompts = [...examplePrompts];
+shuffleArray(shuffledPrompts);
+    const selectedPrompts = shuffledPrompts.slice(0, 3);
+
+    // Create pills
+    // TODO 4: disable pills if somethig was typed, enable again if deleted
+    selectedPrompts.forEach(promptText => {
+        const pill = document.createElement("div");
+        pill.textContent = promptText;
+        pill.classList.add("prompt-pill");
+
+        pill.addEventListener("pointerup", () => {
+            // Disable all pills
+            const allPills = document.querySelectorAll(".prompt-pill");
+            allPills.forEach(pill => {
+                pill.classList.add("disabled");
+                pill.style.pointerEvents = "none";
+            });
+
+            const chosenPrompt = pill.textContent; // Get text from clicked pill
+
+            // Type prompt and submit
+            // new Typed(elements.input, {
+            //     strings: [chosenPrompt],
+            //     contentType: "null",
+            //     typeSpeed: 20,
+            //     showCursor: false,
+            //     onComplete: () => {
+            //         toggleSubmitButton();
+            //         setTimeout(() => elements.submit.click(), 250);
+            //     },
+            // });
+
+            // Fill input and submit
+            elements.input.value = chosenPrompt;
+            toggleSubmitButton();
+            // elements.submit.click(); // TODO 2: not working
+            // setTimeout(() => elements.submit.click(), 250);
+        });
+
+        elements.promptPillsContainer.appendChild(pill); // TODO 1: fade in
+    });
 }
