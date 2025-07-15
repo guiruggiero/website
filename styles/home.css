@@ -205,8 +205,13 @@ main {
             margin: 4px;
             cursor: pointer;
             font-size: 0.8em;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
+
+            .prompt-pill.hidden {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
             .prompt-pill:hover {
                 opacity: 0.7;

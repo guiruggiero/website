@@ -133,7 +133,7 @@ export function expandChatWindow() {
 // Animate the element in, regardless of content
 function animateElement(element) {
     elements.messagesContainer.appendChild(element);
-
+clear
     // Animate the element in
     element.style.opacity = "0";
     element.style.transform = "translateY(10px)";
@@ -236,15 +236,15 @@ function shuffleArray(array) {
 export function displayPromptPills() {
     // Copy prompts, shuffle, and select 3
     const shuffledPrompts = [...examplePrompts];
-shuffleArray(shuffledPrompts);
+    shuffleArray(shuffledPrompts);
     const selectedPrompts = shuffledPrompts.slice(0, 3);
 
     // Create pills
     // TODO 4: disable pills if somethig was typed, enable again if deleted
-    selectedPrompts.forEach(promptText => {
+    selectedPrompts.forEach((promptText, index) => {
         const pill = document.createElement("div");
         pill.textContent = promptText;
-        pill.classList.add("prompt-pill");
+        pill.classList.add("prompt-pill", "hidden");
 
         pill.addEventListener("pointerup", () => {
             // Disable all pills
@@ -256,7 +256,7 @@ shuffleArray(shuffledPrompts);
 
             const chosenPrompt = pill.textContent; // Get text from clicked pill
 
-            // Type prompt and submit
+            // Type prompt and submit // TODO: animations
             // new Typed(elements.input, {
             //     strings: [chosenPrompt],
             //     contentType: "null",
@@ -271,10 +271,15 @@ shuffleArray(shuffledPrompts);
             // Fill input and submit
             elements.input.value = chosenPrompt;
             toggleSubmitButton();
-            // elements.submit.click(); // TODO 2: not working
-            // setTimeout(() => elements.submit.click(), 250);
+            elements.submit.dispatchEvent(new Event("pointerup"));
+            // setTimeout(() => elements.submit.dispatchEvent(new Event("pointerup")), 250); // TODO: animations
         });
 
-        elements.promptPillsContainer.appendChild(pill); // TODO 1: fade in
+        elements.promptPillsContainer.appendChild(pill);
+
+        // Animate the pill in by removing the hidden class
+        setTimeout(() => {
+            pill.classList.remove("hidden");
+        }, 100 * (index + 1));
     });
 }
