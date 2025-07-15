@@ -17,24 +17,26 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### AI assistant
 - Real-time interaction with custom AI assistant GuiPT
-- Context carryover in long conversations
-- Detailed and environment-based chat logging
-- Rate limiting to prevent abuse
+- Context carryover with chat history
+- Prompt suggestions with conversation starters
 
 ### User experience
 - Responsive design
-- Light and dark themes
+- Light and dark theme choices with preference memory
 - Interactive UI with smooth animations
-- Cookie consent using local storage
+- Cookie consent with acceptance memory
 - Custom 404 page
 - Transparent favicons for light and dark browser modes
-- Fast loading time with preloading, preconnecting, and image optimization
+- Very fast loading time
 - Graceful failures handling API call timeouts
 
 ### Performance & safety
 - Automated minification of code and cache purging at build time
-- Safe input sanitization and restrictions
+- Preloading, preconnecting, and image optimization
 - Automatic API call retries
+- Detailed and environment-based chat logging
+- Safe input sanitization and restrictions
+- Rate limiting
 - Code vulnerability and quality scanning
 
 ### Utilities
@@ -74,6 +76,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Cal.com - meeting scheduling
 - Miro - whiteboard
 - Google Drive - file storage
+- Matador Network - travel map
 
 ## 📦 Dependencies
 

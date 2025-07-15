@@ -13,7 +13,7 @@ export const elements = {
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
-    suggestions: document.querySelector("#suggestions"),
+    promptPillsContainer: document.querySelector("#prompt-pills-container"),
 };
 
 // Focus on input without opening virtual keyboard
@@ -23,10 +23,10 @@ export function inputFocus() {
     elements.input.removeAttribute("readonly");
 }
 
-// Type input placeholder and then focus
+// Type input placeholder and focus
 export function inputPlaceholderAndFocus() {
     new Typed(elements.input, {
-        strings: ["^500 Ask me anything about Gui..."], // Waits 500ms before typing
+        strings: ["^1 Ask me anything about Gui..."], // ^1 for leading space
         contentType: "null",
         attr: "placeholder",
         typeSpeed: 10,
@@ -36,14 +36,8 @@ export function inputPlaceholderAndFocus() {
 }
 
 // Allow/forbid submit button according to input content
-export function toggleSubmitButton() {
-    const hasContent = elements.input.value.trim().length > 0;
-    elements.submit.classList.toggle("active", hasContent);
-}
-
-// Forbid submit button
-export function forbidSubmitButton() {
-    elements.submit.classList.toggle("active", false);
+export function toggleSubmitButton(enabled) {
+    elements.submit.classList.toggle("active", enabled);
 }
 
 // Clear input
@@ -100,13 +94,13 @@ export function expandChatWindow() {
     elements.inputContainer.style.backgroundColor = "var(--secondary-bg-color)";
     elements.inputContainer.style.padding = "10px";
 
-    // Fade in inner content and hide logo/suggestions
+    // Fade in inner content and hide logo and prompt pills
     elements.chatWindow.style.height = "calc(100% - 80px)";
     elements.chatWindow.style.marginTop = "20px";
     elements.chatWindow.style.padding = "0px 9px 0px 15px";
     elements.chatWindow.style.opacity = "1";
     elements.logo.style.opacity = "0";
-    elements.suggestions.style.opacity = "0";
+    elements.promptPillsContainer.style.display = "none";
 
     // Show header after slight delay
     setTimeout(() => elements.header.classList.add("visible"), 600);
@@ -133,7 +127,7 @@ export function expandChatWindow() {
 // Animate the element in, regardless of content
 function animateElement(element) {
     elements.messagesContainer.appendChild(element);
-
+    
     // Animate the element in
     element.style.opacity = "0";
     element.style.transform = "translateY(10px)";
@@ -206,4 +200,71 @@ export function showLoader() {
     
     // For reuse with bot message
     return loaderContainer;
+}
+
+// Example prompts to pick from
+const examplePrompts = [
+    "Who is Gui?",
+    "What's Gui's professional background?",
+    "Tell me about Gui's education",
+    "Where is Gui from?",
+    "What are Gui's hobbies?",
+    "How can I get in touch with Gui?",
+    "Tell me a fun fact about Gui",
+    "Where has Gui lived?",
+    "How do you pronounce \"Gui\"?",
+    "What kind of products does Gui build?",
+    "What's Gui's product management experience?",
+    "What's Gui's role in AI?",
+];
+
+// Shuffle an array (Fisher-Yates)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// Display example prompts as pills
+export function displayPromptPills() {
+    // Copy prompts, shuffle, and select 3
+    const shuffledPrompts = [...examplePrompts];
+    shuffleArray(shuffledPrompts);
+    const selectedPrompts = shuffledPrompts.slice(0, 3);
+
+    // Create pills
+    selectedPrompts.forEach((promptText, index) => {
+        const pill = document.createElement("div");
+        pill.textContent = promptText;
+        pill.classList.add("prompt-pill", "hidden");
+
+        pill.addEventListener("pointerup", () => {
+            // Disable all pills
+            const allPills = document.querySelectorAll(".prompt-pill");
+            allPills.forEach(pill => {
+                pill.classList.add("disabled");
+            });
+
+            const chosenPrompt = pill.textContent; // Get text from clicked pill
+
+            // Fill input and submit
+            elements.input.value = chosenPrompt;
+            toggleSubmitButton(true);
+            elements.submit.dispatchEvent(new Event("pointerup"));
+        });
+
+        elements.promptPillsContainer.appendChild(pill);
+
+        // Animate the pill in by removing the hidden class
+        setTimeout(() => {
+            pill.classList.remove("hidden");
+        }, 100 * (index + 1));
+    });
+}
+
+// Allow/forbid prompt pills
+export function togglePromptPills(enabled) {
+    const allPills = document.querySelectorAll(".prompt-pill");
+    allPills.forEach(pill => pill.classList.toggle("disabled", !enabled));
 }
