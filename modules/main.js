@@ -59,7 +59,7 @@ async function handleGuiPT() {
     if (turnCount == 0) chatStart = new Date(Date.now());
 
     // Prevent and get input
-    UI.forbidSubmitButton();
+    UI.toggleSubmitButton(false);
     UI.closeKeyboard();
     UI.toggleInput();
     const input = UI.elements.input.value;
@@ -81,7 +81,9 @@ async function handleGuiPT() {
             if (!UI.chatWindowExpanded) UI.expandChatWindow(); // Expand only on first turn
             UI.addMessage("error", validationResult.errorMessage);
         }
-        UI.toggleSubmitButton();
+
+        const hasContent = UI.elements.input.value.trim().length > 0;
+        UI.toggleSubmitButton(hasContent);
         UI.toggleInput();
         UI.inputFocus();
 
@@ -114,7 +116,7 @@ async function handleGuiPT() {
 
         // Penalty, sit and wait without input
         setTimeout(() => {
-            UI.toggleSubmitButton();
+            UI.toggleSubmitButton(true);
             UI.toggleInput();
             UI.inputFocus();
         }, waitTime);
@@ -160,7 +162,7 @@ async function handleGuiPT() {
         
         // Bring back user input
         UI.populateInput(input);
-        UI.toggleSubmitButton();
+        UI.toggleSubmitButton(true);
         UI.toggleInput();
         UI.inputFocus();
 
@@ -234,7 +236,11 @@ function start() {
     // }, 2000);
 
     // Real-time input handling
-    UI.elements.input.addEventListener("input", debounce(UI.toggleSubmitButton, 150));
+    UI.elements.input.addEventListener("input", debounce(() => {
+        const hasContent = UI.elements.input.value.trim().length > 0;
+        UI.toggleSubmitButton(hasContent);
+        UI.togglePromptPills(!hasContent);
+    }, 150));
 
     // Input submission
     UI.elements.submit.addEventListener("pointerup", handleGuiPT);
@@ -242,7 +248,7 @@ function start() {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
 
-    setTimeout(() => UI.displayPromptPills(), 3000); // TODO 5: inactivity without typing?
+    setTimeout(() => UI.displayPromptPills(), 1000);
 }
 
 // Check if page is already loaded

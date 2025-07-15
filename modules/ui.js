@@ -36,14 +36,8 @@ export function inputPlaceholderAndFocus() {
 }
 
 // Allow/forbid submit button according to input content
-export function toggleSubmitButton() {
-    const hasContent = elements.input.value.trim().length > 0;
-    elements.submit.classList.toggle("active", hasContent);
-}
-
-// Forbid submit button
-export function forbidSubmitButton() {
-    elements.submit.classList.toggle("active", false);
+export function toggleSubmitButton(enabled) {
+    elements.submit.classList.toggle("active", enabled);
 }
 
 // Clear input
@@ -106,7 +100,7 @@ export function expandChatWindow() {
     elements.chatWindow.style.padding = "0px 9px 0px 15px";
     elements.chatWindow.style.opacity = "1";
     elements.logo.style.opacity = "0";
-    elements.promptPillsContainer.style.display = "none"; // TODO 3: use display instead of opacity everywhere?
+    elements.promptPillsContainer.style.display = "none";
 
     // Show header after slight delay
     setTimeout(() => elements.header.classList.add("visible"), 600);
@@ -133,7 +127,7 @@ export function expandChatWindow() {
 // Animate the element in, regardless of content
 function animateElement(element) {
     elements.messagesContainer.appendChild(element);
-clear
+    
     // Animate the element in
     element.style.opacity = "0";
     element.style.transform = "translateY(10px)";
@@ -240,7 +234,6 @@ export function displayPromptPills() {
     const selectedPrompts = shuffledPrompts.slice(0, 3);
 
     // Create pills
-    // TODO 4: disable pills if somethig was typed, enable again if deleted
     selectedPrompts.forEach((promptText, index) => {
         const pill = document.createElement("div");
         pill.textContent = promptText;
@@ -251,28 +244,14 @@ export function displayPromptPills() {
             const allPills = document.querySelectorAll(".prompt-pill");
             allPills.forEach(pill => {
                 pill.classList.add("disabled");
-                pill.style.pointerEvents = "none";
             });
 
             const chosenPrompt = pill.textContent; // Get text from clicked pill
 
-            // Type prompt and submit // TODO: animations
-            // new Typed(elements.input, {
-            //     strings: [chosenPrompt],
-            //     contentType: "null",
-            //     typeSpeed: 20,
-            //     showCursor: false,
-            //     onComplete: () => {
-            //         toggleSubmitButton();
-            //         setTimeout(() => elements.submit.click(), 250);
-            //     },
-            // });
-
             // Fill input and submit
             elements.input.value = chosenPrompt;
-            toggleSubmitButton();
+            toggleSubmitButton(true);
             elements.submit.dispatchEvent(new Event("pointerup"));
-            // setTimeout(() => elements.submit.dispatchEvent(new Event("pointerup")), 250); // TODO: animations
         });
 
         elements.promptPillsContainer.appendChild(pill);
@@ -282,4 +261,10 @@ export function displayPromptPills() {
             pill.classList.remove("hidden");
         }, 100 * (index + 1));
     });
+}
+
+// Allow/forbid prompt pills
+export function togglePromptPills(enabled) {
+    const allPills = document.querySelectorAll(".prompt-pill");
+    allPills.forEach(pill => pill.classList.toggle("disabled", !enabled));
 }
