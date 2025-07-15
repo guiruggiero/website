@@ -204,18 +204,11 @@ export function showLoader() {
 
 // Example prompts to pick from
 const examplePrompts = [
-    "Who is Gui?",
-    "What's Gui's professional background?",
-    "Tell me about Gui's education",
-    "Where is Gui from?",
-    "What are Gui's hobbies?",
-    "How can I get in touch with Gui?",
-    "Tell me a fun fact about Gui",
-    "Where has Gui lived?",
-    "How do you pronounce \"Gui\"?",
-    "What kind of products does Gui build?",
-    "What's Gui's product management experience?",
-    "What's Gui's role in AI?",
+	"index.promptPill1",
+	"index.promptPill2",
+	"index.promptPill3",
+	"index.promptPill4",
+	"index.promptPill5"
 ];
 
 // Shuffle an array (Fisher-Yates)
@@ -227,14 +220,9 @@ function shuffleArray(array) {
 }
 
 // Display example prompts as pills
-export function displayPromptPills() {
-    // Copy prompts, shuffle, and select 3
-    const shuffledPrompts = [...examplePrompts];
-    shuffleArray(shuffledPrompts);
-    const selectedPrompts = shuffledPrompts.slice(0, 3);
-
+export function displayPromptPills(prompts) {
     // Create pills
-    selectedPrompts.forEach((promptText, index) => {
+    prompts.forEach((promptText, index) => {
         const pill = document.createElement("div");
         pill.textContent = promptText;
         pill.classList.add("prompt-pill", "hidden");

@@ -33,6 +33,7 @@ let Validation = await importModule("./validation.min.js");
 let Firebase = await importModule("./firebase.min.js");
 const GuiPTModule = await importModule("./guipt.min.js");
 let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
+const LocalizationModule = await importModule("./localization.min.js");
 
 // Initializations
 let turnCount = 0, messageCount = 0;
@@ -225,7 +226,7 @@ function debounce(func, wait) {
 }
 
 // Run when page is done loading
-function start() {
+async function start() {
     // Initial UI setup
     setTimeout(() => UI.inputPlaceholderAndFocus(), 500);
 
@@ -248,7 +249,17 @@ function start() {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
 
-    setTimeout(() => UI.displayPromptPills(), 1000);
+    const userLanguage = LocalizationModule.getUserLanguage();
+	const langData = await LocalizationModule.loadLanguage(userLanguage);
+	const promptPills = [
+		LocalizationModule.getTranslation(langData, "index.promptPill1"),
+		LocalizationModule.getTranslation(langData, "index.promptPill2"),
+		LocalizationModule.getTranslation(langData, "index.promptPill3"),
+		LocalizationModule.getTranslation(langData, "index.promptPill4"),
+		LocalizationModule.getTranslation(langData, "index.promptPill5")
+	];
+
+    setTimeout(() => UI.displayPromptPills(promptPills), 1000);
 }
 
 // Check if page is already loaded
