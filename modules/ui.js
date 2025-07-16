@@ -26,7 +26,7 @@ export function inputFocus() {
 // Type input placeholder and focus
 export function inputPlaceholderAndFocus() {
     new Typed(elements.input, {
-        strings: ["^1 Ask me anything about Gui..."], // ^1 for leading space
+        strings: ["^1 Ask me anything about Gui..."], // ^1 for leading space - TODO: translate and get dinamically
         contentType: "null",
         attr: "placeholder",
         typeSpeed: 10,
@@ -111,14 +111,14 @@ export function expandChatWindow() {
     let messagesContainer = document.createElement("div");
     messagesContainer.className = "messages-container";
     messagesContainer.setAttribute("role", "log");
-    messagesContainer.setAttribute("aria-label", "Chat conversation with GuiPT");
+    messagesContainer.setAttribute("aria-label", "Chat conversation with GuiPT"); // TODO: translate and get dinamically
     messagesContainer.setAttribute("aria-live", "polite");
     elements.chatWindow.appendChild(messagesContainer);
     elements.messagesContainer = messagesContainer;
 
     // Create disclaimer
     const disclaimer = document.createElement("div");
-    disclaimer.textContent = "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.";
+    disclaimer.textContent = "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please."; // TODO: translate and get dinamically
     disclaimer.id = "disclaimer";
     elements.disclaimer = disclaimer;
     elements.chatWindow.appendChild(disclaimer);
@@ -146,13 +146,13 @@ export function addMessage(type, message, existingContainer = null) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", "user-message");
         messageElement.textContent = message;
-        messageElement.setAttribute("aria-label", "Your message: " + message);
+        messageElement.setAttribute("aria-label", "Your message: " + message); // TODO: translate and get dinamically
         animateElement(messageElement);
     } else if (type == "bot") {
         let messageElement = existingContainer;
         messageElement.removeAttribute("id");
         messageElement.innerHTML = "";
-        messageElement.setAttribute("aria-label", "GuiPT response: " + message);
+        messageElement.setAttribute("aria-label", "GuiPT response: " + message); // TODO: translate and get dinamically
 
         // Replace the & character so Typed doesn't stop
         message = message.replace(/&/g, "&amp;");
@@ -194,7 +194,7 @@ export function showLoader() {
     const loaderElement = document.createElement("div");
     loaderElement.id = "loader";
     loaderElement.setAttribute("role", "status");
-    loaderElement.setAttribute("aria-label", "GuiPT is thinking...");
+    loaderElement.setAttribute("aria-label", "GuiPT is thinking..."); // TODO: translate and get dinamically
     loaderContainer.appendChild(loaderElement);
     animateElement(loaderContainer);
     
@@ -202,26 +202,32 @@ export function showLoader() {
     return loaderContainer;
 }
 
-// Example prompts to pick from
-const examplePrompts = [
-	"index.promptPill1",
-	"index.promptPill2",
-	"index.promptPill3",
-	"index.promptPill4",
-	"index.promptPill5"
-];
+// Example prompts to pick from - TODO: not needed? Gerring from translation JS
+// const examplePrompts = [
+//     "index.promptPill1",
+//     "index.promptPill2",
+//     "index.promptPill3",
+//     "index.promptPill4",
+//     "index.promptPill5",
+// ];
 
-// Shuffle an array (Fisher-Yates)
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
+// Shuffle an array (Fisher-Yates) - TODO: not needed anymore? How to cycle through the options without it?
+// function shuffleArray(array) {
+//     for (let i = array.length - 1; i > 0; i--) {
+//         const j = Math.floor(Math.random() * (i + 1));
+//         [array[i], array[j]] = [array[j], array[i]];
+//     }
+// }
 
-// Display example prompts as pills
+// Display example prompts as pills - TODO: understand better the proposed changes
+// export function displayPromptPills() {
+//     // Copy prompts, shuffle, and select 3
+//     const shuffledPrompts = [...examplePrompts];
+//     shuffleArray(shuffledPrompts);
+//     const selectedPrompts = shuffledPrompts.slice(0, 3);
 export function displayPromptPills(prompts) {
     // Create pills
+    // selectedPrompts.forEach((promptText, index) => {
     prompts.forEach((promptText, index) => {
         const pill = document.createElement("div");
         pill.textContent = promptText;

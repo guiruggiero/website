@@ -20,7 +20,7 @@ export function validateInput(input) {
     if (input.length > 200) {
         return {
             assessment: "Too long",
-            errorMessage: "⚠️ Would you mind shortening your message a bit, please?",
+            errorMessage: "⚠️ Would you mind shortening your message a bit, please?", // TODO: translate and get dinamically
         };
     }
 
@@ -28,7 +28,7 @@ export function validateInput(input) {
     if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // Excludes @$%&/+
         return {
             assessment: "Forbidden characters",
-            errorMessage: "⚠️ Please use only letters, numbers, and common punctuation.",
+            errorMessage: "⚠️ Please use only letters, numbers, and common punctuation.", // TODO: translate and get dinamically
         };
     }
 

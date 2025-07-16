@@ -28,12 +28,12 @@ async function importModule(path) {
 }
 
 // Import modules
-let UI = await importModule("./ui.min.js");
-let Validation = await importModule("./validation.min.js");
-let Firebase = await importModule("./firebase.min.js");
+const UI = await importModule("./ui.min.js");
+const Validation = await importModule("./validation.min.js");
+const Firebase = await importModule("./firebase.min.js");
 const GuiPTModule = await importModule("./guipt.min.js");
-let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
-const LocalizationModule = await importModule("./localization.min.js");
+const callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
+const Localization = await importModule("./localization.min.js"); // TODO: needed here AND in HTML?
 
 // Initializations
 let turnCount = 0, messageCount = 0;
@@ -113,7 +113,7 @@ async function handleGuiPT() {
     // Check if rate limit is exceeded
     if (requestCount >= 5) { // Max requests per minute
         const waitTime = timeWindow - (now - windowStart);
-        UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again.");
+        UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again."); // TODO: translate and get dinamically
 
         // Penalty, sit and wait without input
         setTimeout(() => {
@@ -158,8 +158,8 @@ async function handleGuiPT() {
         loaderContainer.remove();
 
         // Only error I want to display a different message for
-        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
-        else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
+        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?"); // TODO: translate and get dinamically
+        else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?"); // TODO: translate and get dinamically
         
         // Bring back user input
         UI.populateInput(input);
@@ -226,7 +226,7 @@ function debounce(func, wait) {
 }
 
 // Run when page is done loading
-async function start() {
+function start() {
     // Initial UI setup
     setTimeout(() => UI.inputPlaceholderAndFocus(), 500);
 
@@ -249,15 +249,16 @@ async function start() {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
 
-    const userLanguage = LocalizationModule.getUserLanguage();
-	const langData = await LocalizationModule.loadLanguage(userLanguage);
-	const promptPills = [
-		LocalizationModule.getTranslation(langData, "index.promptPill1"),
-		LocalizationModule.getTranslation(langData, "index.promptPill2"),
-		LocalizationModule.getTranslation(langData, "index.promptPill3"),
-		LocalizationModule.getTranslation(langData, "index.promptPill4"),
-		LocalizationModule.getTranslation(langData, "index.promptPill5")
-	];
+    // setTimeout(() => UI.displayPromptPills(), 1000); // TODO: understand better the proposed changes
+    const userLanguage = Localization.getUserLanguage();
+    const langData = Localization.loadLanguage(userLanguage);
+    const promptPills = [
+        Localization.getTranslation(langData, "index.promptPill1"),
+        Localization.getTranslation(langData, "index.promptPill2"),
+        Localization.getTranslation(langData, "index.promptPill3"),
+        Localization.getTranslation(langData, "index.promptPill4"),
+        Localization.getTranslation(langData, "index.promptPill5"),
+    ];
 
     setTimeout(() => UI.displayPromptPills(promptPills), 1000);
 }
