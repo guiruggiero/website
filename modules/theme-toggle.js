@@ -1,7 +1,11 @@
+// Import
+const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+
+// Initializations
 let preferredTheme = localStorage.getItem("themePreference") || "dark";
 const metaTag = document.querySelector("meta[name='theme-color']");
-const darkThemeColor = "#1a1a1a"; // --primary-bg-color
-const lightThemeColor = "#f4f4f4"; // --primary-bg-color
+const darkThemeColor = "#1a1a1a"; // CSS --primary-bg-color
+const lightThemeColor = "#f4f4f4"; // CSS --primary-bg-color
 
 // Set initial theme based on saved preference
 if (preferredTheme === "light") {
@@ -29,7 +33,7 @@ function updateIcons(theme) {
         GRiconSource?.setAttribute("srcset", "images/gr-logo-dark.webp");
         GRiconImg?.setAttribute("src", "images/gr-logo-dark.png");
         if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:moon-bold'></iconify-icon>";
-        toggleButton?.setAttribute("aria-label", "Switch to dark theme");
+        toggleButton?.setAttribute("aria-label", langData.themeLight);
 
     } else {
         GRlogoSource?.setAttribute("srcset", "images/gr-logo-light.webp");
@@ -38,7 +42,7 @@ function updateIcons(theme) {
         GRiconSource?.setAttribute("srcset", "images/gr-logo-light.webp");
         GRiconImg?.setAttribute("src", "images/gr-logo-light.png");
         if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:sun-bold'></iconify-icon>";
-        toggleButton?.setAttribute("aria-label", "Switch to light theme");
+        toggleButton?.setAttribute("aria-label", langData.themeDark);
     }
 }
 

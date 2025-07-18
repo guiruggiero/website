@@ -1,51 +1,36 @@
 export default {
     "website": {
-        "title": "Gui Ruggiero - AI and Tech expert, Product leader",
-        "description": "Chat with AI assistant GuiPT to learn about his expertise in product management, AI, and human-computer interaction",
-        "keywords": "product, product manager, product management, PM, product leadership, innovation, technology, tech, human-computer interaction, HCI, machine learning, ML, artificial intelligence, AI, large language models, LLM, speech understanding, design, engineering, science, data science, expert, leader, leadership, global, guipt, ai assistant, chatbot, amazon, alexa, artificial general intelligence, AGI",
-        "footer": "Built with lots of ☕ by Gui Ruggiero himself",
+        "themeDark": "Switch to light theme",
+        "themeLight": "Switch to dark theme",
     },
-    "index": { // TODO: bring in all the prompts from before the commit
-        "promptPill1": "What is your experience with AI?",
-        "promptPill2": "What is your leadership style?",
-        "promptPill3": "What are you passionate about?",
-        "promptPill4": "Where have you worked at?",
-        "promptPill5": "Tell me a fun fact about you",
-    },
-    "404": {
-        "funny": "Page not found/doesn't exist.<br>Or maybe it's out traveling somewhere.",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=404&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "agendado": {
-        "instruction": "Click below or use your phone:",
-        "redirect": "When you're done, don't forget to <a href=\"http://wa.me/+14155238886?text=stop\" target=\"_blank\" aria-label=\"Twilio Sandbox link\">send \"stop\"</a>!",
-    },
-    "amazon": {
-        "instruction": "Click below to continue:",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=amazon&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "linkedin": {
-        "instruction": "Click below to continue:",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=linkedin&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "resume-pdf": {
-        "title": "Gui Ruggiero's resume",
-    },
-    "travel": {
-        "alt": "Gui's travel map",
-        "instruction": "Click below for more details:",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=travel&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "virtualroom": {
-        "instruction": "Click below to continue:",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=virtualroom&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "whatsapp": {
-        "instruction": "Click below or scan with your camera to continue:",
-        "alt": "WhatsApp QR code",
-        "redirect": "While you're here, check out <a href=\"https://guiruggiero.com/?utm_source=whatsapp&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
-    },
-    "whiteboard": {
-        "title": "Gui Ruggiero's whiteboard",
+    "index": {
+        "input": "Enter your question for GuiPT",
+        "submit": "Submit your question",
+        "inputPlaceholder": "^1 Ask me anything about Gui...", // ^1 for leading space
+        "messagesContainer": "Chat conversation with GuiPT",
+        "loader": "GuiPT is thinking...",
+        "disclaimer": "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.",
+        "replyPlaceholder": " Reply to GuiPT",
+        "userMessage": "Your message: ",
+        "guiptResponse": "GuiPT response: ",
+        "errorTooLong": "⚠️ Would you mind shortening your message a bit, please?",
+        "errorForbiddenChars": "⚠️ Please use only letters, numbers, and common punctuation",
+        "errorRequestLimit": "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again",
+        "errorTimeout": "⚠️ ZzZzZ... This is taking too long, can you please try again?",
+        "errorGeneric": "⚠️ Oops! Something went wrong, can you please try again?",
+        "promptPills": [
+            "Who is Gui?",
+            "Where has Gui worked?",
+            "Tell me about Gui's education",
+            "Where is Gui from?",
+            "What are Gui's hobbies?",
+            "How can I get in touch with Gui?",
+            "Tell me a fun fact about Gui",
+            "What does Gui do at Amazon?",
+            "How do you pronounce \"Gui\"?",
+            "What kind of products does Gui build?",
+            "What's Gui's product management experience?",
+            "What's Gui's role in AI?",
+        ],
     },
 };

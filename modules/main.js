@@ -23,17 +23,16 @@ window.addEventListener("unhandledrejection", (event) => {
 
 // Import module dynamically
 async function importModule(path) {
-    if (!window.location.href.includes("ngrok")) return await import(path);
-    else return await import(path.replace(".min.js", ".js"));
+    if (window.location.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
+    else return await import(path);
 }
 
 // Import modules
 const UI = await importModule("./ui.min.js");
 const Validation = await importModule("./validation.min.js");
 const Firebase = await importModule("./firebase.min.js");
-const GuiPTModule = await importModule("./guipt.min.js");
-const callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
-const Localization = await importModule("./localization.min.js"); // TODO: needed here AND in HTML?
+const callGuiPT = (await importModule("./guipt.min.js")).default;
+const langData = (await importModule("./localization.min.js")).default;
 
 // Initializations
 let turnCount = 0, messageCount = 0;
@@ -113,7 +112,7 @@ async function handleGuiPT() {
     // Check if rate limit is exceeded
     if (requestCount >= 5) { // Max requests per minute
         const waitTime = timeWindow - (now - windowStart);
-        UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again."); // TODO: translate and get dinamically
+        UI.addMessage("error", langData.errorRequestLimit);
 
         // Penalty, sit and wait without input
         setTimeout(() => {
@@ -158,8 +157,8 @@ async function handleGuiPT() {
         loaderContainer.remove();
 
         // Only error I want to display a different message for
-        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?"); // TODO: translate and get dinamically
-        else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?"); // TODO: translate and get dinamically
+        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", langData.errorTimeout);
+        else UI.addMessage("error", langData.errorGeneric);
         
         // Bring back user input
         UI.populateInput(input);
@@ -211,7 +210,7 @@ async function handleGuiPT() {
     }
     
     // Alow input again
-    UI.changePlaceholder(" Reply to GuiPT");
+    UI.changePlaceholder(langData.replyPlaceholder);
     UI.toggleInput();
     UI.inputFocus();
 }
@@ -249,18 +248,7 @@ function start() {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
 
-    // setTimeout(() => UI.displayPromptPills(), 1000); // TODO: understand better the proposed changes
-    const userLanguage = Localization.getUserLanguage();
-    const langData = Localization.loadLanguage(userLanguage);
-    const promptPills = [
-        Localization.getTranslation(langData, "index.promptPill1"),
-        Localization.getTranslation(langData, "index.promptPill2"),
-        Localization.getTranslation(langData, "index.promptPill3"),
-        Localization.getTranslation(langData, "index.promptPill4"),
-        Localization.getTranslation(langData, "index.promptPill5"),
-    ];
-
-    setTimeout(() => UI.displayPromptPills(promptPills), 1000);
+    setTimeout(() => UI.displayPromptPills(), 1000);
 }
 
 // Check if page is already loaded
