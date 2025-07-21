@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 
 		<!-- Browser tags -->
-		<title>Gui Ruggiero - AI and Tech expert, Product leader</title>
+		<title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
@@ -22,6 +22,7 @@
 			}
 		</script>
 		<script>loadScript("theme-toggle");</script>
+		<script>loadScript("localization");</script>
 
 		<!-- Sentry -->
 		<script>
@@ -110,7 +111,7 @@
 						</picture>
 					</a>
 
-					<button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+					<button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
 				</div>
 
 				<div id="social-links">
@@ -127,19 +128,19 @@
 		
 		<main>
 			<picture class="travel-map-container">
-				<img id="travel-map" src="https://s3.amazonaws.com/cdn.matadornetwork.com/travel-maps/e6a5f81a105220c091911d68958a0f99-1417402605/my-travel-map.png" alt="Gui's travel map" width="1080">
+				<img id="travel-map" src="https://s3.amazonaws.com/cdn.matadornetwork.com/travel-maps/e6a5f81a105220c091911d68958a0f99-1417402605/my-travel-map.png" alt="Gui Ruggiero's travel map" width="1080" data-i18n="travel.alt">
 			</picture>
 			
-			<p class="instruction">Click below for more details:</p>
+			<p class="instruction" data-i18n="travel.instruction">Click below for more details:</p>
 
 			<a href="https://maps.app.goo.gl/ShARbV1w9iPo5qa66" target="_blank" aria-label="Google Maps link">
 				<iconify-icon icon="logos:google-maps" class="destination"></iconify-icon>
 			</a>
 			
-			<p class="redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
+			<p class="redirect" data-i18n="travel.redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
 		</main>
 
-		<footer>
+		<footer data-i18n="website.footer">
 			Built with lots of ☕ by Gui Ruggiero himself
 		</footer>
 

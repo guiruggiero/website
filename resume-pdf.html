@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 
 		<!-- Browser tags -->
-		<title>Gui Ruggiero - AI and Tech expert, Product leader</title>
+		<title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
@@ -22,6 +22,7 @@
 			}
 		</script>
 		<script>loadScript("theme-toggle");</script>
+		<script>loadScript("localization");</script>
 
 		<!-- Sentry -->
 		<script>
@@ -111,7 +112,7 @@
 						</picture>
 					</a>
 
-					<button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+					<button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
 				</div>
 
 				<div id="social-links">
@@ -131,12 +132,13 @@
 				title="Gui Ruggiero's resume"
 				class="embed" id="gdocs"
 				src="https://drive.google.com/file/d/1elsGxuaVwJx3PaMPzlct4Wcx0l-TEHjf/preview?embedded=true"
-				allow="autoplay; fullscreen">
+				allow="autoplay; fullscreen"
+				data-i18n="resume-pdf.title">
 				Loading...
 			</iframe>
 		</main>
 
-		<footer>
+		<footer data-i18n="website.footer">
 			Built with lots of ☕ by Gui Ruggiero himself
 		</footer>
 

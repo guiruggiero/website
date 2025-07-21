@@ -1,13 +1,11 @@
+// Import
+const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+
+// Initializations
 let preferredTheme = localStorage.getItem("themePreference") || "dark";
 const metaTag = document.querySelector("meta[name='theme-color']");
-const darkThemeColor = "#1a1a1a"; // --primary-bg-color
-const lightThemeColor = "#f4f4f4"; // --primary-bg-color
-
-// Set initial theme based on saved preference
-if (preferredTheme === "light") {
-    document.documentElement.classList.add("light-theme");
-    metaTag.setAttribute("content", lightThemeColor);
-}
+const darkThemeColor = "#1a1a1a"; // CSS --primary-bg-color
+const lightThemeColor = "#f4f4f4"; // CSS --primary-bg-color
 
 // Update icons and ARIA label
 function updateIcons(theme) {
@@ -29,7 +27,7 @@ function updateIcons(theme) {
         GRiconSource?.setAttribute("srcset", "images/gr-logo-dark.webp");
         GRiconImg?.setAttribute("src", "images/gr-logo-dark.png");
         if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:moon-bold'></iconify-icon>";
-        toggleButton?.setAttribute("aria-label", "Switch to dark theme");
+        toggleButton?.setAttribute("aria-label", langData.themeLight);
 
     } else {
         GRlogoSource?.setAttribute("srcset", "images/gr-logo-light.webp");
@@ -38,13 +36,17 @@ function updateIcons(theme) {
         GRiconSource?.setAttribute("srcset", "images/gr-logo-light.webp");
         GRiconImg?.setAttribute("src", "images/gr-logo-light.png");
         if (toggleButton) toggleButton.innerHTML = "<iconify-icon icon='ph:sun-bold'></iconify-icon>";
-        toggleButton?.setAttribute("aria-label", "Switch to light theme");
+        toggleButton?.setAttribute("aria-label", langData.themeDark);
     }
 }
 
-// Update icons immediately if light theme is preferred
+// Update theme and icons immediately if light theme is preferred
 if (preferredTheme === "light") {
-    // Try to update immediately if elements exist
+    // Update theme
+    document.documentElement.classList.add("light-theme");
+    metaTag.setAttribute("content", lightThemeColor);
+
+    // Try to update icons if elements exist
     updateIcons(preferredTheme);
     
     // Set up an observer in case elements aren't ready yet
@@ -59,7 +61,7 @@ if (preferredTheme === "light") {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function setupThemeToggle() {
     const toggleButton = document.getElementById("theme-toggle");
     updateIcons(preferredTheme);
 
@@ -88,4 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("themePreference", "dark");
         }
     });
-});
+}
+
+// Check if page is already loaded
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupThemeToggle); // Page is still loading
+else setupThemeToggle(); // DOMContentLoaded already fired

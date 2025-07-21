@@ -36,7 +36,7 @@ axiosInstance.interceptors.response.use(null, async(error) => {
 });
 
 // Call GuiPT
-export async function callGuiPT(chatHistory, userMessage) {
+export default async function callGuiPT(chatHistory, userMessage) {
     return await axiosInstance.post("", null, {
         params: {
             history: chatHistory,
