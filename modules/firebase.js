@@ -1,3 +1,4 @@
+// Imports
 import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-lite.js";
 

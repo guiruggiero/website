@@ -27,7 +27,7 @@ async function importModule(path) {
     else return await import(path);
 }
 
-// Import modules
+// Imports
 const UI = await importModule("./ui.min.js");
 const Validation = await importModule("./validation.min.js");
 const Firebase = await importModule("./firebase.min.js");
