@@ -7,12 +7,6 @@ const metaTag = document.querySelector("meta[name='theme-color']");
 const darkThemeColor = "#1a1a1a"; // CSS --primary-bg-color
 const lightThemeColor = "#f4f4f4"; // CSS --primary-bg-color
 
-// Set initial theme based on saved preference
-if (preferredTheme === "light") {
-    document.documentElement.classList.add("light-theme");
-    metaTag.setAttribute("content", lightThemeColor);
-}
-
 // Update icons and ARIA label
 function updateIcons(theme) {
     // Home logo
@@ -46,9 +40,13 @@ function updateIcons(theme) {
     }
 }
 
-// Update icons immediately if light theme is preferred
+// Update theme and icons immediately if light theme is preferred
 if (preferredTheme === "light") {
-    // Try to update immediately if elements exist
+    // Update theme
+    document.documentElement.classList.add("light-theme");
+    metaTag.setAttribute("content", lightThemeColor);
+
+    // Try to update icons if elements exist
     updateIcons(preferredTheme);
     
     // Set up an observer in case elements aren't ready yet
@@ -63,7 +61,7 @@ if (preferredTheme === "light") {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function setupThemeToggle() {
     const toggleButton = document.getElementById("theme-toggle");
     updateIcons(preferredTheme);
 
@@ -92,4 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("themePreference", "dark");
         }
     });
-});
+}
+
+// Check if page is already loaded
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", setupThemeToggle); // Page is still loading
+else setupThemeToggle(); // DOMContentLoaded already fired

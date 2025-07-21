@@ -2,6 +2,7 @@ export default {
     "website": {
         "themeDark": "Switch to light theme",
         "themeLight": "Switch to dark theme",
+        "cookieConsent": "<p>This site uses butter cookies from Google to analyze traffic.</p>\n<button>OK, got it! 🍪</button>",
     },
     "index": {
         "input": "Enter your question for GuiPT",

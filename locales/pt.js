@@ -5,6 +5,7 @@ export default {
         "themeDark": "Mudar para o tema claro",
         "themeLight": "Mudar para o tema escuro",
         "footer": "Desenvolvido com muito ☕ pelo próprio Gui Ruggiero",
+        "cookieConsent": "<p>Este site usa cookies do Google para análisar tráfego.</p>\n<button>OK, entendi! 🍪</button>",
     },
     "404": {
         "funny": "Página não encontrada/não existe.<br>Ou talvez esteja viajando por aí.",
@@ -20,19 +21,19 @@ export default {
     },
     "index": {
         "input": "Escreva sua pergunta para o GuiPT",
-        "submit": "Enviar sua pergunta",
-        "inputPlaceholder": "^1 Me pergunte qualquer coisa sobre o Gui...", // ^1 for leading space
+        "submit": "Envie sua pergunta",
+        "inputPlaceholder": "^1 Me pergunte qualquer coisa sobre o Gui...", // ^1 for leading space with Typed
         "messagesContainer": "Conversa com GuiPT",
         "loader": "GuiPT está pensando...",
-        "disclaimer": "Privacidade: as conversas são armazenadas para melhorar o GuiPT. Ao continuar, você aceita isso. Por favor, não envie informações pessoais.",
+        "disclaimer": "Privacidade: conversas são salvas para melhorar o GuiPT. Ao continuar, você aceita isso. Não envie informações pessoais.",
         "replyPlaceholder": " Responda ao GuiPT",
         "userMessage": "Sua mensagem: ",
         "guiptResponse": "Resposta do GuiPT: ",
-        "errorTooLong": "⚠️ Mensagem muito longa, ",
+        "errorTooLong": "⚠️ Pode encurtar um pouco sua mensagem, por favor?",
         "errorForbiddenChars": "⚠️ Por favor, use apenas letras, números e pontuação comum",
         "errorRequestLimit": "⚠️ Uau! Recebi mensagens demais e muito rápido. Aguarde um pouco para tentar de novo",
-        "errorTimeout": "⚠️ ZzZzZ... Isso está demorando um pouco demais. Tente de novo mais tarde",
-        "errorGeneric": "⚠️ Opa! Algo deu errado. Tente de novo mais tarde",
+        "errorTimeout": "⚠️ ZzZzZ... Isso está demorando um pouco demais. Tente de novo, por favor",
+        "errorGeneric": "⚠️ Opa! Algo deu errado. Pode tentar de novo, por favor?",
         "promptPills": [
             "Me fale um pouco sobre o Gui",
             "Onde o Gui trabalhou?",
@@ -40,7 +41,7 @@ export default {
             "De onde o Gui é e onde ele mora?",
             "O que o Gui gosta de fazer?",
             "Como posso entrar em contato com o Gui?",
-            "Me conte um fato curioso sobre o Gui",
+            "Me conte algo curioso sobre o Gui",
             "O que o Gui faz na Amazon?",
             "Com que tipos de produtos o Gui trabalha?",
             "Qual é a experiência do Gui em Gerenciamento de Produtos?",
