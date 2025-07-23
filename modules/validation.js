@@ -1,3 +1,6 @@
+// Import
+const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+
 // Sanitize potentially harmful characters
 export function sanitizeInput(input) {
     return input
@@ -20,7 +23,7 @@ export function validateInput(input) {
     if (input.length > 200) {
         return {
             assessment: "Too long",
-            errorMessage: "⚠️ Would you mind shortening your message a bit, please?",
+            errorMessage: langData.errorTooLong,
         };
     }
 
@@ -28,7 +31,7 @@ export function validateInput(input) {
     if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // Excludes @$%&/+
         return {
             assessment: "Forbidden characters",
-            errorMessage: "⚠️ Please use only letters, numbers, and common punctuation.",
+            errorMessage: langData.errorForbiddenChars,
         };
     }
 

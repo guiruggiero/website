@@ -1,4 +1,6 @@
+// Imports
 import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
+const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
 export let chatWindowExpanded = false;
@@ -26,7 +28,7 @@ export function inputFocus() {
 // Type input placeholder and focus
 export function inputPlaceholderAndFocus() {
     new Typed(elements.input, {
-        strings: ["^1 Ask me anything about Gui..."], // ^1 for leading space
+        strings: [langData.inputPlaceholder],
         contentType: "null",
         attr: "placeholder",
         typeSpeed: 10,
@@ -111,14 +113,14 @@ export function expandChatWindow() {
     let messagesContainer = document.createElement("div");
     messagesContainer.className = "messages-container";
     messagesContainer.setAttribute("role", "log");
-    messagesContainer.setAttribute("aria-label", "Chat conversation with GuiPT");
+    messagesContainer.setAttribute("aria-label", langData.messagesContainer);
     messagesContainer.setAttribute("aria-live", "polite");
     elements.chatWindow.appendChild(messagesContainer);
     elements.messagesContainer = messagesContainer;
 
     // Create disclaimer
     const disclaimer = document.createElement("div");
-    disclaimer.textContent = "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.";
+    disclaimer.textContent = langData.disclaimer;
     disclaimer.id = "disclaimer";
     elements.disclaimer = disclaimer;
     elements.chatWindow.appendChild(disclaimer);
@@ -146,13 +148,13 @@ export function addMessage(type, message, existingContainer = null) {
         const messageElement = document.createElement("div");
         messageElement.classList.add("message", "user-message");
         messageElement.textContent = message;
-        messageElement.setAttribute("aria-label", "Your message: " + message);
+        messageElement.setAttribute("aria-label", langData.userMessage + message);
         animateElement(messageElement);
     } else if (type == "bot") {
         let messageElement = existingContainer;
         messageElement.removeAttribute("id");
         messageElement.innerHTML = "";
-        messageElement.setAttribute("aria-label", "GuiPT response: " + message);
+        messageElement.setAttribute("aria-label", langData.guiptResponse + message);
 
         // Replace the & character so Typed doesn't stop
         message = message.replace(/&/g, "&amp;");
@@ -194,29 +196,13 @@ export function showLoader() {
     const loaderElement = document.createElement("div");
     loaderElement.id = "loader";
     loaderElement.setAttribute("role", "status");
-    loaderElement.setAttribute("aria-label", "GuiPT is thinking...");
+    loaderElement.setAttribute("aria-label", langData.loader);
     loaderContainer.appendChild(loaderElement);
     animateElement(loaderContainer);
     
     // For reuse with bot message
     return loaderContainer;
 }
-
-// Example prompts to pick from
-const examplePrompts = [
-    "Who is Gui?",
-    "What's Gui's professional background?",
-    "Tell me about Gui's education",
-    "Where is Gui from?",
-    "What are Gui's hobbies?",
-    "How can I get in touch with Gui?",
-    "Tell me a fun fact about Gui",
-    "Where has Gui lived?",
-    "How do you pronounce \"Gui\"?",
-    "What kind of products does Gui build?",
-    "What's Gui's product management experience?",
-    "What's Gui's role in AI?",
-];
 
 // Shuffle an array (Fisher-Yates)
 function shuffleArray(array) {
@@ -229,9 +215,9 @@ function shuffleArray(array) {
 // Display example prompts as pills
 export function displayPromptPills() {
     // Copy prompts, shuffle, and select 3
-    const shuffledPrompts = [...examplePrompts];
-    shuffleArray(shuffledPrompts);
-    const selectedPrompts = shuffledPrompts.slice(0, 3);
+    const prompts = langData.promptPills;
+    shuffleArray(prompts);
+    const selectedPrompts = prompts.slice(0, 3);
 
     // Create pills
     selectedPrompts.forEach((promptText, index) => {

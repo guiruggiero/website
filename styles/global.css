@@ -21,18 +21,22 @@
     --cookie-banner-text-color: #262626;
 }
 
-html.light-theme {
-    --primary-bg-color: #f4f4f4;
-    --primary-text-color: #212121;
-    --secondary-bg-color: #e5e5e5;
-    --secondary-text-color: #757575;
-    --tertiary-bg-color: #d7d7d7;
-    --accent-color: #2563eb;
-    --secondary-accent-color: #adc4f7;
-    --error-message-bg-color: #ffd7dd;
-    --cookie-banner-bg-color: #262626;
-    --cookie-banner-text-color: #ffffffd9;
+html {
+    visibility: hidden;
 }
+
+    html.light-theme {
+        --primary-bg-color: #f4f4f4;
+        --primary-text-color: #212121;
+        --secondary-bg-color: #e5e5e5;
+        --secondary-text-color: #757575;
+        --tertiary-bg-color: #d7d7d7;
+        --accent-color: #2563eb;
+        --secondary-accent-color: #adc4f7;
+        --error-message-bg-color: #ffd7dd;
+        --cookie-banner-bg-color: #262626;
+        --cookie-banner-text-color: #ffffffd9;
+    }
 
     body {
         display: flex;

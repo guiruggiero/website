@@ -1,0 +1,37 @@
+export default {
+    "website": {
+        "themeDark": "Switch to light theme",
+        "themeLight": "Switch to dark theme",
+        "cookieConsent": "<p>This site uses butter cookies from Google to analyze traffic.</p>\n<button>OK, got it! 🍪</button>",
+    },
+    "index": {
+        "input": "Enter your question for GuiPT",
+        "submit": "Submit your question",
+        "inputPlaceholder": "^1 Ask me anything about Gui...", // ^1 for leading space
+        "messagesContainer": "Chat conversation with GuiPT",
+        "loader": "GuiPT is thinking...",
+        "disclaimer": "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.",
+        "replyPlaceholder": " Reply to GuiPT",
+        "userMessage": "Your message: ",
+        "guiptResponse": "GuiPT response: ",
+        "errorTooLong": "⚠️ Would you mind shortening your message a bit, please?",
+        "errorForbiddenChars": "⚠️ Please use only letters, numbers, and common punctuation",
+        "errorRequestLimit": "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again",
+        "errorTimeout": "⚠️ ZzZzZ... This is taking too long, can you please try again?",
+        "errorGeneric": "⚠️ Oops! Something went wrong, can you please try again?",
+        "promptPills": [
+            "Who is Gui?",
+            "Where has Gui worked?",
+            "Tell me about Gui's education",
+            "Where is Gui from?",
+            "What are Gui's hobbies?",
+            "How can I get in touch with Gui?",
+            "Tell me a fun fact about Gui",
+            "What does Gui do at Amazon?",
+            "How do you pronounce \"Gui\"?",
+            "What kind of products does Gui build?",
+            "What's Gui's product management experience?",
+            "What's Gui's role in AI?",
+        ],
+    },
+};

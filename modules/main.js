@@ -1,38 +1,15 @@
-// Global error handler
-window.addEventListener("error", (event) => {
-    Sentry.captureException(event.error, {contexts: {
-        globalError: {
-            file: event.filename,
-            line: event.lineno,
-            column: event.colno,
-            errorMessage: event.error.message,
-        },
-    }});
-});
-
-// Unhandled promise rejection handler
-window.addEventListener("unhandledrejection", (event) => {
-    Sentry.captureException(event.reason, {contexts: {
-        unhandledPromise: {
-            status: "Unhandled promise rejection",
-            name: event.reason.name || event.reason.constructor.name,
-            reasonDetails: String(event.reason),
-        },
-    }});
-});
-
 // Import module dynamically
 async function importModule(path) {
-    if (!window.location.href.includes("ngrok")) return await import(path);
-    else return await import(path.replace(".min.js", ".js"));
+    if (window.location.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
+    else return await import(path);
 }
 
-// Import modules
-let UI = await importModule("./ui.min.js");
-let Validation = await importModule("./validation.min.js");
-let Firebase = await importModule("./firebase.min.js");
-const GuiPTModule = await importModule("./guipt.min.js");
-let callGuiPT = GuiPTModule.callGuiPT; // Extract specific function from GuiPT module
+// Imports
+const UI = await importModule("./ui.min.js");
+const Validation = await importModule("./validation.min.js");
+const Firebase = await importModule("./firebase.min.js");
+const callGuiPT = (await importModule("./guipt.min.js")).default;
+const langData = (await importModule("./localization.min.js")).default;
 
 // Initializations
 let turnCount = 0, messageCount = 0;
@@ -112,7 +89,7 @@ async function handleGuiPT() {
     // Check if rate limit is exceeded
     if (requestCount >= 5) { // Max requests per minute
         const waitTime = timeWindow - (now - windowStart);
-        UI.addMessage("error", "⚠️ Whoa! Too many messages, too fast. Wait a bit to try again.");
+        UI.addMessage("error", langData.errorRequestLimit);
 
         // Penalty, sit and wait without input
         setTimeout(() => {
@@ -157,8 +134,8 @@ async function handleGuiPT() {
         loaderContainer.remove();
 
         // Only error I want to display a different message for
-        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", "⚠️ ZzZzZ... This is taking too long, can you please try again?");
-        else UI.addMessage("error", "⚠️ Oops! Something went wrong, can you please try again?");
+        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", langData.errorTimeout);
+        else UI.addMessage("error", langData.errorGeneric);
         
         // Bring back user input
         UI.populateInput(input);
@@ -210,7 +187,7 @@ async function handleGuiPT() {
     }
     
     // Alow input again
-    UI.changePlaceholder(" Reply to GuiPT");
+    UI.changePlaceholder(langData.replyPlaceholder);
     UI.toggleInput();
     UI.inputFocus();
 }
@@ -253,4 +230,4 @@ function start() {
 
 // Check if page is already loaded
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); // Page is still loading
-else start(); // DOMContentLoaded already fired, safe to start
+else start(); // DOMContentLoaded already fired
