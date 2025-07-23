@@ -9,8 +9,10 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
 		<meta name="theme-color" content="#1a1a1a">
-		<script> // Helper function to load JS modules dynamically
-			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
+		
+		<!-- Critical scripts -->
+		<script>
+			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
 				const script = document.createElement("script");
 				const isDev = window.location.href.includes("ngrok");
 				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
@@ -21,20 +23,10 @@
 				parent.appendChild(script);
 			}
 		</script>
+		<script>loadScript("sentry", {type: "text/javascript"});</script>
+		<script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
 		<script>loadScript("theme-toggle");</script>
 		<script>loadScript("localization");</script>
-
-		<!-- Sentry -->
-		<script>
-			window.sentryOnLoad = function () {
-				Sentry.init({environment: window.location && window.location.href.includes("ngrok") ? "dev" : "v1"});
-				window.location && Sentry.setTag("page", window.location.pathname);
-				window.innerWidth && Sentry.setTag("screenWidth", window.innerWidth);
-				window.innerHeight && Sentry.setTag("screenHeight", window.innerHeight);
-				navigator.userAgent && Sentry.setTag("userAgent", navigator.userAgent);
-			};
-		</script>
-		<script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
 
 		<!-- Preconnects and preloads -->
 		<link rel="preload" href="images/gr-logo-light.webp" as="image">
@@ -361,7 +353,7 @@
 			Built with lots of ☕ by Gui Ruggiero himself
 		</footer>
 
-		<!-- Script -->
+		<!-- Other script -->
 		<script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
 	</body>
 </html>
