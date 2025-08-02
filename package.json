@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@html-eslint/eslint-plugin": "^0.43.1",
-    "@html-eslint/parser": "^0.43.0",
+    "@html-eslint/eslint-plugin": "^0.44.0",
+    "@html-eslint/parser": "^0.44.0",
     "@stylistic/eslint-plugin-js": "^4.4.1",
     "eslint": "^9.32.0",
     "eslint-plugin-yml": "^1.18.0",
