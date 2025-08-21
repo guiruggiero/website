@@ -25,6 +25,7 @@ export default [
         ...globals.browser,
         Typed: true,
         axios: true,
+        axiosRetry: true,
         Sentry: true,
       },
     },
