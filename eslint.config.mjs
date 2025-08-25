@@ -1,7 +1,7 @@
 // Imports
 import globals from "globals";
 import js from "@eslint/js";
-import stylisticJs from "@stylistic/eslint-plugin-js";
+import stylisticJs from "@stylistic/eslint-plugin";
 import html from "@html-eslint/eslint-plugin";
 import htmlParser from "@html-eslint/parser";
 import eslintPluginYml from "eslint-plugin-yml";
