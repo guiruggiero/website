@@ -19,6 +19,9 @@
     --error-message-bg-color: #480b0b;
     --cookie-banner-bg-color: #ffffffd9;
     --cookie-banner-text-color: #262626;
+    --media-border-color: #444444;
+    --media-bg-color: #2a2a2a;
+    --media-hover-bg: rgba(255, 255, 255, 0.05); /* TODO: not used */
 }
 
 html {
@@ -36,6 +39,9 @@ html {
         --error-message-bg-color: #ffd7dd;
         --cookie-banner-bg-color: #262626;
         --cookie-banner-text-color: #ffffffd9;
+        --media-border-color: #e0e0e0;
+        --media-bg-color: #f8f8f8;
+        --media-hover-bg: rgba(0, 0, 0, 0.05); /* TODO: not used */
     }
 
     body {
