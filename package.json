@@ -5,8 +5,8 @@
   "version": "2.0",
   "main": "modules/main.js",
   "manualUpdateDependencies": {
-    "firebase": "^11.7.3",
-    "firebase-firestore-lite": "^11.7.3"
+    "firebase": "^12.2.1",
+    "firebase-firestore-lite": "^12.2.1"
   },
   "autoUpdatedDependencies": {
     "axios": "^1.9.0",
@@ -31,7 +31,8 @@
     "terser": "^5.39.2"
   },
   "scripts": {
-    "webp": "cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
+    "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
+    "server": "http-server",
     "tunnel": "lt --port 8081 --subdomain ngrok --print-requests",
     "ip": "curl https://checkip.amazonaws.com",
     "lint": "npx eslint ."
