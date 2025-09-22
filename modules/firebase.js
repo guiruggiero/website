@@ -1,5 +1,5 @@
 // Imports
-import {getApp, getApps, initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore-lite.js";
 
 // Initializations
@@ -11,7 +11,7 @@ const firebaseConfig = {
     messagingSenderId: "49247152565",
     appId: "1:49247152565:web:eb614bed7a4cf43ed611fc",
 };
-const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp(); // App Check: export
 const db = getFirestore(firebaseApp);
 
 // Separate dev and prod in different collections
