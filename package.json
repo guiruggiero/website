@@ -33,8 +33,8 @@
   },
   "scripts": {
     "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
-    "server": "http-server",
-    "tunnel": "lt --port 8081 --subdomain ngrok --print-requests",
+    "server": "http-server ./ --port 8082",
+    "tunnel": "lt --port 8082 --subdomain ngrok --print-requests",
     "ip": "curl https://checkip.amazonaws.com",
     "lint": "npx eslint ."
   }
