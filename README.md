@@ -86,7 +86,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - `typed.js` - animated typing effect
 
 ### API & data management
-- `axios` - API communication
+- `axios` and `axios-retry` - API communication with retry logic
 - `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
 
 ### Build & optimization
@@ -97,7 +97,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### Development
 - `http-server` - local development server
-- `ngrok` - local development tunneling
+- `localtunnel` - local development tunneling
 - `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
 - `@sentry/node` and `getsentry/action-release` - Sentry integration
 

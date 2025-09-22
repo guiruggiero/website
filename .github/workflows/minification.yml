@@ -18,23 +18,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Install Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
       - name: Install CLI tools
         run: |
-          npm install -g html-minifier@latest lightningcss-cli@latest terser@latest
+          npm install -g html-minifier-next@latest lightningcss-cli@latest terser@latest
 
       - name: Minify HTML
         run: |
-          find . -maxdepth 1 -name "*.html" -print0 | xargs -0 -P 4 -I {} html-minifier {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js || exit 1
+          find . -maxdepth 1 -name "*.html" -print0 | xargs -0 -P 4 -I {} html-minifier-next {} -o {} --collapse-whitespace --remove-comments --remove-redundant-attributes --remove-script-type-attributes --use-short-doctype --collapse-boolean-attributes --remove-empty-attributes --remove-style-link-type-attributes --minify-css --minify-js || exit 1
 
       - name: Minify CSS
         run: |
