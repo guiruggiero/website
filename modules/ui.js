@@ -1,6 +1,6 @@
 // Imports
 import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
-const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
 export let chatWindowExpanded = false;

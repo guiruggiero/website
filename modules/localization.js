@@ -43,7 +43,7 @@ function translatePage() {
     
     // Translate eligible elements
     document.querySelectorAll("[data-i18n]").forEach((element) => {
-        const key = element.getAttribute("data-i18n");
+        const key = element.dataset.i18n;
         const translation = getTranslation(langData, key);
         if (translation) {
             if (element.tagName === "TITLE") element.textContent = translation;

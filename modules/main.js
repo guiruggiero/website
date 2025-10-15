@@ -1,6 +1,6 @@
 // Import module dynamically
 async function importModule(path) {
-    if (window.location.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
+    if (globalThis.location.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
     else return await import(path);
 }
 

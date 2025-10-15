@@ -14,7 +14,7 @@
 		<script>
 			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
 				const script = document.createElement("script");
-				const isDev = window.location.href.includes("ngrok");
+				const isDev = globalThis.location.href.includes("ngrok");
 				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
 				script.type = type;
 				if (defer) script.defer = true;

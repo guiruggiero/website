@@ -1,15 +1,15 @@
-window.sentryOnLoad = function() {
+globalThis.sentryOnLoad = function() {
     // Initialization
-    Sentry.init({environment: window.location && window.location.href.includes("ngrok") ? "dev" : "v1"});
+    Sentry.init({environment: globalThis.location && globalThis.location.href.includes("ngrok") ? "dev" : "v1"});
 
     // Set session context
-    window.location && Sentry.setTag("page", window.location.pathname);
-    window.innerWidth && Sentry.setTag("screenWidth", window.innerWidth);
-    window.innerHeight && Sentry.setTag("screenHeight", window.innerHeight);
+    globalThis.location && Sentry.setTag("page", globalThis.location.pathname);
+    globalThis.innerWidth && Sentry.setTag("screenWidth", globalThis.innerWidth);
+    globalThis.innerHeight && Sentry.setTag("screenHeight", globalThis.innerHeight);
     navigator.userAgent && Sentry.setTag("userAgent", navigator.userAgent);
 
     // Global error handler
-    window.addEventListener("error", (event) => {
+    globalThis.addEventListener("error", (event) => {
         Sentry.captureException(event.error, {
             contexts: {
                 globalError: {
@@ -23,7 +23,7 @@ window.sentryOnLoad = function() {
     });
 
     // Unhandled promise rejection handler
-    window.addEventListener("unhandledrejection", (event) => {
+    globalThis.addEventListener("unhandledrejection", (event) => {
         Sentry.captureException(event.reason, {
             contexts: {
                 unhandledPromise: {
