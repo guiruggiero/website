@@ -90,16 +90,16 @@ The rest of the site is my professional highlight reel and a collection of utili
 - `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
 
 ### Build & optimization
+- `cwebp-bin` - WebP image conversion
 - `html-minifier` - HTML minification
 - `lightningcss-cli` - CSS minification
 - `terser` - JavaScript minification
-- `cwebp-bin` - WebP image conversion
 
 ### Development
+- `@sentry/browser` and `getsentry/action-release` - Sentry integration
+- `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
 - `http-server` - local development server
 - `localtunnel` - local development tunneling
-- `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
-- `@sentry/node` and `getsentry/action-release` - Sentry integration
 
 ---
 
