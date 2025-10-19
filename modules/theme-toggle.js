@@ -1,11 +1,8 @@
 // Import
 const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
-// Initializations
+// Initialization
 let preferredTheme = localStorage.getItem("themePreference") || "dark";
-const metaTag = document.querySelector("meta[name='theme-color']");
-const darkThemeColor = "#1a1a1a"; // CSS --primary-bg-color
-const lightThemeColor = "#f4f4f4"; // CSS --primary-bg-color
 
 // Update icons and ARIA label
 function updateIcons(theme) {
@@ -44,7 +41,6 @@ function updateIcons(theme) {
 if (preferredTheme === "light") {
     // Update theme
     document.documentElement.classList.add("light-theme");
-    metaTag.setAttribute("content", lightThemeColor);
 
     // Try to update icons if elements exist
     updateIcons(preferredTheme);
@@ -67,28 +63,13 @@ function setupThemeToggle() {
 
     // Event listener for the toggle button
     toggleButton.addEventListener("pointerup", () => {
+        // Toggle the theme - true if added, false if removed
+        if (document.documentElement.classList.toggle("light-theme")) preferredTheme = "light";
+        else preferredTheme = "dark";
 
-        // Toggle the theme
-        if (document.documentElement.classList.toggle("light-theme")) {
-            preferredTheme = "light";
-
-            // Update theme and icons
-            metaTag.setAttribute("content", lightThemeColor);
-            updateIcons("light");
-
-            // Save the new theme preference
-            localStorage.setItem("themePreference", "light");
-
-        } else {
-            preferredTheme = "dark";
-
-            // Update theme and icons
-            metaTag.setAttribute("content", darkThemeColor);
-            updateIcons("dark");
-
-            // Save the new theme preference
-            localStorage.setItem("themePreference", "dark");
-        }
+        // Update icons and save the new theme preference
+        updateIcons(preferredTheme);
+        localStorage.setItem("themePreference", preferredTheme);
     });
 }
 

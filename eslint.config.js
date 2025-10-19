@@ -58,7 +58,6 @@ export default defineConfig([
       "html/element-newline": "off",
       "html/no-obsolete-tags": "warn",
       "html/no-trailing-spaces": "warn",
-      "html/use-baseline": "off",
     },
   },
 

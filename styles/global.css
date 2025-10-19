@@ -9,6 +9,7 @@
 }
 
 :root {
+    color-scheme: dark;
     --primary-bg-color: #1a1a1a;
     --primary-text-color: #ffffffd9;
     --secondary-bg-color: #272727;
@@ -29,6 +30,7 @@ html {
 }
 
     html.light-theme {
+        color-scheme: light;
         --primary-bg-color: #f4f4f4;
         --primary-text-color: #212121;
         --secondary-bg-color: #e5e5e5;
