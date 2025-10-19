@@ -28,7 +28,7 @@ export async function createLog(chatStart, turnHistory) {
         });
         return chatRef.id;
 
-    } catch (error) {
+    } catch(error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
             logDetails: {
@@ -52,7 +52,7 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
             turns: turnHistory,
         });
 
-    } catch (error) {
+    } catch(error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
             logDetails: {

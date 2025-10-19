@@ -130,7 +130,7 @@ async function handleGuiPT() {
             timeoutPromise,
         ]);
 
-    } catch (error) {
+    } catch(error) {
         loaderContainer.remove();
 
         // Only error I want to display a different message for

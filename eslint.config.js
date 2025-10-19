@@ -12,7 +12,8 @@ import json from "@eslint/json";
 export default defineConfig([
   // JavaScript configuration
   {
-		files: ["**/*.js"],
+    files: ["**/*.js"],
+    ignores: ["eslint.config.js"],
     plugins: {
       js,
       "@stylistic": stylistic,
@@ -27,7 +28,7 @@ export default defineConfig([
         Sentry: true,
       },
     },
-		rules: {
+    rules: {
       "no-unused-vars": "error",
       "@stylistic/indent": ["warn", 4],
       "@stylistic/semi": "error",
@@ -43,8 +44,8 @@ export default defineConfig([
       "@stylistic/space-before-blocks": "warn",
       "@stylistic/space-before-function-paren": ["warn", "never"],
       "@stylistic/space-in-parens": "warn",
-		},
-	},
+    },
+  },
 
   // HTML configuration
   {
@@ -57,6 +58,7 @@ export default defineConfig([
       "html/element-newline": "off",
       "html/no-obsolete-tags": "warn",
       "html/no-trailing-spaces": "warn",
+      "html/use-baseline": "off",
     },
   },
 
