@@ -1,139 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
+    <head>
+        <meta charset="UTF-8">
 
-		<!-- Browser tags -->
-		<title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
-		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<!-- eslint-disable-next-line @html-eslint/use-baseline -->
-		<meta name="theme-color" content="#1a1a1a">
-		
-		<!-- Critical scripts -->
-		<script>
-			function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
+        <!-- Browser tags -->
+        <title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="color-scheme" content="dark light">
+
+        <!-- Critical scripts -->
+        <script>
+            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
 				const script = document.createElement("script");
-				const isDev = window.location.href.includes("ngrok");
-				script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
-				script.type = type;
-				if (defer) script.defer = true;
-				if (crossorigin) script.crossorigin = crossorigin;
-				const parent = target === "body" ? document.body : document.head;
-				parent.appendChild(script);
-			}
-		</script>
-		<script>loadScript("sentry", {type: "text/javascript"});</script>
-		<script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
-		<script>loadScript("theme-toggle");</script>
-		<script>loadScript("localization");</script>
+                const isDev = globalThis.location.href.includes("ngrok");
+                script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
+                script.type = type;
+                if (defer) script.defer = true;
+                if (crossorigin) script.crossorigin = crossorigin;
+                const parent = target === "body" ? document.body : document.head;
+                parent.appendChild(script);
+            }
+        </script>
+        <script>loadScript("sentry", {type: "text/javascript"});</script>
+        <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
+        <script>loadScript("theme-toggle");</script>
+        <script>loadScript("localization");</script>
 
-		<!-- Preconnects and preloads -->
-		<link rel="preload" href="images/gr-logo-light.webp" as="image">
-		<link rel="preload" href="images/gr-logo-dark.webp" as="image">
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
-		<link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <!-- Preconnects and preloads -->
+        <link rel="preload" href="images/gr-logo-light.webp" as="image">
+        <link rel="preload" href="images/gr-logo-dark.webp" as="image">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
-		<!-- Stylesheets -->
-		<link rel="stylesheet" href="styles/404.css">
-		<script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
-		<link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-		<noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="styles/404.css">
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
+        <link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
 
-		<!-- Favicons for dark mode -->
-		<link rel="icon" type="image/x-icon" href="images/favicons/favicon-light.ico" media="(prefers-color-scheme: dark)">
-		<link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-light.png" media="(prefers-color-scheme: dark)">
-		<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-light.png" media="(prefers-color-scheme: dark)">
-		<link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-light.png" media="(prefers-color-scheme: dark)">
-		<link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-light.png" media="(prefers-color-scheme: dark)">
-		<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-light.png" media="(prefers-color-scheme: dark)">
+        <!-- Favicons for dark mode -->
+        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-light.ico" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-light.png" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-light.png" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-light.png" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-light.png" media="(prefers-color-scheme: dark)">
+        <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-light.png" media="(prefers-color-scheme: dark)">
 
-		<!-- Favicons for light mode -->
-		<link rel="icon" type="image/x-icon" href="images/favicons/favicon-dark.ico" media="(prefers-color-scheme: light)">
-		<link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-dark.png" media="(prefers-color-scheme: light)">
-		<link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-dark.png" media="(prefers-color-scheme: light)">
-		<link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-dark.png" media="(prefers-color-scheme: light)">
-		<link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
-		<link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
+        <!-- Favicons for light mode -->
+        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-dark.ico" media="(prefers-color-scheme: light)">
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-dark.png" media="(prefers-color-scheme: light)">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-dark.png" media="(prefers-color-scheme: light)">
+        <link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-dark.png" media="(prefers-color-scheme: light)">
+        <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
+        <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
 
-		<!-- Google Tag Manager -->
-		<script>
-			(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
-		</script>
+        <!-- Google Tag Manager -->
+        <script>
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
+        </script>
 
-		<!-- Search engine tag -->
-		<meta name="robots" content="noindex">
+        <!-- Search engine tag -->
+        <meta name="robots" content="noindex">
 
-		<!-- Open Graph tags -->
-		<meta name="title" property="og:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-		<meta name="description" property="og:description" content="Chat with AI assistant GuiPT to learn about his expertise in product management, AI, and human-computer interaction">
-		<meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
-		<meta property="og:image:type" content="image/png">
-		<meta property="og:image:width" content="1280">
-		<meta property="og:image:height" content="640">
-		<meta property="og:type" content="website">
-		<meta property="og:url" content="https://guiruggiero.com/">
-		<meta property="og:site_name" content="Gui Ruggiero">
-		<meta property="og:locale" content="en_US">
+        <!-- Open Graph tags -->
+        <meta name="title" property="og:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
+        <meta name="description" property="og:description" content="Chat with AI assistant GuiPT to learn about his expertise in product management, AI, and human-computer interaction">
+        <meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1280">
+        <meta property="og:image:height" content="640">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://guiruggiero.com/">
+        <meta property="og:site_name" content="Gui Ruggiero">
+        <meta property="og:locale" content="en_US">
 
-		<!-- X tags -->
-		<meta name="twitter:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-		<meta name="twitter:description" content="Chat with AI assistant GuiPT to learn about his expertise in product management, AI, and human-computer interaction">
-		<meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
-		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:creator" content="@guiruggiero">
-		<meta name="twitter:site" content="@guiruggiero">
-	</head>
+        <!-- X tags -->
+        <meta name="twitter:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
+        <meta name="twitter:description" content="Chat with AI assistant GuiPT to learn about his expertise in product management, AI, and human-computer interaction">
+        <meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:creator" content="@guiruggiero">
+        <meta name="twitter:site" content="@guiruggiero">
+    </head>
 
-	<body>
-		<!-- Google Tag Manager (noscript) -->
-		<noscript>
-			<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-		</noscript>
+    <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        </noscript>
 
-		<header>
-			<div class="header-container">
-				<div class="logo-theme-toggle">
-					<a href="https://guiruggiero.com/?utm_source=404&utm_medium=header" aria-label="Gui Ruggiero homepage">
-						<picture>
-							<source srcset="images/gr-logo-light.webp" type="image/webp">
-							<img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
-						</picture>
-					</a>
-					
-					<button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
-				</div>
+        <header>
+            <div class="header-container">
+                <div class="logo-theme-toggle">
+                    <a href="https://guiruggiero.com/?utm_source=404&utm_medium=header" aria-label="Gui Ruggiero homepage">
+                        <picture>
+                            <source srcset="images/gr-logo-light.webp" type="image/webp">
+                            <img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+                        </picture>
+                    </a>
 
-				<div id="social-links">
-					<a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
-						<iconify-icon icon="cib:linkedin-in"></iconify-icon>
-					</a>
+                    <button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                </div>
 
-					<a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
-						<iconify-icon icon="cib:github"></iconify-icon>
-					</a>
-				</div>
-			</div>
-		</header>
-		
-		<main>
-			<div class="error-container">
-				<span class="error-text">404</span>
-				<iconify-icon class="error-icon" icon="ph:airplane-tilt-fill"></iconify-icon>
-			</div>
+                <div id="social-links">
+                    <a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
+                        <iconify-icon icon="cib:linkedin-in"></iconify-icon>
+                    </a>
 
-			<p class="funny" data-i18n="404.funny">Page not found/doesn't exist.<br>Or maybe it's out traveling somewhere.</p>
+                    <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                    </a>
+                </div>
+            </div>
+        </header>
 
-			<p class="redirect" data-i18n="404.redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=404&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
-		</main>
+        <main>
+            <div class="error-container">
+                <span class="error-text">404</span>
+                <iconify-icon class="error-icon" icon="ph:airplane-tilt-fill"></iconify-icon>
+            </div>
 
-		<footer data-i18n="website.footer">
-			Built with lots of ☕ by Gui Ruggiero himself
-		</footer>
+            <p class="funny" data-i18n="404.funny">Page not found/doesn't exist.<br>Or maybe it's out traveling somewhere.</p>
 
-		<!-- Other script -->
-		<script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
-	</body>
+            <p class="redirect" data-i18n="404.redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=404&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
+        </main>
+
+        <footer data-i18n="website.footer">
+            Built with lots of ☕ by Gui Ruggiero himself
+        </footer>
+
+        <!-- Other script -->
+        <script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
+    </body>
 </html>

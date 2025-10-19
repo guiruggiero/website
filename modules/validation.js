@@ -1,5 +1,5 @@
 // Import
-const langData = (await import(window.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Sanitize potentially harmful characters
 export function sanitizeInput(input) {

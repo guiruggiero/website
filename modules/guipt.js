@@ -1,28 +1,12 @@
 // Imports
-// import {firebaseApp} from "./firebase.js"; // App Check
-// import {initializeAppCheck, ReCaptchaV3Provider, getToken} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app-check.js"; // App Check
 import "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js";
 import axiosRetry from "https://cdn.jsdelivr.net/npm/axios-retry/+esm";
 
-// Initializations
-// const appCheck = initializeAppCheck(firebaseApp, {provider: new ReCaptchaV3Provider("6LcYhLErAAAAAOs-5YIyE2MQQQ5nlajPsGAW6ny_")}); // App Check
+// Initialization
 const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/guipt";
 
-// Axios instance // App Check
-// const axiosInstance = axios.create({
-//     baseURL: cloudFunctionURL,
-//     timeout: 5000, // 5s
-// });
-
-// Add App Check token to every request // App Check
-// axiosInstance.interceptors.request.use(async (config) => {
-//     const {token} = await getToken(appCheck, false);
-//     config.headers["X-Firebase-AppCheck"] = token;
-//     return config;
-// });
-
 // Retry configuration
-axiosRetry(axios, { // App Check: axiosInstance
+axiosRetry(axios, {
     retries: 2, // Retry attempts
     retryDelay: axiosRetry.exponentialDelay, // 1s then 2s between retries
     retryCondition: (error) => { // Only retry on network or 5xx errors

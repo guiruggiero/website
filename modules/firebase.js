@@ -1,6 +1,6 @@
 // Imports
-import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore-lite.js";
+import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-lite.js";
 
 // Initializations
 const firebaseConfig = {
@@ -11,11 +11,11 @@ const firebaseConfig = {
     messagingSenderId: "49247152565",
     appId: "1:49247152565:web:eb614bed7a4cf43ed611fc",
 };
-const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp(); // App Check: export
+const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(firebaseApp);
 
 // Separate dev and prod in different collections
-const env = window.location.href.includes("ngrok") ? "dev" : "v1";
+const env = globalThis.location.href.includes("ngrok") ? "dev" : "v1";
 
 // Create the chat log with the first turn
 export async function createLog(chatStart, turnHistory) {
@@ -28,7 +28,7 @@ export async function createLog(chatStart, turnHistory) {
         });
         return chatRef.id;
 
-    } catch (error) {
+    } catch(error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
             logDetails: {
@@ -52,7 +52,7 @@ export async function logTurn(chatID, turnCount, duration, turnHistory) {
             turns: turnHistory,
         });
 
-    } catch (error) {
+    } catch(error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
             logDetails: {
