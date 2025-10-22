@@ -1,6 +1,6 @@
 // Import module dynamically
 async function importModule(path) {
-    if (globalThis.location.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
+    if (globalThis.location?.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
     else return await import(path);
 }
 
@@ -12,10 +12,12 @@ const callGuiPT = (await importModule("./guipt.min.js")).default;
 const langData = (await importModule("./localization.min.js")).default;
 
 // Initializations
-let turnCount = 0, messageCount = 0;
-let chatStart, chatID;
-let guiptResponse;
-let chatHistory = [], turnHistory;
+let turnCount = 0;
+let messageCount = 0;
+let chatStart = null;
+let chatID = "";
+let chatHistory = [];
+let turnHistory = {};
 
 // Timeout error class
 class TimeoutError extends Error {
@@ -26,7 +28,7 @@ class TimeoutError extends Error {
 }
 
 // Rate limiting
-const timeWindow = 60000; // 1 minute
+const timeWindow = 60000; // 1m
 let requestCount = 0;
 let windowStart = Date.now();
 
@@ -39,10 +41,10 @@ async function handleGuiPT() {
     UI.toggleSubmitButton(false);
     UI.closeKeyboard();
     UI.toggleInput();
-    const input = UI.elements.input.value;
+    const input = UI.elements.input?.value;
 
     // Remove disclaimer on second message sent with chat window opened
-    if (messageCount == 2) UI.elements.disclaimer.remove();
+    if (messageCount == 2) UI.elements.disclaimer?.remove();
     messageCount++;
     
     // Validate input
@@ -59,7 +61,7 @@ async function handleGuiPT() {
             UI.addMessage("error", validationResult.errorMessage);
         }
 
-        const hasContent = UI.elements.input.value.trim().length > 0;
+        const hasContent = UI.elements.input?.value.trim().length > 0;
         UI.toggleSubmitButton(hasContent);
         UI.toggleInput();
         UI.inputFocus();
@@ -117,11 +119,13 @@ async function handleGuiPT() {
     UI.clearInput();
     UI.addMessage("user", sanitizedInput);
     const loaderContainer = UI.showLoader();
-
+    
+    // Call GuiPT
+    let guiptResponse = {};
     try {
         // Client timeout
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new TimeoutError("Client timeout")), 17000); // 17s
+            setTimeout(() => reject(new TimeoutError("Client timeout")), 16000); // 16s to account for axios retries (4+1+4+2+4=15s)
         });
         
         // Call GuiPT while racing against the timeout
@@ -133,9 +137,11 @@ async function handleGuiPT() {
     } catch(error) {
         loaderContainer.remove();
 
-        // Only error I want to display a different message for
-        if (error.message == "Client timeout" || error instanceof TimeoutError) UI.addMessage("error", langData.errorTimeout);
-        else UI.addMessage("error", langData.errorGeneric);
+        // Errors with different display messages
+        if (error instanceof TimeoutError || error.message?.includes("timeout")) UI.addMessage("error", langData.errorTimeout);
+        else if (error.response?.data == "errorTooLong") UI.addMessage("error", langData.errorTooLong);
+        else if (error.response?.data == "errorForbiddenChars") UI.addMessage("error", langData.errorForbiddenChars);
+        else UI.addMessage("error", langData.errorGeneric); // Fallback for other errors
         
         // Bring back user input
         UI.populateInput(input);
@@ -145,13 +151,13 @@ async function handleGuiPT() {
 
         // Capture error with context
         Sentry.captureException(error, {contexts: {
+            source: error.source || "main.js",
+            axiosRetryCount: error.config?.["axios-retry"]?.retryCount ?? "N/A",
             turnDetails: {
-                file: error.axiosContext ? "guipt.js" : "main.js",
                 turnNumber: turnCount + 1,
                 userInput: input,
                 sanitizedInput,
                 chatID,
-                axiosContext: error.axiosContext || "No axiosContext present",
             },
             turnHistory,
         }});
@@ -181,8 +187,7 @@ async function handleGuiPT() {
         chatID = await Firebase.createLog(chatStart, turnHistory);
     } else {
         turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
-        let duration = (new Date(Date.now()) - chatStart)/(1000*60); // Minutes
-        duration = Number(duration.toFixed(2)); // 2 decimal places
+        const duration = Number(((new Date() - chatStart) / 60000).toFixed(2)); // Minutes
         await Firebase.logTurn(chatID, turnCount, duration, turnHistory);
     }
     
@@ -194,7 +199,7 @@ async function handleGuiPT() {
 
 // Debounce function to limit input handling frequency
 function debounce(func, wait) {
-    let timeout;
+    let timeout = null;
     return function(...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
@@ -213,15 +218,15 @@ function start() {
     // }, 2000);
 
     // Real-time input handling
-    UI.elements.input.addEventListener("input", debounce(() => {
-        const hasContent = UI.elements.input.value.trim().length > 0;
+    UI.elements.input?.addEventListener("input", debounce(() => {
+        const hasContent = UI.elements.input?.value.trim().length > 0;
         UI.toggleSubmitButton(hasContent);
         UI.togglePromptPills(!hasContent);
     }, 150));
 
     // Input submission
-    UI.elements.submit.addEventListener("pointerup", handleGuiPT);
-    UI.elements.input.addEventListener("keyup", debounce((event) => {
+    UI.elements.submit?.addEventListener("pointerup", handleGuiPT);
+    UI.elements.input?.addEventListener("keyup", debounce((event) => {
         if (event.key === "Enter") handleGuiPT();
     }, 150));
 

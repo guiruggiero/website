@@ -2,7 +2,7 @@
   "name": "guiruggiero.com",
   "author": "Gui Ruggiero",
   "homepage": "https://guiruggiero.com/",
-  "version": "2.0",
+  "version": "2.1",
   "main": "modules/main.js",
   "manualUpdateDependencies": {
     "firebase": "^12.4.0",

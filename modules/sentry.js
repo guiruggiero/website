@@ -1,9 +1,9 @@
 globalThis.sentryOnLoad = function() {
     // Initialization
-    Sentry.init({environment: globalThis.location && globalThis.location.href.includes("ngrok") ? "dev" : "v1"});
+    Sentry.init({environment: globalThis.location?.href.includes("ngrok") ? "dev" : "v1"});
 
     // Set session context
-    globalThis.location && Sentry.setTag("page", globalThis.location.pathname);
+    Sentry.setTag("page", globalThis.location?.pathname);
     globalThis.innerWidth && Sentry.setTag("screenWidth", globalThis.innerWidth);
     globalThis.innerHeight && Sentry.setTag("screenHeight", globalThis.innerHeight);
     navigator.userAgent && Sentry.setTag("userAgent", navigator.userAgent);
@@ -16,7 +16,7 @@ globalThis.sentryOnLoad = function() {
                     file: event.filename,
                     line: event.lineno,
                     column: event.colno,
-                    errorMessage: event.error.message,
+                    errorMessage: event.error?.message,
                 },
             },
         });
@@ -28,7 +28,7 @@ globalThis.sentryOnLoad = function() {
             contexts: {
                 unhandledPromise: {
                     status: "Unhandled promise rejection",
-                    name: event.reason.name || event.reason.constructor.name,
+                    name: event.reason?.name || event.reason?.constructor?.name,
                     reasonDetails: String(event.reason),
                 },
             },
