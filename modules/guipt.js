@@ -11,28 +11,22 @@ axiosRetry(axios, {
     retryDelay: axiosRetry.exponentialDelay, // 1s then 2s between retries
     retryCondition: (error) => { // Only retry on network or 5xx errors
         return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-               (error.response && error.response.status >= 500);
+               (error.response?.status >= 500);
     },
 });
 
 // Call GuiPT
 export default async function callGuiPT(chatHistory, userMessage) {
-    return await axios.post(cloudFunctionURL, null, { // axiosInstance.post(""
-        timeout: 5000, // 5s
-        params: {
-            history: chatHistory,
-            prompt: userMessage,
-        },
-
+    return await axios.post(cloudFunctionURL, {
+        history: chatHistory,
+        message: userMessage,
+    }, {
+        timeout: 4000, // 4s
     }).catch(error => {
-        // Add context to the error but don't report it
-        error.axiosContext = {
-            status: error.response?.status,
-            statusText: error.response?.statusText,
-            retryCount: error.config["axios-retry"]?.retryCount || 0,
-        };
+        // Add context but don't report it here
+        error.source = "guipt.js";
 
-        // Rethrow error
+        // Rethrow to handle in main
         throw error;
     });
 }

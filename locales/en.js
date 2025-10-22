@@ -7,7 +7,7 @@ export default {
     "index": {
         "input": "Enter your question for GuiPT",
         "submit": "Submit your question",
-        "inputPlaceholder": "^1 Ask me anything about Gui...", // ^1 for leading space
+        "inputPlaceholder": "^1 Ask me anything about Gui...", // ^1 for leading space with Typed
         "messagesContainer": "Chat conversation with GuiPT",
         "loader": "GuiPT is thinking...",
         "disclaimer": "Privacy: chats are stored to improve GuiPT. By continuing, you accept this. No personal info, please.",

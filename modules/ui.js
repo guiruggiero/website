@@ -1,6 +1,6 @@
 // Imports
 import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
-const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
 export let chatWindowExpanded = false;
@@ -20,9 +20,9 @@ export const elements = {
 
 // Focus on input without opening virtual keyboard
 export function inputFocus() {
-    elements.input.setAttribute("readonly", "readonly");
-    elements.input.focus();
-    elements.input.removeAttribute("readonly");
+    elements.input?.setAttribute("readonly", "readonly");
+    elements.input?.focus();
+    elements.input?.removeAttribute("readonly");
 }
 
 // Type input placeholder and focus
@@ -39,7 +39,7 @@ export function inputPlaceholderAndFocus() {
 
 // Allow/forbid submit button according to input content
 export function toggleSubmitButton(enabled) {
-    elements.submit.classList.toggle("active", enabled);
+    elements.submit?.classList.toggle("active", enabled);
 }
 
 // Clear input
@@ -54,7 +54,7 @@ export function populateInput(text) {
 
 // Close virtual keyboard
 export function closeKeyboard() {
-    elements.input.blur();
+    elements.input?.blur();
 }
 
 // Change input placeholder
@@ -64,25 +64,25 @@ export function changePlaceholder(text) {
 
 // Allow/forbid input
 export function toggleInput() {
-    const currentState = elements.input.disabled;
+    const currentState = elements.input?.disabled;
     elements.input.disabled = !currentState;
 }
 
 // Expand chat window
 export function expandChatWindow() {
     // Get initial positions and sizes relative to viewport
-    const initialTop = elements.chatContainer.getBoundingClientRect().top;
+    const initialTop = elements.chatContainer?.getBoundingClientRect().top;
     
     // Set initial size to match input container
-    elements.chatContainer.style.width = `${elements.inputContainer.offsetWidth}px`;
-    elements.chatContainer.style.height = `${elements.inputContainer.offsetHeight}px`;
+    elements.chatContainer.style.width = `${elements.inputContainer?.offsetWidth}px`;
+    elements.chatContainer.style.height = `${elements.inputContainer?.offsetHeight}px`;
     
     // Set position to fixed immediately, but maintain current position
     elements.chatContainer.style.top = `${initialTop}px`;
     elements.chatContainer.style.position = "fixed";
     
     // Force a reflow
-    elements.chatContainer.offsetHeight;
+    elements.chatContainer?.offsetHeight;
 
     // Expand to full size and move to final position
     elements.chatContainer.style.maxWidth = "900px";
@@ -105,7 +105,7 @@ export function expandChatWindow() {
     elements.promptPillsContainer.style.display = "none";
 
     // Show header after slight delay
-    setTimeout(() => elements.header.classList.add("visible"), 600);
+    setTimeout(() => elements.header?.classList.add("visible"), 600);
 
     chatWindowExpanded = true;
 
@@ -115,7 +115,7 @@ export function expandChatWindow() {
     messagesContainer.setAttribute("role", "log");
     messagesContainer.setAttribute("aria-label", langData.messagesContainer);
     messagesContainer.setAttribute("aria-live", "polite");
-    elements.chatWindow.appendChild(messagesContainer);
+    elements.chatWindow?.appendChild(messagesContainer);
     elements.messagesContainer = messagesContainer;
 
     // Create disclaimer
@@ -123,12 +123,12 @@ export function expandChatWindow() {
     disclaimer.textContent = langData.disclaimer;
     disclaimer.id = "disclaimer";
     elements.disclaimer = disclaimer;
-    elements.chatWindow.appendChild(disclaimer);
+    elements.chatWindow?.appendChild(disclaimer);
 }
 
 // Animate the element in, regardless of content
 function animateElement(element) {
-    elements.messagesContainer.appendChild(element);
+    elements.messagesContainer?.appendChild(element);
     
     // Animate the element in
     element.style.opacity = "0";
@@ -139,7 +139,7 @@ function animateElement(element) {
     element.style.transform = "translateY(0)";
     
     // Scroll to bottom
-    elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+    elements.chatWindow.scrollTop = elements.chatWindow?.scrollHeight;
 }
 
 // Add message to chat window
@@ -161,7 +161,7 @@ export function addMessage(type, message, existingContainer = null) {
 
         // Scroll to bottom if height changes
         const resizeObserver = new ResizeObserver(() => {
-            elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+            elements.chatWindow.scrollTop = elements.chatWindow?.scrollHeight;
         });
 
         // Type response
@@ -237,10 +237,10 @@ export function displayPromptPills() {
             // Fill input and submit
             elements.input.value = chosenPrompt;
             toggleSubmitButton(true);
-            elements.submit.dispatchEvent(new Event("pointerup"));
+            elements.submit?.dispatchEvent(new Event("pointerup"));
         });
 
-        elements.promptPillsContainer.appendChild(pill);
+        elements.promptPillsContainer?.appendChild(pill);
 
         // Animate the pill in by removing the hidden class
         setTimeout(() => {

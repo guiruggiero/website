@@ -1,5 +1,5 @@
 // Import
-const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
 let preferredTheme = localStorage.getItem("themePreference") || "dark";

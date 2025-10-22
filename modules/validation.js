@@ -1,5 +1,5 @@
 // Import
-const langData = (await import(globalThis.location.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
+const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Sanitize potentially harmful characters
 export function sanitizeInput(input) {
@@ -28,7 +28,7 @@ export function validateInput(input) {
     }
 
     // Character set
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()-]+$/.test(input)) { // Excludes @$%&/+
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()+*=@/-]+$/.test(input)) {
         return {
             assessment: "Forbidden characters",
             errorMessage: langData.errorForbiddenChars,

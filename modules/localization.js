@@ -19,7 +19,7 @@ export default { // Only what's needed for index's JS-based interface
 // Get the translation for a given key
 function getTranslation(langData, key) {
     // Retrive a nested translation
-    const translation = key.split(".").reduce((obj, k) => (obj ? obj[k] : null), langData);
+    const translation = key.split(".").reduce((obj, k) => (obj?.[k]), langData);
 
     // Capture error with context
     if (!translation) {
