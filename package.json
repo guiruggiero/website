@@ -4,20 +4,22 @@
   "homepage": "https://guiruggiero.com/",
   "version": "2.1",
   "main": "modules/main.js",
-  "manualUpdateDependencies": {
+  "manualDependencies": {
     "firebase": "^12.4.0",
     "firebase-firestore-lite": "^12.4.0"
   },
-  "autoUpdatedDependencies": {
+  "cdnDependencies": {
     "axios": "",
     "axios-retry": "",
-    "html-minifier-next": "",
     "iconify-icon": "",
     "jsdelivr": "",
-    "lightningcss-cli": "",
-    "terser": "",
     "typed.js": "",
     "@sentry/browser": ""
+  },
+  "githubDependencies": {
+    "html-minifier-next": "",
+    "lightningcss-cli": "",
+    "terser": ""
   },
   "devDependencies": {
     "@eslint/css": "^0.13.0",

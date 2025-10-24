@@ -11,7 +11,7 @@ Welcome to the codebase powering my corner of the internet! This isn't your aver
 
 Star of the show? Meet GuiPT, my AI alter-ego. Think ChatGPT, but with a PhD in All Things Gui™ and a better name. I'm probably biased there. Ask it anything about me, my work, or if I like tomatoes (spoiler: I don't).
 
-The rest of the site is my professional highlight reel and a collection of utilities I built because it's fun and, well... why not make life easier?
+The rest of the site is my professional highlight reel (a.k.a. résumé) and a collection of utilities I built because it's fun and, well... why not make life easier?
 
 ## ✨ Features
 
@@ -42,7 +42,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 
 ### Utilities
 - Branded redirects to key online profiles or services
-- Embedded collaboration utilities
+- Embedded collaboration services
 - Automatic dependency update tracking
 
 ### Optimization
@@ -62,7 +62,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - jsDelivr - dependencies CDN
 
 ### Development
-- GitHub Actions - automated deployments
+- GitHub Actions - automated deployment
 - GitHub Dependabot - dependency management
 - Snyk - vulnerability scanning
 - SonarQube - code quality and security
@@ -71,7 +71,7 @@ The rest of the site is my professional highlight reel and a collection of utili
 - Firebase Firestore - chat logging
 - Google Analytics - traffic tracking
 - Google Tag Manager - analytics management
-- Sentry - error tracking and monitoring
+- Sentry - error tracking and logging
 
 ### External services
 - Cal.com - meeting scheduling
@@ -82,24 +82,18 @@ The rest of the site is my professional highlight reel and a collection of utili
 ## 📦 Dependencies
 
 ### UI Components & Interactions
-- `iconify-icon` - icons library
-- `typed.js` - animated typing effect
-
-### API & data management
-- `axios` and `axios-retry` - API communication with retry logic
-- `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
-
-### Build & optimization
-- `cwebp-bin` - WebP image conversion
-- `html-minifier` - HTML minification
-- `lightningcss-cli` - CSS minification
-- `terser` - JavaScript minification
-
-### Development
 - `@sentry/browser` and `getsentry/action-release` - Sentry integration
+- `axios` and `axios-retry` - API communication with retry logic
+- `cwebp-bin` - WebP image conversion
 - `eslint`, `eslint-stylistic`, `html-eslint`, and `eslint-plugin-yml` - code linting
+- `firebase` and `firebase-firestore-lite` - Firebase Firestore integration
+- `html-minifier` - HTML minification
 - `http-server` - local development server
+- `iconify-icon` - icons library
+- `lightningcss-cli` - CSS minification
 - `ngrok` - local development tunneling
+- `terser` - JavaScript minification
+- `typed.js` - animated typing effect
 
 ---
 
