@@ -35,7 +35,7 @@ let windowStart = Date.now();
 // Orchestrate everything
 async function handleGuiPT() {
     // Get start time for logs if it's the first turn
-    if (turnCount == 0) chatStart = new Date(Date.now());
+    if (turnCount == 0) chatStart = Date.now();
 
     // Prevent and get input
     UI.toggleSubmitButton(false);
@@ -187,7 +187,7 @@ async function handleGuiPT() {
         chatID = await Firebase.createLog(chatStart, turnHistory);
     } else {
         turnHistory = {...turnHistory, [turnCount]: turnData}; // Append turn
-        const duration = Number(((new Date() - chatStart) / 60000).toFixed(2)); // Minutes
+        const duration = Number(((Date.now() - chatStart) / 60000).toFixed(2)); // Minutes
         await Firebase.logTurn(chatID, turnCount, duration, turnHistory);
     }
     
