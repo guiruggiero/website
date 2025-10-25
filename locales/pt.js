@@ -12,12 +12,17 @@ export default {
         "redirect": "Já que está aqui, bata um papo com o <a href=\"https://guiruggiero.com/?utm_source=404&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
     },
     "agendado": {
-        "instruction": "Clique abaixo ou escaneie com seu celular:",
+        "instructionStep1": "Primeiro, verifique a <a href=\"https://status.guiruggiero.com/\" target=\"_blank\" aria-label=\"Status page link\">página de status</a>.",
+        "instructionStep2": "Se estiver online/verde, clique abaixo ou escaneie com seu celular:",
         "redirect": "Ao terminar, não esqueça de <a href=\"http://wa.me/+14155238886?text=stop\" target=\"_blank\" aria-label=\"Twilio Sandbox link\">mandar \"stop\"</a>!",
     },
     "amazon": {
         "instruction": "Clique abaixo para continuar:",
         "redirect": "Já que está aqui, bata um papo com o <a href=\"https://guiruggiero.com/?utm_source=amazon&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
+    },
+    "github": {
+        "instruction": "Clique abaixo para continuar:",
+        "redirect": "Já que está aqui, bata um papo com o <a href=\"https://guiruggiero.com/?utm_source=github&utm_medium=body\" aria-label=\"Gui Ruggiero homepage\">GuiPT</a>!",
     },
     "index": {
         "input": "Escreva sua pergunta para o GuiPT",
