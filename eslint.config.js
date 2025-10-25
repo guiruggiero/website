@@ -7,7 +7,6 @@ import html from "@html-eslint/eslint-plugin";
 import css from "@eslint/css";
 import eslintPluginYml from "eslint-plugin-yml";
 import markdown from "@eslint/markdown";
-import json from "@eslint/json";
 
 export default defineConfig([
   // JavaScript configuration
@@ -83,14 +82,5 @@ export default defineConfig([
     plugins: {markdown},
     language: "markdown/gfm",
     extends: ["markdown/recommended"],
-  },
-
-  // JSON configuration
-  {
-    files: ["**/*.json"],
-    ignores: ["**/package-lock.json"],
-    plugins: {json},
-    language: "json/json",
-    extends: ["json/recommended"],
   },
 ]);
