@@ -7,7 +7,7 @@ const firebaseConfig = {
     apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
     authDomain: "guiruggiero.firebaseapp.com",
     projectId: "guiruggiero",
-    storageBucket: "guiruggiero.appspot.com",
+    storageBucket: "guiruggiero.firebasestorage.app",
     messagingSenderId: "49247152565",
     appId: "1:49247152565:web:eb614bed7a4cf43ed611fc",
 };
