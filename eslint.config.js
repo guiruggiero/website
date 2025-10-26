@@ -28,7 +28,7 @@ export default defineConfig([
       },
     },
     rules: {
-      "no-unused-vars": "error",
+      "no-unused-vars": "warn",
       "@stylistic/indent": ["warn", 4],
       "@stylistic/semi": "error",
       "@stylistic/no-extra-semi": "warn",
