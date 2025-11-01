@@ -5,8 +5,8 @@
   "version": "2.1",
   "main": "modules/main.js",
   "manualDependencies": {
-    "firebase": "^12.4.0",
-    "firebase-firestore-lite": "^12.4.0"
+    "firebase": "",
+    "firebase-firestore-lite": ""
   },
   "cdnDependencies": {
     "axios": "",
