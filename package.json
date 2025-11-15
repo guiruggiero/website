@@ -36,7 +36,7 @@
   "scripts": {
     "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
     "lint": "eslint .",
-    "server": "http-server ./ --port 8082",
+    "dev": "http-server ./ --port 8082",
     "tunnel": "ngrok start website"
   }
 }
