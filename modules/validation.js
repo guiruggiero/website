@@ -28,7 +28,7 @@ export function validateInput(input) {
     }
 
     // Character set
-    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()+*=@/-]+$/.test(input)) {
+    if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()+*=@/-\u4E00-\u9FFF]+$/.test(input)) {
         return {
             assessment: "Forbidden characters",
             errorMessage: langData.errorForbiddenChars,
