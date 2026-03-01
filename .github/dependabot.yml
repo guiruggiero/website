@@ -6,14 +6,14 @@ updates:
     schedule:
       interval: monthly
       time: "05:00"
-      timezone: Europe/Berlin
+      timezone: America/Los_Angeles
 
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
       time: "05:00"
-      timezone: Europe/Berlin
+      timezone: America/Los_Angeles
     allow:
       - dependency-type: development
     groups:
