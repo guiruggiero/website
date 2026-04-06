@@ -25,10 +25,10 @@
     "@eslint/css": "^1.1.0",
     "@eslint/js": "^10.0.1",
     "@eslint/markdown": "^8.0.1",
-    "@html-eslint/eslint-plugin": "^0.58.1",
-    "@html-eslint/parser": "^0.58.1",
+    "@html-eslint/eslint-plugin": "^0.59.0",
+    "@html-eslint/parser": "^0.59.0",
     "@stylistic/eslint-plugin": "^5.9.0",
-    "eslint": "^10.0.2",
+    "eslint": "^10.2.0",
     "eslint-plugin-yml": "^3.2.1",
     "globals": "^17.4.0",
     "http-server": "^14.1.1"
