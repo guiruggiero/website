@@ -14,7 +14,7 @@ No build step required locally — minification runs in CI only (see `.github/wo
 
 ## Architecture
 
-This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`.
+This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`. The backend API is a Firebase Cloud Function on `guipt`. When changing the API contract (request/response shape, error codes, timeouts), both repos need updating together.
 
 ### Pages and Modules
 
@@ -64,3 +64,8 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 ### Linting
 
 ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. Run `npm run lint` before pushing. The CI pipeline does not run lint automatically — it only minifies and deploys.
+
+<!-- TODO: ESLint is currently broken — `@stylistic/eslint-plugin` fails to load due to an `estraverse` ESM incompatibility. Run `npm install` or update `@stylistic/eslint-plugin` to fix before linting. -->
+
+## Sentry
+**Sentry:** Errors logged to the `website` project (`WEBSITE-*` issue IDs).
