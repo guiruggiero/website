@@ -8,6 +8,9 @@ import css from "@eslint/css";
 import eslintPluginYml from "eslint-plugin-yml";
 
 export default defineConfig([
+  // Global ignores
+  {ignores: ["functions/**"]},
+
   // JavaScript configuration
   {
     files: ["**/*.js"],

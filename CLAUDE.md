@@ -1,4 +1,4 @@
-# CLAUDE.md
+# CLAUDE.md 
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -10,18 +10,25 @@ npm run lint    # ESLint across JS, HTML, CSS, YAML, Markdown
 npm run tunnel  # ngrok tunnel for local testing with mobile/external devices
 ```
 
+All commands below run from `functions/`:
+
+```bash
+npm run lint    # ESLint check (also runs automatically before deploy)
+npm run deploy  # Deploy GuiPT to Firebase (runs lint first via predeploy hook)
+```
+
 No build step required locally — minification runs in CI only (see `.github/workflows/minification.yml`).
 
 ## Architecture
 
-This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`. The backend API is a Firebase Cloud Function on `guipt`. When changing the API contract (request/response shape, error codes, timeouts), both repos need updating together.
+This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`. The backend API is a Firebase Cloud Function in `functions/`.
 
 ### Pages and Modules
 
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) — Use `modules/redirect.js` or meta redirects
-- `modules/` — 10 ES6 modules for the chat interface:
+- `modules/` — ES6 modules:
   - `main.js` — Orchestrates chat: event listeners, turn flow, history management
   - `ui.js` — DOM manipulation, chat window expand/collapse, loader
   - `guipt.js` — API call to the GuiPT Cloud Function with axios + retry
@@ -37,9 +44,9 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 
 Scripts auto-detect the environment at runtime. On `localhost` or ngrok, `.js` modules are loaded; on production, `.min.js` is used. This means the file a page loads is determined by the script tag in the HTML — no webpack aliases or env flags.
 
-### API Integration
+### GuiPT Cloud Function
 
-GuiPT messages are sent to `/guipt` Cloud Function (separate repo). The client enforces a 16-second timeout (race against the axios 4-second retry chain). Both repos must be updated together when changing the request/response contract.
+`functions/` contains the GuiPT Firebase Cloud Function (`index.js`). It receives `{message, history}` (stateless — history is passed in from the client), sanitizes and validates input, fetches the system prompt from Langfuse (3-minute cache), calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`), and returns a plain-text response. CORS-enabled. Deploy with `npm run deploy` from `functions/`. Required env vars (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`. Max 5 instances, 8-second timeout. The client (`modules/guipt.js`) enforces a 16-second timeout (race against the axios 4-second retry chain). When changing the API contract (request/response shape, error codes, timeouts), update both `functions/index.js` and `modules/guipt.js` together.
 
 ### Firestore Logging
 
@@ -63,9 +70,9 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 
 ### Linting
 
-ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. Run `npm run lint` before pushing. The CI pipeline does not run lint automatically — it only minifies and deploys.
+ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. Run `npm run lint` before pushing. The CI pipeline does not run lint automatically — it only minifies and deploys. `functions/` uses the ESLint Google style config which enforces a max line length of 80 characters.
 
-<!-- TODO: ESLint is currently broken — `@stylistic/eslint-plugin` fails to load due to an `estraverse` ESM incompatibility. Run `npm install` or update `@stylistic/eslint-plugin` to fix before linting. -->
+<!-- TODO: fix ESLint - currently broken, `@stylistic/eslint-plugin` fails to load due to an `estraverse` ESM incompatibility. Run `npm install` or update `@stylistic/eslint-plugin` to fix before linting. -->
 
 ## Sentry
 **Sentry:** Errors logged to the `website` project (`WEBSITE-*` issue IDs).
