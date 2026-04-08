@@ -22,7 +22,7 @@ export default async function callGuiPT(chatHistory, userMessage) {
         history: chatHistory,
         message: userMessage,
     }, {
-        timeout: 4000, // 4s
+        timeout: 6000, // 6s
     }).catch(error => {
         // Add context but don't report it here
         error.source = "guipt.js";

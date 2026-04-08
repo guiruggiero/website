@@ -125,7 +125,7 @@ async function handleGuiPT() {
     try {
         // Client timeout
         const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new TimeoutError("Client timeout")), 16000); // 16s to account for axios retries (4+1+4+2+4=15s)
+            setTimeout(() => reject(new TimeoutError("Client timeout")), 22000); // 22s to account for axios retries (6+1+6+2+6=21s)
         });
         
         // Call GuiPT while racing against the timeout
