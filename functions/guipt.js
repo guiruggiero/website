@@ -74,15 +74,32 @@ function validateInput(input) {
   return validationErrors.SUCCESS;
 };
 
+// Allowed origins
+const allowedOrigins = [
+  "https://guiruggiero.com",
+  "https://probable-firmly-gobbler.ngrok-free.app",
+];
+
 // Function configuration
 const functionConfig = {
-  cors: true,
+  cors: allowedOrigins,
   maxInstances: 5,
   timeoutSeconds: 8,
 };
 
 export const guipt = onRequest(functionConfig, async (request, response) => {
   Sentry.logger.info("[1] GuiPT started");
+
+  // Reject requests from unknown origins
+  const origin = request.headers["origin"] || request.headers["referer"] || "";
+  if (!allowedOrigins.some((o) => origin.startsWith(o))) {
+    Sentry.logger.warn("[1a] Unauthorized origin", {origin});
+
+    response.status(403).send("Forbidden");
+
+    await Sentry.flush(2000);
+    return;
+  }
 
   // Get user message from request
   let userMessage = request.body?.message;
@@ -96,7 +113,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
   // Return error message if input doesn't pass validation
   if (validationResult !== validationErrors.SUCCESS) {
-    Sentry.logger.warn("[1a] Validation failed", {validationResult});
+    Sentry.logger.warn("[1b] Validation failed", {validationResult});
 
     response.status(400).send(validationResult);
 
