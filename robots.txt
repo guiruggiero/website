@@ -7,8 +7,5 @@ Allow: /sitemap.xml
 # Rate limiting
 Crawl-delay: 10
 
-# Unimportant folders
-Disallow: /.github/
-
 # Sitemap location
 Sitemap: https://guiruggiero.com/sitemap.xml
