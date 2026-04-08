@@ -6,9 +6,11 @@ import globals from "globals";
 import html from "@html-eslint/eslint-plugin";
 import css from "@eslint/css";
 import eslintPluginYml from "eslint-plugin-yml";
-import markdown from "@eslint/markdown";
 
 export default defineConfig([
+  // Global ignores
+  {ignores: ["functions/**"]},
+
   // JavaScript configuration
   {
     files: ["**/*.js"],
@@ -41,7 +43,11 @@ export default defineConfig([
       "@stylistic/key-spacing": "warn",
       "@stylistic/keyword-spacing": "warn",
       "@stylistic/space-before-blocks": "warn",
-      "@stylistic/space-before-function-paren": ["warn", "never"],
+      "@stylistic/space-before-function-paren": ["warn", {
+        "anonymous": "never",
+        "named": "never",
+        "asyncArrow": "always"
+      }],
       "@stylistic/space-in-parens": "warn",
     },
   },
@@ -74,13 +80,5 @@ export default defineConfig([
   {
     files: ["**/*.yml"],
     rules: {"yml/no-empty-mapping-value": "warn"},
-  },
-
-  // Markdown configuration
-  {
-    files: ["**/*.md"],
-    plugins: {markdown},
-    language: "markdown/gfm",
-    extends: ["markdown/recommended"],
   },
 ]);

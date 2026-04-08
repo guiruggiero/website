@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
 
         <!-- Browser tags -->
-        <title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
+        <title>Guiwise 💸</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="color-scheme" content="dark light">
@@ -25,7 +25,6 @@
         <script>loadScript("sentry", {type: "text/javascript"});</script>
         <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
         <script>loadScript("theme-toggle");</script>
-        <script>loadScript("localization");</script>
 
         <!-- Preconnects and preloads -->
         <link rel="preload" href="images/gr-logo-light.webp" as="image">
@@ -33,10 +32,10 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
-        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://us-central1-guiruggiero.cloudfunctions.net" crossorigin>
 
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="styles/redirect.css">
+        <link rel="stylesheet" href="styles/splitwise.css">
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
         <link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         <noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
@@ -57,29 +56,24 @@
         <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
         <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
 
-        <!-- Google Tag Manager -->
-        <script>
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
-        </script>
-
         <!-- Search engine tag -->
         <meta name="robots" content="noindex">
 
         <!-- Open Graph tags -->
         <meta name="title" property="og:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-        <meta name="description" property="og:description" content="Gui's travel map and visited countries">
+        <meta name="description" property="og:description" content="Guiwise - Gui's Splitwise interface">
         <meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1280">
         <meta property="og:image:height" content="640">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="https://guiruggiero.com/travel.html">
+        <meta property="og:url" content="https://guiruggiero.com/splitwise.html">
         <meta property="og:site_name" content="Gui Ruggiero">
         <meta property="og:locale" content="en_US">
 
         <!-- X tags -->
         <meta name="twitter:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-        <meta name="twitter:description" content="Gui's travel map and visited countries">
+        <meta name="twitter:description" content="Guiwise - Gui's Splitwise interface">
         <meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:creator" content="@guiruggiero">
@@ -87,22 +81,17 @@
     </head>
 
     <body>
-        <!-- Google Tag Manager (noscript) -->
-        <noscript>
-            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-        </noscript>
-
         <header>
             <div class="header-container">
                 <div class="logo-theme-toggle">
-                    <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=header" aria-label="Gui Ruggiero homepage">
+                    <a href="https://guiruggiero.com/?utm_source=splitwise&utm_medium=header" aria-label="Gui Ruggiero homepage">
                         <picture>
                             <source srcset="images/gr-logo-light.webp" type="image/webp">
                             <img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
                         </picture>
                     </a>
 
-                    <button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                    <button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
                 </div>
 
                 <div id="social-links">
@@ -118,27 +107,54 @@
         </header>
 
         <main>
-            <picture class="travel-map-container">
-                <img id="travel-map" src="https://s3.amazonaws.com/cdn.matadornetwork.com/travel-maps/e6a5f81a105220c091911d68958a0f99-1417402605/my-travel-map.png" alt="Gui Ruggiero's travel map" width="1080" data-i18n="travel.alt">
-            </picture>
+            <!-- Guiwise header -->
+            <div class="app-header">
+                <div class="app-logo">
+                    <div class="app-logo-icon">💸</div>
+                    <div class="app-logo-name">Gui<span>wise</span></div>
+                </div>
 
-            <p class="instruction" data-i18n="travel.instruction">Click below for more details:</p>
+                <p class="app-tagline">A personal Splitwise interface</p>
+            </div>
 
-            <a href="https://maps.app.goo.gl/ShARbV1w9iPo5qa66" target="_blank" aria-label="Google Maps link">
-                <iconify-icon icon="logos:google-maps" class="destination"></iconify-icon>
-            </a>
+            <!-- Expense form card -->
+            <div class="card">
+                <div class="form-body">
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="e.g., New rackets for Gui" maxlength="200">
+                    </div>
 
-            <p class="redirect" data-i18n="travel.redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
+                    <div class="field">
+                        <label for="amount">Amount</label>
+
+                        <div class="amount-wrapper">
+                            <span class="amount-prefix">$</span>
+                            <input type="number" id="amount" placeholder="0.00" min="0.01" step="0.01">
+                        </div>
+                    </div>
+
+                    <button class="btn-submit" id="submitBtn">
+                        <span class="btn-icon">➕</span>
+                        <span class="btn-text">Add expense</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+            </div>
         </main>
 
-        <footer data-i18n="website.footer">
+        <!-- Toast notification -->
+        <div class="toast" id="toast">
+            <span class="toast-icon" id="toastIcon"></span>
+            <span id="toastMsg"></span>
+        </div>
+
+        <footer>
             Built with lots of ☕ by Gui Ruggiero himself
         </footer>
 
-        <!-- Other scripts -->
-        <script>
-            loadScript("redirect", {defer: true, target: "body"});
-            loadScript("cookie-banner", {defer: true, target: "body"});
-        </script>
+        <!-- Other script -->
+        <script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
+        <script>loadScript("splitwise", {target: "body"});</script>
     </body>
 </html>

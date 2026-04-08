@@ -9,13 +9,13 @@ updates:
       timezone: America/Los_Angeles
 
   - package-ecosystem: npm
-    directory: /
+    directories:
+      - /
+      - /functions
     schedule:
       interval: monthly
       time: "05:00"
       timezone: America/Los_Angeles
-    allow:
-      - dependency-type: development
     groups:
       new-versions:
         applies-to: version-updates

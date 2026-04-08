@@ -2,9 +2,12 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
+        
+        <!-- Auto redirect -->
+        <meta http-equiv="refresh" content="0;url=http://192.168.0.209">
 
         <!-- Browser tags -->
-        <title data-i18n="website.title">Gui Ruggiero - AI and Tech expert, Product leader</title>
+        <title>Gui Ruggiero - AI and Tech expert, Product leader</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="color-scheme" content="dark light">
@@ -25,7 +28,6 @@
         <script>loadScript("sentry", {type: "text/javascript"});</script>
         <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
         <script>loadScript("theme-toggle");</script>
-        <script>loadScript("localization");</script>
 
         <!-- Preconnects and preloads -->
         <link rel="preload" href="images/gr-logo-light.webp" as="image">
@@ -57,29 +59,24 @@
         <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
         <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
 
-        <!-- Google Tag Manager -->
-        <script>
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
-        </script>
-
         <!-- Search engine tag -->
         <meta name="robots" content="noindex">
 
         <!-- Open Graph tags -->
         <meta name="title" property="og:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-        <meta name="description" property="og:description" content="Gui's travel map and visited countries">
+        <meta name="description" property="og:description" content="Gui's On Air sign dashboard">
         <meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1280">
         <meta property="og:image:height" content="640">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="https://guiruggiero.com/travel.html">
+        <meta property="og:url" content="https://guiruggiero.com/onairsign.html">
         <meta property="og:site_name" content="Gui Ruggiero">
         <meta property="og:locale" content="en_US">
 
         <!-- X tags -->
         <meta name="twitter:title" content="Gui Ruggiero - AI and Tech expert, Product leader">
-        <meta name="twitter:description" content="Gui's travel map and visited countries">
+        <meta name="twitter:description" content="Gui's On Air sign dashboard">
         <meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:creator" content="@guiruggiero">
@@ -87,22 +84,17 @@
     </head>
 
     <body>
-        <!-- Google Tag Manager (noscript) -->
-        <noscript>
-            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-        </noscript>
-
         <header>
             <div class="header-container">
                 <div class="logo-theme-toggle">
-                    <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=header" aria-label="Gui Ruggiero homepage">
+                    <a href="https://guiruggiero.com/?utm_source=onairsign&utm_medium=header" aria-label="Gui Ruggiero homepage">
                         <picture>
                             <source srcset="images/gr-logo-light.webp" type="image/webp">
                             <img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
                         </picture>
                     </a>
 
-                    <button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                    <button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
                 </div>
 
                 <div id="social-links">
@@ -118,26 +110,19 @@
         </header>
 
         <main>
-            <picture class="travel-map-container">
-                <img id="travel-map" src="https://s3.amazonaws.com/cdn.matadornetwork.com/travel-maps/e6a5f81a105220c091911d68958a0f99-1417402605/my-travel-map.png" alt="Gui Ruggiero's travel map" width="1080" data-i18n="travel.alt">
-            </picture>
+            <p class="instruction">Click below to continue:</p>
 
-            <p class="instruction" data-i18n="travel.instruction">Click below for more details:</p>
-
-            <a href="https://maps.app.goo.gl/ShARbV1w9iPo5qa66" target="_blank" aria-label="Google Maps link">
-                <iconify-icon icon="logos:google-maps" class="destination"></iconify-icon>
+            <a href="http://192.168.0.209" aria-label="On Air sign dashboard">
+                <iconify-icon icon="noto:vertical-traffic-light" class="destination"></iconify-icon>
             </a>
-
-            <p class="redirect" data-i18n="travel.redirect">While you're here, check out <a href="https://guiruggiero.com/?utm_source=travel&utm_medium=body" aria-label="Gui Ruggiero homepage">GuiPT</a>!</p>
         </main>
 
-        <footer data-i18n="website.footer">
+        <footer>
             Built with lots of ☕ by Gui Ruggiero himself
         </footer>
 
-        <!-- Other scripts -->
+        <!-- Other script -->
         <script>
-            loadScript("redirect", {defer: true, target: "body"});
             loadScript("cookie-banner", {defer: true, target: "body"});
         </script>
     </body>

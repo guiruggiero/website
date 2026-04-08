@@ -4,6 +4,7 @@
   "homepage": "https://guiruggiero.com/",
   "version": "2.1",
   "main": "modules/main.js",
+  "type": "module",
   "manualDependencies": {
     "firebase": "",
     "firebase-firestore-lite": ""
@@ -22,21 +23,20 @@
     "terser": ""
   },
   "devDependencies": {
-    "@eslint/css": "^0.14.0",
+    "@eslint/css": "^1.1.0",
     "@eslint/js": "^10.0.1",
-    "@eslint/markdown": "^7.4.0",
-    "@html-eslint/eslint-plugin": "^0.57.1",
-    "@html-eslint/parser": "^0.57.1",
-    "@stylistic/eslint-plugin": "^5.9.0",
-    "eslint": "^10.0.2",
-    "eslint-plugin-yml": "^3.2.1",
+    "@html-eslint/eslint-plugin": "^0.58.1",
+    "@html-eslint/parser": "^0.58.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.2.0",
+    "eslint-plugin-yml": "^3.3.1",
     "globals": "^17.4.0",
     "http-server": "^14.1.1"
   },
   "scripts": {
     "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
     "lint": "eslint .",
-    "dev": "http-server ./ --port 8082",
+    "server": "http-server ./ --port 8082",
     "tunnel": "ngrok start website"
   }
 }

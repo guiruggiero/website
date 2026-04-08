@@ -56,8 +56,8 @@ jobs:
       - name: Delete all but files needed at runtime
         run: |
           find ./modules \( -name "*.js" -not -name "*.min.js" -o -name "*.map" \) -print0 | xargs -0 -P 4 -I {} rm {} || exit 1
-          rm -rf .github
-          rm .gitignore LICENSE README.md eslint.config.js package-lock.json package.json
+          rm -rf .github/ functions/
+          rm .firebaserc .gitignore CLAUDE.md eslint.config.js firebase.json LICENSE package-lock.json package.json README.md
 
       - name: Push changes to "live-min" branch
         run: |

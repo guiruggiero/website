@@ -16,7 +16,7 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 ## ✨ Features
 
 ### AI assistant
-- Real-time interaction with custom AI assistant GuiPT
+- Real-time interaction with AI assistant GuiPT
 - Context carryover with chat history
 - Prompt suggestions with conversation starters
 
@@ -54,7 +54,7 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 
 ### Core stack
 - HTML5, CSS3, JavaScript (vanilla)
-- [GuiPT API](https://github.com/guiruggiero/guipt)
+- GuiPT - AI assistant backend with Firebase Cloud Function
 
 ### Infrastructure
 - GitHub Pages - hosting
@@ -94,6 +94,13 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 - `ngrok` - local development tunneling
 - `terser` - JavaScript minification
 - `typed.js` - animated typing effect
+
+### Backend (Cloud Function)
+- `@google/genai` - Gemini API integration
+- `@langfuse/client` - prompt management
+- `@sentry/node` - Sentry integration
+- `firebase-functions` and `firebase-tools` - serverless backend
+- `sanitize-html` - input sanitization
 
 ---
 
