@@ -13,8 +13,10 @@ npm run tunnel  # ngrok tunnel for local testing with mobile/external devices
 All commands below run from `functions/`:
 
 ```bash
-npm run lint    # ESLint check (also runs automatically before deploy)
-npm run deploy  # Deploy GuiPT to Firebase (runs lint first via predeploy hook)
+npm run lint            # ESLint check (also runs automatically before deploy)
+npm run deploy          # Deploy all Cloud Functions (runs lint first via predeploy hook)
+npm run deploy-guipt    # Deploy only the GuiPT function
+npm run deploy-guiwise  # Deploy only the Guiwise function
 ```
 
 No build step required locally — minification runs in CI only (see `.github/workflows/minification.yml`).
@@ -27,7 +29,8 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
-- Various redirect pages (`linkedin.html`, `github.html`, etc.) — Use `modules/redirect.js` or meta redirects
+- Various utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content
+- Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js` or meta redirects
 - `modules/` — ES6 modules:
   - `main.js` — Orchestrates chat: event listeners, turn flow, history management
   - `ui.js` — DOM manipulation, chat window expand/collapse, loader
@@ -39,14 +42,19 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `sentry.js` — Error tracking initialization
   - `cookie-banner.js` — Google Analytics consent
   - `redirect.js` — URL redirection helper
+  - `splitwise.js` — Guiwise expense form; calls the `guiwise` Firebase Cloud Function
 
 ### Dev vs. Production Loading
 
 Scripts auto-detect the environment at runtime. On `localhost` or ngrok, `.js` modules are loaded; on production, `.min.js` is used. This means the file a page loads is determined by the script tag in the HTML — no webpack aliases or env flags.
 
-### GuiPT Cloud Function
+### Cloud Functions
 
-`functions/` contains the GuiPT Firebase Cloud Function (`index.js`). It receives `{message, history}` (stateless — history is passed in from the client), sanitizes and validates input, fetches the system prompt from Langfuse (3-minute cache), calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`), and returns a plain-text response. CORS-enabled. Deploy with `npm run deploy` from `functions/`. Required env vars (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`. Max 5 instances, 8-second timeout. The client (`modules/guipt.js`) enforces a 16-second timeout (race against the axios 4-second retry chain). When changing the API contract (request/response shape, error codes, timeouts), update both `functions/index.js` and `modules/guipt.js` together.
+`functions/` contains all Firebase Cloud Functions. `index.js` is the entrypoint — it just re-exports from `guipt.js` and `guiwise.js`. Each function file handles its own Sentry init (idempotent). Deploy with `npm run deploy` (all functions) or per-function scripts from `functions/`.
+
+**GuiPT** (`functions/guipt.js`): Receives `{message, history}` (stateless — history is passed in from the client), sanitizes and validates input, fetches the system prompt from Langfuse (3-minute cache), calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`), and returns a plain-text response. CORS-enabled. Required env vars (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`. Max 5 instances, 8-second timeout. The client (`modules/guipt.js`) enforces a 16-second timeout (race against the axios 4-second retry chain). When changing the API contract (request/response shape, error codes, timeouts), update both `functions/guipt.js` and `modules/guipt.js` together.
+
+**Guiwise** (`functions/guiwise.js`): Receives `{description, amount}`, proxies to the Splitwise API (`POST /create_expense`) as a direct USD expense split, and returns the Splitwise API response as JSON. CORS-enabled. Required env vars (set in Firebase Console, never in source): `SPLITWISE_API_KEY`, `SENTRY_DSN`. Max 5 instances, 10-second timeout.
 
 ### Firestore Logging
 

@@ -1,0 +1,208 @@
+@import "global.css";
+
+:root {
+    --guiwise-green:       #1EC183;
+    --guiwise-green-dark:  #18A872;
+    --guiwise-green-glow:  rgba(30, 193, 131, 0.35);
+    --guiwise-green-focus: rgba(30, 193, 131, 0.15);
+    --guiwise-red:         #E05252;
+    --guiwise-border:      rgba(255, 255, 255, 0.08);
+    --guiwise-radius:      12px;
+    --guiwise-transition:  0.18s ease;
+}
+
+    :root.light-theme {
+        --guiwise-border: rgba(0, 0, 0, 0.1);
+    }
+
+main {
+    padding: 40px 0 20px;
+    align-items: center;
+}
+
+    .app-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+        .app-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+            .app-logo-icon {
+                width: 44px;
+                height: 44px;
+                background: var(--guiwise-green);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 22px;
+                box-shadow: 0 4px 12px var(--guiwise-green-glow);
+            }
+
+            .app-logo-name {
+                font-size: 30px;
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+
+                .app-logo-name span { color: var(--guiwise-green); }
+
+        .app-tagline {
+            font-size: 13px;
+            color: var(--secondary-text-color);
+            letter-spacing: 0.2px;
+        }
+
+    .card {
+        background: var(--secondary-bg-color);
+        border-radius: var(--guiwise-radius);
+        border: 1px solid var(--guiwise-border);
+        width: 100%;
+        max-width: 440px;
+        overflow: hidden;
+    }
+
+        .form-body {
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+                label {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: var(--secondary-text-color);
+                    text-transform: uppercase;
+                    letter-spacing: 0.6px;
+                }
+
+                input {
+                    width: 100%;
+                    padding: 11px 14px;
+                    border: 1.5px solid var(--guiwise-border);
+                    border-radius: 8px;
+                    font-size: 15px;
+                    background: var(--tertiary-bg-color);
+                    transition: border-color var(--guiwise-transition), box-shadow var(--guiwise-transition);
+                    outline: none;
+                    font-family: inherit;
+                }
+
+                    input::placeholder { color: var(--secondary-text-color); }
+
+                    input:focus {
+                        border-color: var(--guiwise-green);
+                        box-shadow: 0 0 0 3px var(--guiwise-green-focus);
+                    }
+
+                /* Amount field with $ prefix */
+                .amount-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+
+                    .amount-prefix {
+                        position: absolute;
+                        left: 14px;
+                        font-size: 15px;
+                        color: var(--secondary-text-color);
+                        pointer-events: none;
+                        font-weight: 500;
+                    }
+
+                    .amount-wrapper input { padding-left: 28px; }
+
+            .btn-submit {
+                width: 100%;
+                padding: 13px;
+                background: var(--guiwise-green);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background var(--guiwise-transition), transform var(--guiwise-transition), box-shadow var(--guiwise-transition);
+                letter-spacing: 0.2px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+                .btn-submit:hover:not(:disabled) {
+                    background: var(--guiwise-green-dark);
+                    box-shadow: 0 4px 14px var(--guiwise-green-glow);
+                    transform: translateY(-1px);
+                }
+
+                .btn-submit:active:not(:disabled) { transform: translateY(0); }
+
+                .btn-submit:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+
+                .btn-icon { font-size: 16px; }
+
+                /* Loading state */
+                .spinner {
+                    width: 16px;
+                    height: 16px;
+                    border: 2px solid rgba(255, 255, 255, 0.4);
+                    border-top-color: #fff;
+                    border-radius: 50%;
+                    animation: spin 0.7s linear infinite;
+                    display: none;
+                }
+
+                .btn-submit.loading .spinner { display: block; }
+                .btn-submit.loading .btn-text { display: none; }
+                .btn-submit.loading .btn-icon { display: none; }
+
+                @keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    min-width: 260px;
+    max-width: 90vw;
+    padding: 13px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 100;
+}
+
+    .toast.visible {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+        pointer-events: auto;
+    }
+
+    .toast.success { background: var(--guiwise-green); color: #fff; }
+    .toast.error   { background: var(--guiwise-red);   color: #fff; }
+
+    .toast-icon { font-size: 16px; flex-shrink: 0; }

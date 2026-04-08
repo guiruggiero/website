@@ -24,6 +24,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "deploy": "npx firebase deploy --only functions:guipt"
+    "deploy": "npx firebase deploy --only functions:guipt,functions:guiwise",
+    "deploy-guipt": "npx firebase deploy --only functions:guipt",
+    "deploy-guiwise": "npx firebase deploy --only functions:guiwise"
   }
 }
