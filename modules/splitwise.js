@@ -33,7 +33,7 @@ function setLoading(loading) {
 // Submit handler
 submitBtn.addEventListener("click", async () => {
     const description = descInput.value.trim();
-    const amount = parseFloat(amountInput.value);
+    const amount = Number.parseFloat(amountInput.value);
 
     if (!description) { showToast("Please enter a description", "error"); descInput.focus(); return; }
     if (!amount || amount <= 0) { showToast("Please enter a valid amount", "error"); amountInput.focus(); return; }

@@ -29,7 +29,8 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
-- Various utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content
+- Various utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with `noindex` meta tag
+- Internal/personal utility pages (`splitwise.html`, `onairsign.html`) with `noindex` meta tag and no GTM or Google Analytics 
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js` or meta redirects
 - `modules/` — ES6 modules:
   - `main.js` — Orchestrates chat: event listeners, turn flow, history management

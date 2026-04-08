@@ -32,7 +32,7 @@ export const guiwise = onRequest(functionConfig, async (request, response) => {
 
   // Build Splitwise expense object
   const expense = {
-    cost: parseFloat(amount).toFixed(2),
+    cost: Number.parseFloat(amount).toFixed(2),
     description,
     currency_code: "USD",
     group_id: 0, // Direct expense between users
