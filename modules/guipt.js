@@ -9,8 +9,9 @@ const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/gui
 axiosRetry(axios, {
     retries: 2, // Retry attempts
     retryDelay: axiosRetry.exponentialDelay, // 1s then 2s between retries
-    retryCondition: (error) => { // Only retry on network or 5xx errors
+    retryCondition: (error) => { // Only retry on network, timeout, or 5xx errors
         return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+               error.code === "ECONNABORTED" || // Explicit timeout retry (axios-retry v4+ excludes timeouts)
                (error.response?.status >= 500);
     },
 });
@@ -21,7 +22,7 @@ export default async function callGuiPT(chatHistory, userMessage) {
         history: chatHistory,
         message: userMessage,
     }, {
-        timeout: 4000, // 4s
+        timeout: 6000, // 6s
     }).catch(error => {
         // Add context but don't report it here
         error.source = "guipt.js";
