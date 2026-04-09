@@ -101,6 +101,16 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
     return;
   }
 
+  // Handle warm-up pings
+  if (request.body?.ping === true) {
+    Sentry.logger.info("[1b] Warm-up ping received");
+
+    response.status(200).send("pong");
+
+    await Sentry.flush(2000);
+    return;
+  }
+
   // Get user message from request
   let userMessage = request.body?.message;
   if (!userMessage || userMessage.trim() === "") {
