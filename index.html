@@ -11,7 +11,15 @@
 
         <!-- Critical scripts -->
         <script>
-            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
+            // Warm up the GuiPT Cloud Function ASAP (fire-and-forget)
+            fetch("https://us-central1-guiruggiero.cloudfunctions.net/guipt", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ping: true}),
+            }).catch(() => {});
+
+            // Import scripts dynamically
+            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
                 const script = document.createElement("script");
                 const isDev = globalThis.location.href.includes("ngrok");
                 script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
