@@ -35,16 +35,24 @@ submitBtn.addEventListener("click", async () => {
     const description = descInput.value.trim();
     const amount = Number.parseFloat(amountInput.value);
 
-    if (!description) { showToast("Please enter a description", "error"); descInput.focus(); return; }
-    if (!amount || amount <= 0) { showToast("Please enter a valid amount", "error"); amountInput.focus(); return; }
+    if (!description) {
+        showToast("Please enter a description", "error");
+        descInput.focus();
+        return;
+    }
+    if (!amount || amount <= 0) {
+        showToast("Please enter a valid amount", "error");
+        amountInput.focus();
+        return;
+    }
 
     setLoading(true);
 
     try {
         const response = await fetch(cloudFunctionURL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ description, amount }),
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({description, amount}),
         });
 
         const data = await response.json();
