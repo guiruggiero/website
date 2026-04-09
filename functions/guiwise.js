@@ -9,9 +9,15 @@ Sentry.init({
 });
 const SPLITWISE_BASE = "https://secure.splitwise.com/api/v3.0";
 
+// Allowed origins
+const allowedOrigins = [
+  "https://guiruggiero.com",
+  "https://probable-firmly-gobbler.ngrok-free.app",
+];
+
 // Function configuration
 const functionConfig = {
-  cors: true,
+  cors: allowedOrigins,
   maxInstances: 2,
   timeoutSeconds: 10,
 };
@@ -19,10 +25,21 @@ const functionConfig = {
 export const guiwise = onRequest(functionConfig, async (request, response) => {
   Sentry.logger.info("[1] Guiwise started");
 
+  // Reject requests from unknown origins
+  const origin = request.headers["origin"] || request.headers["referer"] || "";
+  if (!allowedOrigins.some((o) => origin.startsWith(o))) {
+    Sentry.logger.warn("[1a] Unauthorized origin", {origin});
+
+    response.status(403).send("Forbidden");
+
+    await Sentry.flush(2000);
+    return;
+  }
+
   // Get expense from request
   const {description, amount} = request.body;
   if (!description || !amount) {
-    Sentry.logger.warn("[1a] Missing fields", {description, amount});
+    Sentry.logger.warn("[1b] Missing fields", {description, amount});
 
     response.status(400).json({error: "Missing description or amount"});
 
