@@ -151,15 +151,12 @@ async function handleGuiPT() {
 
         // Capture error with context
         Sentry.captureException(error, {contexts: {
-            errorDetails: {
-                source: error.source || "main.js",
-                axiosRetryCount: error.config?.["axios-retry"]?.retryCount ?? "N/A",
-            },
             turnDetails: {
                 turnNumber: turnCount + 1,
                 userInput: input,
                 sanitizedInput,
                 chatID,
+                axiosRetryCount: error.config?.["axios-retry"]?.retryCount ?? "N/A",
             },
             turnHistory,
         }});
