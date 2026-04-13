@@ -72,7 +72,7 @@ function setupThemeToggle() {
         localStorage.setItem("themePreference", preferredTheme);
 
         // Notify other listeners of the theme change
-        window.dispatchEvent(new CustomEvent("themechange", {detail: {theme: preferredTheme}}));
+        globalThis.dispatchEvent(new CustomEvent("themechange", {detail: {theme: preferredTheme}}));
     });
 }
 
