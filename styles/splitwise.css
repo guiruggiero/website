@@ -99,7 +99,7 @@ main {
                     background: var(--tertiary-bg-color);
                     transition: border-color var(--guiwise-transition), box-shadow var(--guiwise-transition);
                     outline: none;
-                    font-family: inherit;
+                    font-family: inherit; /* eslint-disable-line css/font-family-fallbacks -- inherit propagates parent's font-family which already has fallbacks */
                 }
 
                     input::placeholder {

@@ -30,11 +30,11 @@ main {
                 color: var(--accent-color);
                 text-decoration: none;
                 font-weight: bold;
+                transition: opacity 0.3s ease;
             }
 
                 .contact a:hover {
                     opacity: 0.7;
-                    transition: opacity 0.3s ease;
                 }
 
             .pdf {
@@ -54,12 +54,12 @@ main {
                 .pdf-label {
                     font-size: 10px;
                     font-weight: bold;
+                    transition: color 0.3s ease;
                 }
 
                     .pdf:hover .pdf-label {
                         color: var(--accent-color);
-                        transition: color 0.3s ease;
-                }
+                    }
 
     .section-title {
         font-weight: bold;
@@ -138,12 +138,11 @@ main {
             .media-item {
                 border: 1px solid var(--media-border-color);
                 border-radius: 8px;
-                overflow: hidden;
                 transition: box-shadow 0.2s ease, transform 0.2s ease;
             }
 
                 .media-item:hover {
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* TODO: var */
+                    box-shadow: var(--media-item-shadow);
                     transform: translateY(-1px);
                 }
 
@@ -160,6 +159,7 @@ main {
                         height: 80px;
                         flex-shrink: 0;
                         overflow: hidden;
+                        border-radius: 8px 0 0 8px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -179,7 +179,7 @@ main {
                             font-size: 16px;
                             color: var(--primary-text-color);
                             opacity: 0.7;
-                            background: rgba(255, 255, 255, 0.9); /* TODO: var */
+                            background: var(--link-icon-bg);
                             border-radius: 3px;
                             padding: 2px;
                         }
@@ -209,15 +209,13 @@ main {
 
         ul {
             margin: 4px 0 12px 0;
+            padding-left: 1.4em;
             width: 100%;
-            list-style-position: inside;
         }
 
             li {
                 margin-bottom: 4px;
                 line-height: 1.5;
-                text-indent: -1.5em;
-                padding-left: 1.5em;
             }
 
                 ul:last-of-type {
@@ -225,56 +223,56 @@ main {
                 }
 
 @media (max-width: 600px) {
-        .header {
-            grid-template-columns: 1fr;
-            gap: 15px;
+    .header {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+        .header-content {
+            grid-column: 1;
         }
 
-            .header-content {
+            .name {
+                font-size: 24px;
+            }
+
+            .pdf {
                 grid-column: 1;
+                justify-self: center;
+                padding-bottom: 0;
             }
-    
-                .name {
-                    font-size: 24px;
-                }
 
-                .pdf {
-                    grid-column: 1;
-                    justify-self: center;
-                    padding-bottom: 0;
-                }
+    .company-logo {
+        width: 45px;
+        margin-right: 8px;
+    }
 
-        .company-logo {
-            width: 45px;
-            margin-right: 8px;
+        .position-header {
+            flex-direction: column;
         }
 
-            .position-header {
-                flex-direction: column;
+            .position {
+                margin-bottom: 3px;
             }
-            
-                .position {
-                    margin-bottom: 3px;
+
+            .location {
+                padding-left: 0;
+            }
+
+                .media-thumbnail {
+                    width: 80px;
+                    height: 60px;
                 }
 
-                .location {
-                    padding-left: 0;
+                .media-content {
+                    padding: 10px 12px;
                 }
 
-                    .media-thumbnail {
-                        width: 80px;
-                        height: 60px;
+                    .media-title {
+                        font-size: 13px;
                     }
-                    
-                    .media-content {
-                        padding: 10px 12px;
+
+                    .media-source {
+                        font-size: 11px;
                     }
-                    
-                        .media-title {
-                            font-size: 13px;
-                        }
-                        
-                        .media-source {
-                            font-size: 11px;
-                        }
 }
