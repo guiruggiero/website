@@ -3,13 +3,19 @@
    <url>
       <loc>https://guiruggiero.com/</loc>
       <priority>1.0</priority>
-      <changefreq>weekly</changefreq>
-      <lastmod>2025-10-25T11:30:00+02:00</lastmod>
+      <changefreq>monthly</changefreq>
+      <lastmod>2026-04-13T04:10:00-07:00</lastmod>
    </url>
    <url>
       <loc>https://guiruggiero.com/resume</loc>
+      <priority>0.8</priority>
+      <changefreq>monthly</changefreq>
+      <lastmod>2026-04-13T04:10:00-07:00</lastmod>
+   </url>
+   <url>
+      <loc>https://guiruggiero.com/projects</loc>
       <priority>0.6</priority>
       <changefreq>monthly</changefreq>
-      <lastmod>2025-07-21T03:20:00+02:00</lastmod>
+      <lastmod>2026-04-13T04:10:00-07:00</lastmod>
    </url>
 </urlset>

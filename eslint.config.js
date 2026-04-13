@@ -23,9 +23,6 @@ export default defineConfig([
     languageOptions: {
       globals: {
         ...globals.browser,
-        Typed: true,
-        axios: true,
-        axiosRetry: true,
         Sentry: true,
       },
     },

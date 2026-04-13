@@ -14,10 +14,10 @@ export default defineConfig([
   ...compat.extends("google"),
   {
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: 2022,
       sourceType: "module",
       globals: {
-        ...globals.es2020,
+        ...globals.es2021,
         ...globals.node,
       },
     },

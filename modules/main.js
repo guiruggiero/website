@@ -121,7 +121,7 @@ async function handleGuiPT() {
     const loaderContainer = UI.showLoader();
     
     // Call GuiPT
-    let guiptResponse = {};
+    let guiptResponse;
     try {
         // Client timeout
         const timeoutPromise = new Promise((_, reject) => {
@@ -134,7 +134,7 @@ async function handleGuiPT() {
             timeoutPromise,
         ]);
 
-    } catch(error) {
+    } catch (error) {
         loaderContainer.remove();
 
         // Errors with different display messages
