@@ -19,7 +19,7 @@ function showToast(message, type = "success") {
 
     // Force reflow to re-trigger animation before adding visible class
     toast.classList.remove("visible");
-    toast.offsetWidth;
+    toast.getBoundingClientRect();
     toast.classList.add("visible");
 
     toastTimer = setTimeout(() => toast.classList.remove("visible"), 4000);
