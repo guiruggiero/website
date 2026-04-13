@@ -70,6 +70,9 @@ function setupThemeToggle() {
         // Update icons and save the new theme preference
         updateIcons(preferredTheme);
         localStorage.setItem("themePreference", preferredTheme);
+
+        // Notify other listeners of the theme change
+        window.dispatchEvent(new CustomEvent("themechange", {detail: {theme: preferredTheme}}));
     });
 }
 

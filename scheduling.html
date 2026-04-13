@@ -104,17 +104,12 @@
                 Cal.ns.chat("ui",{"theme":currentTheme,"cssVarsPerTheme":{"light":{"cal-brand":"#2563eb"},"dark":{"cal-brand":"#2563eb"}},"hideEventTypeDetails":false,"layout":"month_view"});
 
                 // Theme toggle
-                document.addEventListener("DOMContentLoaded", () => {
-                    document.getElementById("theme-toggle")?.addEventListener("pointerup", () => {
-                        setTimeout(() => {
-                            const newTheme = document.documentElement.classList.contains("light-theme") ? "light" : "dark";
-                            if (newTheme !== currentTheme) {
-                                currentTheme = newTheme;
-                                Cal.ns.chat("inline",{elementOrSelector:"#my-cal-inline",config:{"layout":"month_view","theme":currentTheme},calLink:"guiruggiero/chat"});
-                                Cal.ns.chat("ui",{"theme":currentTheme,"cssVarsPerTheme":{"light":{"cal-brand":"#2563eb"},"dark":{"cal-brand":"#2563eb"}},"hideEventTypeDetails":false,"layout":"month_view"});
-                            }
-                        }, 10);
-                    });
+                window.addEventListener("themechange", (e) => {
+                    currentTheme = e.detail.theme;
+                    // Clear existing embed so Cal.com creates a fresh iframe with the new theme
+                    document.getElementById("my-cal-inline").innerHTML = "";
+                    Cal.ns.chat("inline",{elementOrSelector:"#my-cal-inline",config:{"layout":"month_view","theme":currentTheme},calLink:"guiruggiero/chat"});
+                    Cal.ns.chat("ui",{"theme":currentTheme,"cssVarsPerTheme":{"light":{"cal-brand":"#2563eb"},"dark":{"cal-brand":"#2563eb"}},"hideEventTypeDetails":false,"layout":"month_view"});
                 });
             </script>
         </main>
