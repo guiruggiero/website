@@ -1,0 +1,125 @@
+@import "global.css";
+
+main {
+    padding-top: 20px;
+    align-items: flex-start;
+}
+
+    .page-header {
+        width: 100%;
+        margin-bottom: 24px;
+        border-bottom: 3px solid var(--secondary-accent-color);
+        padding-bottom: 12px;
+    }
+
+        .page-title {
+            font-weight: bold;
+            font-size: 20px;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--secondary-text-color);
+        }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        width: 100%;
+    }
+
+        .project-card {
+            background-color: var(--secondary-bg-color);
+            border: 1px solid var(--media-border-color);
+            border-radius: 8px;
+            padding: 16px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+            .project-card:hover {
+                box-shadow: var(--media-item-shadow);
+                transform: translateY(-2px);
+            }
+
+            .project-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+                .project-name {
+                    font-size: 15px;
+                    font-weight: 600;
+                    line-height: 1.3;
+                }
+
+                .lang-badge {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    background-color: var(--tertiary-bg-color);
+                    border-radius: 16px;
+                    padding: 3px 8px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                    flex-shrink: 0;
+                }
+
+                    .lang-badge iconify-icon {
+                        font-size: 13px;
+                    }
+
+                    .lang-js iconify-icon { color: #f7df1e; }
+                    .lang-python iconify-icon { color: #3776ab; }
+                    .lang-html iconify-icon { color: #e34f26; }
+
+                    /* Override the global * { color: var(--primary-text-color) } for badge text */
+                    .lang-js, .lang-python, .lang-html {
+                        color: var(--primary-text-color);
+                    }
+
+            .project-desc {
+                font-size: 13px;
+                color: var(--secondary-text-color);
+                line-height: 1.5;
+                flex-grow: 1;
+            }
+
+            .project-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 4px;
+            }
+
+                .project-footer iconify-icon {
+                    font-size: 18px;
+                    color: var(--secondary-text-color);
+                    transition: color 0.2s ease;
+                }
+
+                    .project-card:hover .project-footer iconify-icon {
+                        color: var(--accent-color);
+                    }
+
+@media (max-width: 700px) {
+    .projects-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 420px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}

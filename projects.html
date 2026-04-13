@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <!-- Browser tags -->
+        <title>Gui Ruggiero - Projects</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="color-scheme" content="dark light">
+
+        <!-- Critical scripts -->
+        <script>
+            // Import scripts dynamically
+            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
+                const script = document.createElement("script");
+                const isDev = globalThis.location.href.includes("ngrok");
+                script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
+                script.type = type;
+                if (defer) script.defer = true;
+                if (crossorigin) script.crossorigin = crossorigin;
+                (target === "body" ? document.body : document.head).appendChild(script);
+            }
+            loadScript("sentry", {type: "text/javascript"});
+            loadScript("theme-toggle");
+            loadScript("shared-head", {type: "text/javascript"});
+        </script>
+        <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="styles/projects.css">
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
+
+        <!-- Search engine tags -->
+        <meta name="description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps built for fun and learning">
+        <meta name="keywords" content="projects, personal projects, side projects, AI agent, automation, web app, JavaScript, Python, guiruggiero, guimail, guido, guipt, on-air-sign, guibot, daredevil, wednesdaychecker">
+        <meta http-equiv="content-language" content="en">
+        <meta name="author" content="Gui Ruggiero">
+        <link rel="canonical" href="https://guiruggiero.com/projects.html">
+        <meta name="robots" content="index, follow">
+        <meta name="googlebot" content="index, follow">
+
+        <!-- Open Graph tags -->
+        <meta name="title" property="og:title" content="Gui Ruggiero - Projects">
+        <meta name="description" property="og:description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps">
+        <meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1280">
+        <meta property="og:image:height" content="640">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://guiruggiero.com/projects.html">
+        <meta property="og:site_name" content="Gui Ruggiero">
+        <meta property="og:locale" content="en_US">
+
+        <!-- X tags -->
+        <meta name="twitter:title" content="Gui Ruggiero - Projects">
+        <meta name="twitter:description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps">
+        <meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:creator" content="@guiruggiero">
+        <meta name="twitter:site" content="@guiruggiero">
+    </head>
+
+    <body>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        </noscript>
+
+        <header>
+            <div class="header-container">
+                <div class="logo-theme-toggle">
+                    <a href="https://guiruggiero.com/?utm_source=projects&utm_medium=header" aria-label="Gui Ruggiero homepage">
+                        <picture>
+                            <source srcset="images/gr-logo-light.webp" type="image/webp">
+                            <img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+                        </picture>
+                    </a>
+
+                    <button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                </div>
+
+                <div id="social-links">
+                    <a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
+                        <iconify-icon icon="cib:linkedin-in"></iconify-icon>
+                    </a>
+
+                    <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="page-header">
+                <div class="page-title">PROJECTS</div>
+                <p class="page-subtitle">Personal projects I've built for fun and learning</p>
+            </div>
+
+            <div class="projects-grid">
+                <!-- guimail -->
+                <a href="https://github.com/guiruggiero/guimail" target="_blank" class="project-card" aria-label="guimail GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">guimail</h3>
+                        <span class="lang-badge lang-js">
+                            <iconify-icon icon="cib:javascript"></iconify-icon>
+                            JavaScript
+                        </span>
+                    </div>
+                    <p class="project-desc">AI agent that acts on forwarded emails</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- guido -->
+                <a href="https://github.com/guiruggiero/guido" target="_blank" class="project-card" aria-label="guido GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">guido</h3>
+                        <span class="lang-badge lang-js">
+                            <iconify-icon icon="cib:javascript"></iconify-icon>
+                            JavaScript
+                        </span>
+                    </div>
+                    <p class="project-desc">AI agent that acts on WhatsApp messages</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- on-air-sign -->
+                <a href="https://github.com/guiruggiero/on-air-sign" target="_blank" class="project-card" aria-label="on-air-sign GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">on-air-sign</h3>
+                        <span class="lang-badge lang-python">
+                            <iconify-icon icon="cib:python"></iconify-icon>
+                            Python
+                        </span>
+                    </div>
+                    <p class="project-desc">Automated 'On-Air' sign for home office</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- guipt -->
+                <a href="https://github.com/guiruggiero/guipt" target="_blank" class="project-card" aria-label="guipt GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">guipt</h3>
+                        <span class="lang-badge lang-js">
+                            <iconify-icon icon="cib:javascript"></iconify-icon>
+                            JavaScript
+                        </span>
+                    </div>
+                    <p class="project-desc">AI assistant endpoint — powers the GuiPT chat on this site</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- guibot -->
+                <a href="https://github.com/guiruggiero/guibot" target="_blank" class="project-card" aria-label="guibot GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">guibot</h3>
+                        <span class="lang-badge lang-python">
+                            <iconify-icon icon="cib:python"></iconify-icon>
+                            Python
+                        </span>
+                    </div>
+                    <p class="project-desc">Crawling scripts for multiple purposes</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- website -->
+                <a href="https://github.com/guiruggiero/website" target="_blank" class="project-card" aria-label="website GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">website</h3>
+                        <span class="lang-badge lang-html">
+                            <iconify-icon icon="simple-icons:html5"></iconify-icon>
+                            HTML
+                        </span>
+                    </div>
+                    <p class="project-desc">Personal website and utilities — this site!</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- daredevil -->
+                <a href="https://github.com/guiruggiero/daredevil" target="_blank" class="project-card" aria-label="daredevil GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">daredevil</h3>
+                        <span class="lang-badge lang-js">
+                            <iconify-icon icon="cib:javascript"></iconify-icon>
+                            JavaScript
+                        </span>
+                    </div>
+                    <p class="project-desc">Your adventures, all in one place!</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+
+                <!-- wednesdaychecker -->
+                <a href="https://github.com/guiruggiero/wednesdaychecker" target="_blank" class="project-card" aria-label="wednesdaychecker GitHub repository">
+                    <div class="project-header">
+                        <h3 class="project-name">wednesdaychecker</h3>
+                        <span class="lang-badge lang-html">
+                            <iconify-icon icon="simple-icons:html5"></iconify-icon>
+                            HTML
+                        </span>
+                    </div>
+                    <p class="project-desc">Is it Wednesday? Let's see!</p>
+                    <div class="project-footer">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                    </div>
+                </a>
+            </div>
+        </main>
+
+        <footer data-i18n="website.footer">
+            Built with lots of ☕ by Gui Ruggiero himself
+        </footer>
+
+        <!-- Other scripts -->
+        <script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
+    </body>
+</html>
