@@ -11,55 +11,25 @@
 
         <!-- Critical scripts -->
         <script>
-            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) { // Import scripts dynamically
+            // Import scripts dynamically
+            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
                 const script = document.createElement("script");
                 const isDev = globalThis.location.href.includes("ngrok");
                 script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
                 script.type = type;
                 if (defer) script.defer = true;
                 if (crossorigin) script.crossorigin = crossorigin;
-                const parent = target === "body" ? document.body : document.head;
-                parent.appendChild(script);
+                (target === "body" ? document.body : document.head).appendChild(script);
             }
+            loadScript("sentry", {type: "text/javascript"});
+            loadScript("theme-toggle");
+            loadScript("shared-head", {type: "text/javascript"});
         </script>
-        <script>loadScript("sentry", {type: "text/javascript"});</script>
         <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
-        <script>loadScript("theme-toggle");</script>
-
-        <!-- Preconnects and preloads -->
-        <link rel="preload" href="images/gr-logo-light.webp" as="image">
-        <link rel="preload" href="images/gr-logo-dark.webp" as="image">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
-        <link rel="preconnect" href="https://cdn.jsdelivr.net">
 
         <!-- Stylesheets -->
         <link rel="stylesheet" href="styles/redirect.css">
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
-        <link rel="preload" href="styles/cookie-banner.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <noscript><link rel="stylesheet" href="styles/cookie-banner.css"></noscript>
-
-        <!-- Favicons for dark mode -->
-        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-light.ico" media="(prefers-color-scheme: dark)">
-        <link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-light.png" media="(prefers-color-scheme: dark)">
-        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-light.png" media="(prefers-color-scheme: dark)">
-        <link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-light.png" media="(prefers-color-scheme: dark)">
-        <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-light.png" media="(prefers-color-scheme: dark)">
-        <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-light.png" media="(prefers-color-scheme: dark)">
-
-        <!-- Favicons for light mode -->
-        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-dark.ico" media="(prefers-color-scheme: light)">
-        <link rel="icon" type="image/png" sizes="16x16" href="images/favicons/favicon-16x16-dark.png" media="(prefers-color-scheme: light)">
-        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-dark.png" media="(prefers-color-scheme: light)">
-        <link rel="icon" type="image/png" sizes="192x192" href="images/favicons/android-chrome-192x192-dark.png" media="(prefers-color-scheme: light)">
-        <link rel="icon" type="image/png" sizes="512x512" href="images/favicons/android-chrome-512x512-dark.png" media="(prefers-color-scheme: light)">
-        <link rel="apple-touch-icon" sizes="180x180" href="images/favicons/apple-touch-icon-dark.png" media="(prefers-color-scheme: light)">
-
-        <!-- Google Tag Manager -->
-        <script>
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({"gtm.start": new Date().getTime(),event:"gtm.js"});var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src="https://www.googletagmanager.com/gtm.js?id="+i+dl;f.parentNode.insertBefore(j,f);})(window,document,"script","dataLayer","GTM-PX5VBDT7");
-        </script>
 
         <!-- Search engine tag -->
         <meta name="robots" content="noindex">

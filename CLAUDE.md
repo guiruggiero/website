@@ -5,18 +5,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev     # Local dev server on port 8082
-npm run lint    # ESLint across JS, HTML, CSS, YAML, Markdown
-npm run tunnel  # ngrok tunnel for local testing with mobile/external devices
+npm run server    # Local dev server on port 8082
+npm run lint      # ESLint across JS, HTML, CSS, YAML, Markdown
+npm run lint-fix  # ESLint with auto-fix
+npm run tunnel    # ngrok tunnel for local testing with mobile/external devices
 ```
 
 All commands below run from `functions/`:
 
 ```bash
 npm run lint            # ESLint check (also runs automatically before deploy)
+npm run lint-fix        # ESLint with auto-fix
 npm run deploy          # Deploy all Cloud Functions (runs lint first via predeploy hook)
 npm run deploy-guipt    # Deploy only the GuiPT function
 npm run deploy-guiwise  # Deploy only the Guiwise function
+npm run prompt-pull     # Download production GuiPT prompt from Langfuse → guipt-prompt.md
+npm run prompt-push     # Upload guipt-prompt.md to Langfuse as new version, not production
 ```
 
 No build step required locally — minification runs in CI only (see `.github/workflows/minification.yml`).
@@ -55,6 +59,8 @@ Scripts auto-detect the environment at runtime. On `localhost` or ngrok, `.js` m
 
 **GuiPT** (`functions/guipt.js`): Receives `{message, history}` (stateless — history is passed in from the client), sanitizes and validates input, fetches the system prompt from Langfuse (3-minute cache), calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`), and returns a plain-text response. CORS restricted to `guiruggiero.com` and the ngrok dev URL; also enforces a server-side origin check (returns 403 for unknown origins). Required env vars (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`. Max 5 instances, 8-second timeout. The client (`modules/guipt.js`) enforces a 22-second timeout (race against the axios 6-second retry chain). When changing the API contract (request/response shape, error codes, timeouts), update both `functions/guipt.js` and `modules/guipt.js` together.
 
+**Prompt management**: `functions/guipt-prompt.md` is the GuiPT system prompt managed via the scripts above and excluded from regular commits. Always perform changes to the system prompt, but never consider it in the commit message. Scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `functions/.env` (gitignored).
+
 **Guiwise** (`functions/guiwise.js`): Receives `{description, amount}`, proxies to the Splitwise API (`POST /create_expense`) as a direct USD expense split, and returns the Splitwise API response as JSON. CORS restricted to `guiruggiero.com` and the ngrok dev URL; also enforces a server-side origin check (returns 403 for unknown origins). Required env vars (set in Firebase Console, never in source): `SPLITWISE_API_KEY`, `SENTRY_DSN`. Max 2 instances, 10-second timeout.
 
 ### Firestore Logging
@@ -81,7 +87,5 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 
 ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. Run `npm run lint` before pushing. The CI pipeline does not run lint automatically — it only minifies and deploys. `functions/` uses the ESLint Google style config which enforces a max line length of 80 characters.
 
-<!-- TODO: fix ESLint - currently broken, `@stylistic/eslint-plugin` fails to load due to an `estraverse` ESM incompatibility. Run `npm install` or update `@stylistic/eslint-plugin` to fix before linting. -->
-
 ## Sentry
-**Sentry:** Errors logged to the `website` project (`WEBSITE-*` issue IDs).
+Errors logged to the `website` project (`WEBSITE-*` issue IDs).
