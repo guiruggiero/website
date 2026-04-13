@@ -1,5 +1,6 @@
 // Imports
-import "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
+import Typed from "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
+import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js";
 const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
@@ -12,6 +13,7 @@ export const elements = {
     chatContainer: document.querySelector("#chat-container"),
     chatWindow: document.querySelector("#chat-window"),
     messagesContainer: null,
+    disclaimer: null,
     inputContainer: document.querySelector("#input-container"),
     input: document.querySelector("input"),
     submit: document.querySelector("#submit"),
@@ -156,8 +158,11 @@ export function addMessage(type, message, existingContainer = null) {
         messageElement.innerHTML = "";
         messageElement.setAttribute("aria-label", langData.guiptResponse + message);
 
-        // Replace the & character so Typed doesn't stop
-        message = message.replace(/&/g, "&amp;");
+        // Sanitize HTML to allowlisted tags only, blocking XSS vectors
+        message = DOMPurify.sanitize(message, {
+            ALLOWED_TAGS: ["a", "b", "strong", "em", "i", "br", "p", "ul", "ol", "li"],
+            ALLOWED_ATTR: ["href", "target"],
+        });
 
         // Scroll to bottom if height changes
         const resizeObserver = new ResizeObserver(() => {
@@ -215,7 +220,7 @@ function shuffleArray(array) {
 // Display example prompts as pills
 export function displayPromptPills() {
     // Copy prompts, shuffle, and select 3
-    const prompts = langData.promptPills;
+    const prompts = [...langData.promptPills];
     shuffleArray(prompts);
     const selectedPrompts = prompts.slice(0, 3);
 
