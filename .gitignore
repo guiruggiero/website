@@ -1,2 +1,3 @@
 node_modules/
 guipt-prompt.md
+functions/scripts/*.json

@@ -3,6 +3,14 @@
     <head>
         <meta charset="UTF-8">
 
+        <!-- Preconnects and preloads -->
+        <link rel="preload" href="images/gr-logo-light.webp" as="image">
+        <link rel="preload" href="images/gr-logo-dark.webp" as="image">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
         <!-- Browser tags -->
         <title>Gui Ruggiero - Projects</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -32,8 +40,8 @@
         <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
 
         <!-- Search engine tags -->
-        <meta name="description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps built for fun and learning">
-        <meta name="keywords" content="projects, personal projects, side projects, AI agent, automation, web app, JavaScript, Python, guiruggiero, guimail, guido, guipt, on-air-sign, guibot, daredevil, wednesdaychecker">
+        <meta name="description" content="Personal projects by Gui Ruggiero — AI agents built on Google Gemini, hardware automation with Raspberry Pi, and web apps. All open source on GitHub.">
+        <meta name="keywords" content="projects, personal projects, side projects, AI agent, automation, web app, JavaScript, Python, guiruggiero, guimail, guido, guipt, on-air-sign, guibot, daredevil, wednesdaychecker, Google Gemini, Cloudflare, Firebase, Raspberry Pi">
         <meta http-equiv="content-language" content="en">
         <meta name="author" content="Gui Ruggiero">
         <link rel="canonical" href="https://guiruggiero.com/projects.html">
@@ -42,7 +50,7 @@
 
         <!-- Open Graph tags -->
         <meta name="title" property="og:title" content="Gui Ruggiero - Projects">
-        <meta name="description" property="og:description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps">
+        <meta name="description" property="og:description" content="Personal projects by Gui Ruggiero — AI agents, hardware automation, and web apps. All open source on GitHub.">
         <meta name="image" property="og:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta property="og:image:type" content="image/png">
         <meta property="og:image:width" content="1280">
@@ -54,7 +62,7 @@
 
         <!-- X tags -->
         <meta name="twitter:title" content="Gui Ruggiero - Projects">
-        <meta name="twitter:description" content="Personal projects by Gui Ruggiero — AI agents, automation tools, and web apps">
+        <meta name="twitter:description" content="Personal projects by Gui Ruggiero — AI agents, hardware automation, and web apps. All open source on GitHub.">
         <meta name="twitter:image" content="https://raw.githubusercontent.com/guiruggiero/website/refs/heads/main/images/gr-logo-dark-social.png">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:creator" content="@guiruggiero">
@@ -95,137 +103,203 @@
         <main>
             <div class="page-header">
                 <div class="page-title">PROJECTS</div>
-                <p class="page-subtitle">Personal projects I've built for fun and learning</p>
+                <p class="page-subtitle">I build personal projects to stay close to the technology I work with professionally. Here's what I've been making.</p>
             </div>
 
-            <div class="projects-grid">
-                <!-- guimail -->
-                <a href="https://github.com/guiruggiero/guimail" target="_blank" class="project-card" aria-label="guimail GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">guimail</h3>
-                        <span class="lang-badge lang-js">
-                            <iconify-icon icon="cib:javascript"></iconify-icon>
-                            JavaScript
-                        </span>
-                    </div>
-                    <p class="project-desc">AI agent that acts on forwarded emails</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+            <!-- AI Agents -->
+            <div class="projects-section">
+                <div class="projects-section-title">AI AGENTS</div>
 
-                <!-- guido -->
-                <a href="https://github.com/guiruggiero/guido" target="_blank" class="project-card" aria-label="guido GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">guido</h3>
-                        <span class="lang-badge lang-js">
-                            <iconify-icon icon="cib:javascript"></iconify-icon>
-                            JavaScript
-                        </span>
-                    </div>
-                    <p class="project-desc">AI agent that acts on WhatsApp messages</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+                <div class="projects-grid">
+                    <!-- guimail -->
+                    <a href="https://github.com/guiruggiero/guimail" target="_blank" class="project-card" aria-label="guimail GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">guimail</h3>
+                            <span class="lang-badge lang-js">
+                                <iconify-icon icon="cib:javascript"></iconify-icon>
+                                JavaScript
+                            </span>
+                        </div>
+                        <p class="project-desc">An AI agent that processes forwarded emails and takes action on them autonomously — extracting calendar events with timezone detection, summarizing newsletters and long threads, logging expenses to Google Sheets, splitting costs via Splitwise, and retrieving flight details from FlightAware. Built on Google Gemini's tool-calling capabilities to orchestrate multiple integrations from a single natural-language interface.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Gemini</span>
+                            <span class="tech-tag">Cloudflare Workers</span>
+                            <span class="tech-tag">Firebase</span>
+                            <span class="tech-tag">FlightAware</span>
+                            <span class="tech-tag">Splitwise API</span>
+                            <span class="tech-tag">Sentry</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/guimail</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
 
-                <!-- on-air-sign -->
-                <a href="https://github.com/guiruggiero/on-air-sign" target="_blank" class="project-card" aria-label="on-air-sign GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">on-air-sign</h3>
-                        <span class="lang-badge lang-python">
-                            <iconify-icon icon="cib:python"></iconify-icon>
-                            Python
-                        </span>
-                    </div>
-                    <p class="project-desc">Automated 'On-Air' sign for home office</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+                    <!-- guido -->
+                    <a href="https://github.com/guiruggiero/guido" target="_blank" class="project-card" aria-label="guido GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">guido</h3>
+                            <span class="lang-badge lang-js">
+                                <iconify-icon icon="cib:javascript"></iconify-icon>
+                                JavaScript
+                            </span>
+                        </div>
+                        <p class="project-desc">Brings the same AI agent capabilities of guimail to WhatsApp — parsing incoming messages and acting on them through the same suite of integrations. A practical experiment in extending agentic AI across different communication channels without duplicating the underlying intelligence.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Gemini</span>
+                            <span class="tech-tag">WhatsApp API</span>
+                            <span class="tech-tag">Cloudflare Workers</span>
+                            <span class="tech-tag">Firebase</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/guido</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
 
-                <!-- guipt -->
-                <a href="https://github.com/guiruggiero/guipt" target="_blank" class="project-card" aria-label="guipt GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">guipt</h3>
-                        <span class="lang-badge lang-js">
-                            <iconify-icon icon="cib:javascript"></iconify-icon>
-                            JavaScript
-                        </span>
-                    </div>
-                    <p class="project-desc">AI assistant endpoint — powers the GuiPT chat on this site</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+                    <!-- guipt -->
+                    <a href="https://github.com/guiruggiero/guipt" target="_blank" class="project-card" aria-label="guipt GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">guipt</h3>
+                            <span class="lang-badge lang-js">
+                                <iconify-icon icon="cib:javascript"></iconify-icon>
+                                JavaScript
+                            </span>
+                        </div>
+                        <p class="project-desc">The Firebase Cloud Function that powers the GuiPT chat on this site, now integrated into the website repo. Handles conversational queries about my background using Google Gemini Flash Lite, with multi-language support, input validation, CORS enforcement, and prompt versioning managed through Langfuse for quick iteration without redeployments.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Gemini Flash Lite</span>
+                            <span class="tech-tag">Firebase Functions</span>
+                            <span class="tech-tag">Langfuse</span>
+                            <span class="tech-tag">Sentry</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/guipt</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
+                </div>
+            </div>
 
-                <!-- guibot -->
-                <a href="https://github.com/guiruggiero/guibot" target="_blank" class="project-card" aria-label="guibot GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">guibot</h3>
-                        <span class="lang-badge lang-python">
-                            <iconify-icon icon="cib:python"></iconify-icon>
-                            Python
-                        </span>
-                    </div>
-                    <p class="project-desc">Crawling scripts for multiple purposes</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+            <!-- Automation & Hardware -->
+            <div class="projects-section">
+                <div class="projects-section-title">AUTOMATION & HARDWARE</div>
 
-                <!-- website -->
-                <a href="https://github.com/guiruggiero/website" target="_blank" class="project-card" aria-label="website GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">website</h3>
-                        <span class="lang-badge lang-html">
-                            <iconify-icon icon="simple-icons:html5"></iconify-icon>
-                            HTML
-                        </span>
-                    </div>
-                    <p class="project-desc">Personal website and utilities — this site!</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+                <div class="projects-grid">
+                    <!-- on-air-sign -->
+                    <a href="https://github.com/guiruggiero/on-air-sign" target="_blank" class="project-card" aria-label="on-air-sign GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">on-air-sign</h3>
+                            <span class="lang-badge lang-python">
+                                <iconify-icon icon="cib:python"></iconify-icon>
+                                Python
+                            </span>
+                        </div>
+                        <p class="project-desc">A Raspberry Pi Pico 2 W-powered NeoPixel ring that signals meeting and camera status for a home office — idle (off), in a meeting (yellow), or camera on (red). A Windows host monitor detects active conferencing apps across Zoom, Google Meet, Microsoft Teams, Slack Huddle, and Amazon Chime, then pushes state to the device. Launches automatically via Windows Task Scheduler.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Raspberry Pi Pico 2 W</span>
+                            <span class="tech-tag">NeoPixel</span>
+                            <span class="tech-tag">MicroPython</span>
+                            <span class="tech-tag">Windows</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/on-air-sign</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
 
-                <!-- daredevil -->
-                <a href="https://github.com/guiruggiero/daredevil" target="_blank" class="project-card" aria-label="daredevil GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">daredevil</h3>
-                        <span class="lang-badge lang-js">
-                            <iconify-icon icon="cib:javascript"></iconify-icon>
-                            JavaScript
-                        </span>
-                    </div>
-                    <p class="project-desc">Your adventures, all in one place!</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+                    <!-- guibot -->
+                    <a href="https://github.com/guiruggiero/guibot" target="_blank" class="project-card" aria-label="guibot GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">guibot</h3>
+                            <span class="lang-badge lang-python">
+                                <iconify-icon icon="cib:python"></iconify-icon>
+                                Python
+                            </span>
+                        </div>
+                        <p class="project-desc">A collection of Python monitoring scripts built out of frustration with refreshing pages manually: an availability checker for the official Olympics merchandise store with email alerts, and appointment trackers for German government offices (Foreigners Office and Driver's License) that fire an email or SMS the moment a slot opens up.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Python</span>
+                            <span class="tech-tag">Web scraping</span>
+                            <span class="tech-tag">Email alerts</span>
+                            <span class="tech-tag">SMS notifications</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/guibot</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
+                </div>
+            </div>
 
-                <!-- wednesdaychecker -->
-                <a href="https://github.com/guiruggiero/wednesdaychecker" target="_blank" class="project-card" aria-label="wednesdaychecker GitHub repository">
-                    <div class="project-header">
-                        <h3 class="project-name">wednesdaychecker</h3>
-                        <span class="lang-badge lang-html">
-                            <iconify-icon icon="simple-icons:html5"></iconify-icon>
-                            HTML
-                        </span>
-                    </div>
-                    <p class="project-desc">Is it Wednesday? Let's see!</p>
-                    <div class="project-footer">
-                        <iconify-icon icon="cib:github"></iconify-icon>
-                        <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
-                    </div>
-                </a>
+            <!-- Web & Apps -->
+            <div class="projects-section">
+                <div class="projects-section-title">WEB & APPS</div>
+
+                <div class="projects-grid">
+                    <!-- website -->
+                    <a href="https://github.com/guiruggiero/website" target="_blank" class="project-card" aria-label="website GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">website</h3>
+                            <span class="lang-badge lang-html">
+                                <iconify-icon icon="simple-icons:html5"></iconify-icon>
+                                HTML
+                            </span>
+                        </div>
+                        <p class="project-desc">This site — built from scratch in vanilla JavaScript with no framework, no bundler, and no transpiler. Features the GuiPT AI chat, dark/light theming, English/Portuguese localization, and a CI/CD minification pipeline that runs on every push to the live branch. Firebase Firestore for chat logging, Cloudflare CDN for delivery, and Sentry for end-to-end observability.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">Vanilla JS</span>
+                            <span class="tech-tag">Firebase</span>
+                            <span class="tech-tag">GitHub Pages</span>
+                            <span class="tech-tag">Cloudflare CDN</span>
+                            <span class="tech-tag">Sentry</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/website</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
+
+                    <!-- daredevil -->
+                    <a href="https://github.com/guiruggiero/daredevil" target="_blank" class="project-card" aria-label="daredevil GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">daredevil</h3>
+                            <span class="lang-badge lang-js">
+                                <iconify-icon icon="cib:javascript"></iconify-icon>
+                                JavaScript
+                            </span>
+                        </div>
+                        <p class="project-desc">A personal app to log and browse adventures — travel, activities, and experiences — all in one searchable place. Built to scratch my own itch for tracking memorable moments without relying on third-party services or surrendering the data.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">JavaScript</span>
+                            <span class="tech-tag">Firebase</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/daredevil</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
+
+                    <!-- wednesdaychecker -->
+                    <a href="https://github.com/guiruggiero/wednesdaychecker" target="_blank" class="project-card" aria-label="wednesdaychecker GitHub repository">
+                        <div class="project-header">
+                            <h3 class="project-name">wednesdaychecker</h3>
+                            <span class="lang-badge lang-html">
+                                <iconify-icon icon="simple-icons:html5"></iconify-icon>
+                                HTML
+                            </span>
+                        </div>
+                        <p class="project-desc">A one-question web app born during the COVID-19 pandemic when the days all blurred together: is it Wednesday? Built in an afternoon as a joke for friends who kept losing track of the week. Somehow still online — and still useful.</p>
+                        <div class="tech-tags">
+                            <span class="tech-tag">HTML/CSS</span>
+                            <span class="tech-tag">JavaScript</span>
+                        </div>
+                        <div class="project-footer">
+                            <span class="project-repo">guiruggiero/wednesdaychecker</span>
+                            <iconify-icon icon="ph:arrow-square-out"></iconify-icon>
+                        </div>
+                    </a>
+                </div>
             </div>
         </main>
 
