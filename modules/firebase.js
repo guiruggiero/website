@@ -1,6 +1,6 @@
 // Imports
 import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import {getFirestore, addDoc, collection, doc, updateDoc} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-lite.js";
+import {getFirestore, addDoc, collection, doc, updateDoc, Timestamp} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore-lite.js";
 
 // Initializations
 const firebaseConfig = {
@@ -22,7 +22,7 @@ export async function createLog(chatStart, turnHistory) {
     try {
         const chatRef = await addDoc(collection(db, env), {
             origin: "guiruggiero.com",
-            start: chatStart,
+            start: Timestamp.fromMillis(chatStart),
             turnCount: 1,
             turns: turnHistory,
         });
