@@ -8,14 +8,6 @@
         document.head.appendChild(link);
     }
 
-    // Preconnects and preloads
-    addLink({rel: "preload", href: "images/gr-logo-light.webp", as: "image"});
-    addLink({rel: "preload", href: "images/gr-logo-dark.webp", as: "image"});
-    addLink({rel: "preconnect", href: "https://fonts.googleapis.com"});
-    addLink({rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: ""});
-    addLink({rel: "preload", href: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap", as: "style"});
-    addLink({rel: "preconnect", href: "https://cdn.jsdelivr.net"});
-
     // Cookie banner CSS (lazy-loaded)
     addLink({rel: "preload", href: "styles/cookie-banner.css", as: "style"}, function() {this.onload = null; this.rel = "stylesheet";});
 
