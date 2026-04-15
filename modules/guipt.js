@@ -1,5 +1,5 @@
 // Imports
-import axios from "https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js";
+import axios from "https://cdn.jsdelivr.net/npm/axios/+esm";
 import axiosRetry from "https://cdn.jsdelivr.net/npm/axios-retry/+esm";
 
 // Initialization

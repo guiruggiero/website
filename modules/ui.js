@@ -1,6 +1,6 @@
 // Imports
-import Typed from "https://cdn.jsdelivr.net/npm/typed.js/dist/typed.umd.min.js";
-import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js";
+import Typed from "https://cdn.jsdelivr.net/npm/typed.js/+esm";
+import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify/+esm";
 const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
