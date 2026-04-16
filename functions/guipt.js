@@ -139,7 +139,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
   Sentry.logger.info("[2] Prompt fetched", {
     version: promptResponse.version,
-    prompt: instructions.substring(0, 200),
+    prompt: instructions.slice(0, 200),
   });
 
   // Get chat history
