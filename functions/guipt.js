@@ -113,7 +113,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
   // Get user message from request
   let userMessage = request.body?.message;
-  if (!userMessage || userMessage.trim() === "") {
+  if (typeof userMessage !== "string" || userMessage.trim() === "") {
     userMessage = "Hi! In a sentence, who are you and what can you do?";
   }
 
@@ -163,7 +163,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
   Sentry.logger.info("[4] GuiPT done", {guiptResponse});
 
-  response.status(200).send(guiptResponse);
+  response.status(200).type("text/plain").send(guiptResponse);
 
   await Sentry.flush(2000);
   return;
