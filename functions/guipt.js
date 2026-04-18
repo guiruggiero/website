@@ -67,7 +67,7 @@ function validateInput(input) {
   if (input.length > 200) return validationErrors.TOO_LONG;
 
   // Character allowlist — blocks $%&
-  if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:''"()+*=@/-]+$/.test(input)) {
+  if (!/^[A-Za-zÀ-ÖØ-öø-ÿ0-9\s.,!?;:'’"()+*=@/-]+$/.test(input)) {
     return validationErrors.FORBIDDEN_CHARS;
   }
 
