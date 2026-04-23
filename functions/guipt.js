@@ -76,6 +76,7 @@ function validateInput(input) {
 
 // Allowed origins
 const allowedOrigins = [
+  "http://guiruggiero.com",
   "https://guiruggiero.com",
   "https://probable-firmly-gobbler.ngrok-free.app",
 ];
