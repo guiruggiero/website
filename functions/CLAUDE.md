@@ -18,7 +18,7 @@ Chat sessions are logged to Firestore in collection `dev` (localhost/ngrok) or `
 
 ## Prompt Management
 
-`guipt-prompt.md` is the GuiPT system prompt managed via the scripts above and excluded from regular commits. Always perform changes to the system prompt, but never consider it in the commit message. Scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored).
+`guipt-prompt.md` is the local copy of the GuiPT system prompt (gitignored). The live prompt is on Langfuse; `guipt-prompt.md` exists so Claude Code always has the full prompt in context. Use `npm run prompt-pull` / `npm run prompt-push` to sync. Scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored). Always apply changes to the system prompt, let the user know, and offer to push to Langfuse; but never mention it in the commit message.
 
 ## ESLint
 
