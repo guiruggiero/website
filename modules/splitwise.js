@@ -72,6 +72,7 @@ submitBtn.addEventListener("click", async () => {
         descInput.focus();
     } catch (error) {
         showToast("Something went wrong, please try again", "error");
+        Sentry.captureException(error, {contexts: {description, amount}});
         console.error("Failed to create expense:", error);
     } finally {
         setLoading(false);
