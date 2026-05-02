@@ -167,10 +167,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
     response.status(200).type("text/plain").send(guiptResponse);
   } catch (error) {
-    Sentry.logger.error("GuiPT error", {
-      errorName: error.name,
-      errorMessage: error.message,
-    });
+    Sentry.captureException(error);
 
     response.status(500).json({
       errorName: error.name,
