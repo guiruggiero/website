@@ -3,3 +3,4 @@ firebase-debug.log
 guipt-prompt.md
 functions/scripts/*.json
 .env
+.venv-win
