@@ -1,6 +1,18 @@
 globalThis.sentryOnLoad = function() {
     // Initialization
-    Sentry.init({environment: globalThis.location?.href.includes("ngrok") ? "dev" : "v1"});
+    Sentry.init({
+        environment: globalThis.location?.href.includes("ngrok") ? "dev" : "v1",
+        beforeSend(event) {
+            const frames = event.exception?.values?.[0]?.stacktrace?.frames;
+            if (frames?.some(f =>
+                f.filename?.includes("chrome-extension://") ||
+                f.filename?.includes("moz-extension://") ||
+                f.filename?.includes("safari-web-extension://"),
+            )) return null;
+
+            return event;
+        },
+    });
 
     // Set session context
     Sentry.setTag("page", globalThis.location?.pathname);

@@ -31,3 +31,13 @@ updates:
           - patch
           - minor
           - major
+
+  - package-ecosystem: pip
+    directories:
+      - /sonic/agentcore
+      - /sonic/scripts
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "00:00"
+      timezone: America/Los_Angeles

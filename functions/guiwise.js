@@ -39,7 +39,7 @@ export const guiwise = onRequest(functionConfig, async (request, response) => {
   // Get expense from request
   const {description, amount} = request.body;
   if (!description || !amount) {
-    Sentry.logger.warn("[1b] Missing fields", {description, amount});
+    Sentry.logger.error("[1b] Missing fields", {description, amount});
 
     response.status(400).json({error: "Missing description or amount"});
 

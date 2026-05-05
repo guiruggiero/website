@@ -124,7 +124,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
   // Return error message if input doesn't pass validation
   if (validationResult !== validationErrors.SUCCESS) {
-    Sentry.logger.warn("[1b] Validation failed", {validationResult});
+    Sentry.logger.error("[1b] Validation failed", {validationResult});
 
     response.status(400).send(validationResult);
 
@@ -132,39 +132,48 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
     return;
   }
 
-  // Get model prompt
-  const promptResponse = await langfuse.prompt.get("GuiPT", {
-    cacheTtlSeconds: 180, // 3m cache
-  });
-  const instructions = promptResponse.prompt;
+  try {
+    // Get model prompt
+    const promptResponse = await langfuse.prompt.get("GuiPT", {
+      cacheTtlSeconds: 180, // 3m cache
+    });
+    const instructions = promptResponse.prompt;
 
-  Sentry.logger.info("[2] Prompt fetched", {
-    version: promptResponse.version,
-    prompt: instructions.slice(0, 200),
-  });
+    Sentry.logger.info("[2] Prompt fetched", {
+      version: promptResponse.version,
+      prompt: instructions.slice(0, 200),
+    });
 
-  // Get chat history
-  const chatHistory = request.body?.history || [];
+    // Get chat history
+    const chatHistory = request.body?.history || [];
 
-  // Initialize chat
-  const chat = ai.chats.create({
-    ...modelConfig,
-    config: {
-      ...modelConfig.config,
-      systemInstruction: instructions,
-    },
-    history: chatHistory,
-  });
+    // Initialize chat
+    const chat = ai.chats.create({
+      ...modelConfig,
+      config: {
+        ...modelConfig.config,
+        systemInstruction: instructions,
+      },
+      history: chatHistory,
+    });
 
-  Sentry.logger.info("[3] Ready for Gemini call", {sanitizedMessage});
+    Sentry.logger.info("[3] Ready for Gemini call", {sanitizedMessage});
 
-  // Call Gemini API
-  const result = await chat.sendMessage({message: sanitizedMessage});
-  const guiptResponse = result.text;
+    // Call Gemini API
+    const result = await chat.sendMessage({message: sanitizedMessage});
+    const guiptResponse = result.text;
 
-  Sentry.logger.info("[4] GuiPT done", {guiptResponse});
+    Sentry.logger.info("[4] GuiPT done", {guiptResponse});
 
-  response.status(200).type("text/plain").send(guiptResponse);
+    response.status(200).type("text/plain").send(guiptResponse);
+  } catch (error) {
+    Sentry.captureException(error);
+
+    response.status(500).json({
+      errorName: error.name,
+      errorMessage: error.message,
+    });
+  }
 
   await Sentry.flush(2000);
   return;
