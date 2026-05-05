@@ -33,7 +33,9 @@ updates:
           - major
 
   - package-ecosystem: pip
-    directory: /sonic/terminal
+    directories:
+      - /sonic/agentcore
+      - /sonic/scripts
     schedule:
       interval: weekly
       day: saturday
