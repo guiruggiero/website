@@ -31,3 +31,11 @@ updates:
           - patch
           - minor
           - major
+
+  - package-ecosystem: pip
+    directory: /sonic/terminal
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "00:00"
+      timezone: America/Los_Angeles

@@ -1,4 +1,6 @@
-# Amazon Nova 2 Sonic Python Streaming Implementation
+> Based on [amazon-nova-samples](https://github.com/aws-samples/amazon-nova-samples/tree/main/speech-to-speech/amazon-nova-2-sonic/sample-codes/console-python) by AWS Samples.
+
+# Amazon Nova 2 Sonic Python Streaming
 
 This repository contains Python scripts that implement real-time audio streaming applications integrating with Amazon Nova 2 Sonic model. These implementations enable natural conversational interactions through a command-line interface while leveraging Amazon's powerful Nova 2 Sonic model for processing and generating responses.
 
