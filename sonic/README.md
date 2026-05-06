@@ -6,13 +6,7 @@ A minimal Nova Sonic voice agent with a single-button HTML page that deploys to 
 
 ## TODOs
 
-- Reduce startup time — in progress, implementing in 5 batches:
-  1. ~~Eager pre-loading (SDK imports, credentials, signed URL, AudioWorklet at page load)~~
-  2. Parallelize mic setup with WebSocket connection
-  3. WebSocket pre-connect on hover
-  4. Audio buffering + optimistic "Listening..." status
-  5. Server-side `session_ready` event (decouple greeting from input readiness)
-- After all batches: consider splitting sonic.js into auth/audio/orchestration modules
+- Consider splitting sonic.js into auth/audio/orchestration modules
 
 - Adjust prompt for Nova (XML -> ?)
 - Pull from Langfuse

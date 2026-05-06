@@ -9,7 +9,7 @@ const COGNITO_IDENTITY_POOL_ID = "us-west-2:c71bd164-55c9-4dba-9abd-fec92b8b5de4
 const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole";
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
-const VOICE = "tiffany"; // "carolina"
+const VOICE_ID = "tiffany"; // "carolina"
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 16000;
 
@@ -301,31 +301,23 @@ async function startSession() {
             if (COGNITO_IDENTITY_POOL_ID.includes("REPLACE") || RUNTIME_WSS_BASE.includes("REPLACE")) {
                 throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into sonic.js");
             }
-            setStatus("Getting credentials…");
             wsUrl = await ensureSignedUrl();
         }
 
+        // Start mic and WebSocket connection in parallel
+        const micPromise = startMic();
         ws = new WebSocket(wsUrl);
 
-        ws.onopen = async () => {
-            setStatus("Configuring agent…");
+        const openPromise = new Promise((resolve, reject) => {
+            ws.onopen = resolve;
+            ws.onerror = () => reject(new Error("WebSocket connection failed"));
+        });
 
-            ws.send(JSON.stringify({
-                type: "config",
-                voice: VOICE,
-            }));
+        await Promise.all([micPromise, openPromise]);
 
-            await startMic();
-            isRunning = true;
-            elements.toggleBtn.textContent = "End Session";
-            elements.toggleBtn.classList.add("active");
-            elements.toggleBtn.disabled = false;
-            elements.textInput.disabled = false;
-            elements.sendBtn.disabled = false;
-            elements.textInput.focus();
-            setStatus("Listening…");
-            addMessage("Session started", "system");
-        };
+        // Both ready — send config and go live
+        setStatus("Configuring agent…");
+        ws.send(JSON.stringify({type: "config", voice: VOICE_ID}));
 
         ws.onmessage = async (event) => {
             const data = JSON.parse(event.data);
@@ -362,7 +354,7 @@ async function startSession() {
                     break;
 
                 case "session_end":
-                    isRunning = false; // prevents voice-based end from showing "Disconnected"
+                    isRunning = false; // voice-based end doesn't show "Disconnected"
                     endSession();
                     break;
 
@@ -384,10 +376,21 @@ async function startSession() {
             }
         };
 
+        isRunning = true;
+        elements.toggleBtn.textContent = "End Session";
+        elements.toggleBtn.classList.add("active");
+        elements.toggleBtn.disabled = false;
+        elements.textInput.disabled = false;
+        elements.sendBtn.disabled = false;
+        elements.textInput.focus();
+        setStatus("Listening…");
+        addMessage("Session started", "system");
+
     } catch (error) {
         addMessage(`Failed to start: ${error.message}`, "system");
         setStatus("Error");
         elements.toggleBtn.disabled = false;
+        stopMic();
     }
 }
 
