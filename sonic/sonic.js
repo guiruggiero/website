@@ -300,6 +300,11 @@ async function startSession() {
                     addMessage(data.message, "system");
                     break;
 
+                case "session_end":
+                    isRunning = false; // prevents onclose from showing "Disconnected"
+                    endSession();
+                    break;
+
                 case "error":
                     addMessage(`Error: ${data.message}`, "system");
                     break;

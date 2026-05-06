@@ -3,7 +3,8 @@ import logging
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
 from strands.experimental.bidi.agent import BidiAgent
-from strands.experimental.bidi.models.nova_sonic import BidiNovaSonicModel
+from strands.experimental.bidi.models import BidiNovaSonicModel
+from strands.experimental.bidi.tools import stop_conversation
 
 # Initializations
 logger = logging.getLogger(__name__)
@@ -28,9 +29,10 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
             return
 
         # Build and start the bidi agent
-        agent = _create_agent(config)
         logger.info("Agent initialized — starting session")
         await websocket.send_json({"type": "system", "message": "Configuration applied. Agent ready."})
+
+        agent = _create_agent(config)
 
         # Read incoming messages and forward non-config events to the agent
         async def handle_websocket_input():
@@ -51,9 +53,15 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
                     await agent.send(text)
                     continue
 
+                # Non-config, non-text messages (e.g. bidi_audio_input) return to agent.run()
                 return message
 
-        await agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
+        # agent.run() manages start/stop internally, stop on exit even an exception
+        try:
+            await agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
+            await output_fn({"type": "session_end"}) # signal clean stop before close
+        finally:
+            await agent.stop()
 
     except WebSocketDisconnect:
         logger.info("Client disconnected")
@@ -99,6 +107,6 @@ def _create_agent(config: dict) -> BidiAgent:
 
     return BidiAgent(
         model=model,
-        tools=[],
         system_prompt=SYSTEM_PROMPT,
+        tools=[stop_conversation],
     )
