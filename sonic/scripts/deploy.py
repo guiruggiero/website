@@ -182,13 +182,13 @@ def setup_cognito(account_id, runtime_arn):
         }],
     }
 
-    # Permission policy: scoped to InvokeAgentRuntime on this runtime only
+    # Permission policy: scoped to InvokeAgentRuntimeWithWebSocketStream on this runtime only
     permission_policy = {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
-            "Action": "bedrock-agentcore:InvokeAgentRuntime",
-            "Resource": runtime_arn,
+            "Action": "bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream",
+            "Resource": f"{runtime_arn}*", # Trailing * is required, AgentCore evaluates the ARN with a suffix
         }],
     }
 
