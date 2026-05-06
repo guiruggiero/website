@@ -26,10 +26,12 @@ The browser and server exchange JSON frames. **The first message from the client
 |-----------|------|------------|
 | client → server | `config` | `voice` |
 | client → server | `bidi_audio_input` | `audio` (base64 PCM), `format`, `sample_rate`, `channels` |
+| client → server | `text_input` | `text` |
 | server → client | `bidi_audio_stream` | `audio` (base64 PCM) |
 | server → client | `bidi_transcript_stream` | `text`, `role`, `is_final` |
 | server → client | `bidi_interruption` | — stops playback |
 | server → client | `bidi_response_complete` | — |
+| server → client | `session_end` | — agent-initiated end of conversation (triggers `endSession()`) |
 | server → client | `system` / `error` | `message` |
 
 ### Key implementation constraints
@@ -43,9 +45,22 @@ The browser and server exchange JSON frames. **The first message from the client
 
 ### Client audio pipeline
 
-Mic → `ScriptProcessor` (4096 samples) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
+Mic → `AudioWorkletNode` (`mic-processor.js`, 4096-sample buffer) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
 
 Received `bidi_audio_stream` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_interruption`, playback is stopped (with a short drain window of up to 300 ms if audio is already buffered).
+
+### Eager pre-loading
+
+On page load (before the user clicks Start), `sonic.js` kicks off three non-blocking tasks in the background:
+1. **Credentials** — `ensureCredentials()` fetches Cognito temp credentials via `_credentialPromise`.
+2. **Signed URL** — `ensureSignedUrl()` chains off credentials to pre-build the SigV4 WebSocket URL via `_signedUrlPromise`.
+3. **AudioWorklet** — `_workletReady` promise creates a silent `AudioContext` and calls `audioWorklet.addModule("mic-processor.js")` so the worklet module is already compiled when `startMic()` runs.
+
+When `startSession()` is called, mic setup and the WebSocket connection are started in parallel (`Promise.all([micPromise, openPromise])`), then config is sent once both are ready.
+
+### Agent speaks first
+
+After the server sends `"Configuration applied. Agent ready."`, `agent.py` waits for `agent.run()` to initialize (signalled by `agent_ready` event), then immediately calls `await agent.send("Hi, who are you? Answer in 10 words or less")` so the agent speaks an opening greeting without waiting for user input.
 
 ### Deploy artifacts
 

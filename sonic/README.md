@@ -2,7 +2,22 @@
 
 # Minimal Nova Sonic Voice Agent
 
-A minimal Nova Sonic voice agent with a single-button HTML page that deploys to GitHub Pages.
+A minimal Nova Sonic voice agent with a single-page HTML client that deploys to GitHub Pages. Supports both voice (microphone) and text input.
+
+## TODOs
+
+- Adjust prompt for Nova (XML -> ?)
+- Pull from Langfuse
+- Knowledge base for CV - pip install strands-agents-tools, retrieve
+- Address SonarQube complaints
+
+- Split sonic.js when adding tools. Seams:
+  - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
+  - `audio.js` — startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
+  - `tools.js` — tool definitions and handlers
+  - `sonic.js` — session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
+- Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT.
+- Sentry error capture and logging
 
 ## Architecture
 
@@ -49,7 +64,7 @@ $env:AWS_SECRET_ACCESS_KEY = "..."
 $env:AWS_DEFAULT_REGION = "us-west-2"
 
 cd agentcore
-python server.py  # starts on port 8080
+python server.py # starts on port 8080
 ```
 
 In a second terminal, serve the client from `sonic/`:
@@ -104,7 +119,7 @@ The trailing `*` on the resource is required — AgentCore evaluates the ARN wit
 
 Paste the two constants into the `CONFIG` block at the top of `sonic.js`, then deploy `index.html`, `sonic.css`, and `sonic.js` the website.
 
-You can also change `VOICE` in the same block to customise the agent's personality.
+You can also change `VOICE_ID` in the same block to customise the agent's personality.
 
 ## Step 4 — Test the connection
 
@@ -123,31 +138,6 @@ python scripts/cleanup.py
 
 Deletes the AgentCore Runtime, Cognito pool, and IAM roles. Asks before deleting the ECR repository.
 
-## Migrating the hosting to GCP (keeping Nova Sonic)
-
-<!-- TODO: what about runtime-server? -->
-
-Nova Sonic is an AWS Bedrock API — the container must still call AWS regardless of where it runs. What you're moving is only where the Docker container is hosted and how the browser authenticates to reach it.
-
-**1. Container hosting — AgentCore → Cloud Run**
-
-The `agentcore/` container runs unchanged on Cloud Run (it's a plain FastAPI server on port 8080, and Cloud Run natively supports WebSocket). Changes needed:
-- Push the image to Google Artifact Registry instead of ECR
-- Deploy with `gcloud run deploy --allow-unauthenticated` (or with Cloud Run auth — see point 3)
-- Remove the `/ping` and `/invocations` endpoints — those are AgentCore protocol requirements and serve no purpose on Cloud Run
-- Remove the IMDS credential refresh loop — that's EC2-specific. Instead, inject AWS credentials as Cloud Run environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`), or use Workload Identity Federation to give the Cloud Run service account permission to assume an AWS IAM role (avoids long-lived keys)
-
-**2. Browser auth — Cognito + SigV4 → direct WebSocket**
-
-The Cognito pool and SigV4 URL signing exist because AgentCore requires AWS authentication on its WebSocket endpoint. Cloud Run has no such requirement. If the service is `--allow-unauthenticated`, the browser connects with a plain `wss://your-service.run.app/ws` — the entire Cognito + SigV4 block in `sonic.js` is replaced with a direct `new WebSocket(url)` call.
-
-For access control on a public Cloud Run service, the simplest option is to add a shared secret: the deploy script generates a random token, sets it as a Cloud Run env var, and the browser passes it as a query param (`/ws?token=...`) which the server validates before accepting the connection.
-
-**What stays the same:**
-- `agentcore/agent.py` — `BidiAgent` + `BidiNovaSonicModel` + all session logic
-- `split_large_event` in `server.py`
-- `index.html`, `sonic.css`, `sonic.js` — the audio pipeline, Web Audio API code, and WebSocket message protocol are unchanged
-
 ## Files
 
 | File | Purpose |
@@ -155,9 +145,10 @@ For access control on a public Cloud Run service, the simplest option is to add 
 | `agentcore/server.py` | FastAPI server — `/ping`, `/invocations`, `/ws` |
 | `agentcore/agent.py` | `BidiAgent` + `BidiNovaSonicModel` session handler |
 | `agentcore/Dockerfile` | `linux/arm64` image for AgentCore |
-| `index.html` | HTML shell — markup and importmap only |
+| `index.html` | HTML shell — head structure, header/footer, loads `sonic.js` via `loadScript` |
 | `sonic.css` | All UI styles |
 | `sonic.js` | Voice agent logic (config, WebSocket, audio) |
+| `mic-processor.js` | `AudioWorkletProcessor` — downsamples mic input to 16 kHz Int16 PCM |
 | `scripts/deploy.py` | Creates all AWS resources |
 | `scripts/cleanup.py` | Tears all resources down |
 | `scripts/test_ws.py` | Generates a SigV4-presigned URL and tests the WebSocket connection |
