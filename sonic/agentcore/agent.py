@@ -1,4 +1,5 @@
 # Imports
+import asyncio
 import logging
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
@@ -34,8 +35,11 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
         agent = _create_agent(config)
 
+        agent_ready = asyncio.Event()
+
         # Read incoming messages and forward non-config events to the agent
         async def handle_websocket_input():
+            agent_ready.set()  # first call means agent.run() is initialized and ready
             while True:
                 message = await websocket.receive_json()
 
@@ -58,7 +62,12 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
         # agent.run() manages start/stop internally, stop on exit even an exception
         try:
-            await agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
+            run_task = asyncio.create_task(
+                agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
+            )
+            await agent_ready.wait()
+            await agent.send("Hi, who are you?")
+            await run_task
             await output_fn({"type": "session_end"}) # signal clean stop before close
         finally:
             await agent.stop()
