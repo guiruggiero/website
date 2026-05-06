@@ -2,16 +2,14 @@
 
 # Minimal Nova Sonic Voice Agent
 
-A minimal Nova Sonic voice agent with a single-button HTML page that deploys to GitHub Pages.
+A minimal Nova Sonic voice agent with a single-page HTML client that deploys to GitHub Pages. Supports both voice (microphone) and text input.
 
 ## TODOs
 
 - Adjust prompt for Nova (XML -> ?)
 - Pull from Langfuse
 - Knowledge base for CV - pip install strands-agents-tools, retrieve
-
 - Address SonarQube complaints
-- Sentry
 
 - Split sonic.js when adding tools. Seams:
   - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
@@ -19,6 +17,7 @@ A minimal Nova Sonic voice agent with a single-button HTML page that deploys to 
   - `tools.js` — tool definitions and handlers
   - `sonic.js` — session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
 - Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT.
+- Sentry error capture and logging
 
 ## Architecture
 
@@ -120,7 +119,7 @@ The trailing `*` on the resource is required — AgentCore evaluates the ARN wit
 
 Paste the two constants into the `CONFIG` block at the top of `sonic.js`, then deploy `index.html`, `sonic.css`, and `sonic.js` the website.
 
-You can also change `VOICE` in the same block to customise the agent's personality.
+You can also change `VOICE_ID` in the same block to customise the agent's personality.
 
 ## Step 4 — Test the connection
 
