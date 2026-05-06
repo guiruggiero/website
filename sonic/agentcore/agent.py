@@ -66,7 +66,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
                 agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
             )
             await agent_ready.wait()
-            await agent.send("Hi, who are you?")
+            await agent.send("Hi, who are you? Answer in 10 words or less")
             await run_task
             await output_fn({"type": "session_end"}) # signal clean stop before close
         finally:

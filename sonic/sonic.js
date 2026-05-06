@@ -1,17 +1,17 @@
+// Imports
+const _smithyP = import("https://cdn.jsdelivr.net/npm/@smithy/signature-v4/+esm");
+const _sha256P = import("https://cdn.jsdelivr.net/npm/@aws-crypto/sha256-browser/+esm");
+const _cognitoP = import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-cognito-identity/+esm");
+const _stsP = import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-sts/+esm");
+
 // Initializations
 const COGNITO_IDENTITY_POOL_ID = "us-west-2:c71bd164-55c9-4dba-9abd-fec92b8b5de4";
 const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole";
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
-const VOICE = "tiffany";
+const VOICE = "tiffany"; // "carolina"
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 16000;
-
-// Debounce helper
-function debounce(fn, ms) {
-    let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-}
 
 // DOM elements
 const elements = {
@@ -36,6 +36,43 @@ let pendingAgentTranscript = null; // Agent text and audio sync
 const params = new URLSearchParams(globalThis.location?.search);
 const localWsUrl = params.get("wsUrl");
 
+// Pre-warm: credentials and signed URL (fetched eagerly at page load, cached for reuse)
+let _credPromise = null;
+let _credTimestamp = 0;
+const CRED_TTL = 50 * 60 * 1000;
+
+function ensureCredentials() {
+    if (!_credPromise || (Date.now() - _credTimestamp) > CRED_TTL) {
+        _credTimestamp = Date.now();
+        _credPromise = getCredentials();
+    }
+    return _credPromise;
+}
+
+let _signedUrlPromise = null;
+let _signedUrlTimestamp = 0;
+const URL_TTL = 12 * 60 * 1000;
+
+function ensureSignedUrl() {
+    if (!_signedUrlPromise || (Date.now() - _signedUrlTimestamp) > URL_TTL) {
+        _signedUrlTimestamp = Date.now();
+        _signedUrlPromise = ensureCredentials().then(buildSignedUrl);
+    }
+    return _signedUrlPromise;
+}
+
+// Pre-warm: AudioWorklet module (loaded at page idle, reused on click)
+let _preAudioCtx = null;
+let _workletReady = false;
+
+(async () => {
+    try {
+        _preAudioCtx = new AudioContext();
+        await _preAudioCtx.audioWorklet.addModule("mic-processor.js");
+        _workletReady = true;
+    } catch { /* browser may block without gesture — harmless */ }
+})();
+
 // Update the status indicator
 function setStatus(text) {
     elements.status.textContent = text;
@@ -53,8 +90,8 @@ function addMessage(text, cls) {
 
 // Build a SigV4-signed WebSocket URL from temporary credentials
 async function buildSignedUrl(creds) {
-    const {SignatureV4} = await import("https://cdn.jsdelivr.net/npm/@smithy/signature-v4/+esm");
-    const {Sha256} = await import("https://cdn.jsdelivr.net/npm/@aws-crypto/sha256-browser/+esm");
+    const {SignatureV4} = await _smithyP;
+    const {Sha256} = await _sha256P;
 
     const host = `bedrock-agentcore.${REGION}.amazonaws.com`;
     const rawPath = RUNTIME_WSS_BASE.replace(/^wss:\/\/[^/]+/, "");
@@ -77,7 +114,7 @@ async function buildSignedUrl(creds) {
             query: {qualifier: "DEFAULT"},
             protocol: "https:",
         },
-        {expiresIn: 300},
+        {expiresIn: 900},
     );
 
     // Rebuild query string from signed params and use signed.path so the URL matches the canonical URI Smithy signed over
@@ -89,10 +126,8 @@ async function buildSignedUrl(creds) {
 
 // Get temporary AWS credentials from Cognito unauthenticated identity
 async function getCredentials() {
-    const {CognitoIdentityClient, GetIdCommand, GetOpenIdTokenCommand} =
-        await import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-cognito-identity/+esm");
-    const {STSClient, AssumeRoleWithWebIdentityCommand} =
-        await import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-sts/+esm");
+    const {CognitoIdentityClient, GetIdCommand, GetOpenIdTokenCommand} = await _cognitoP;
+    const {STSClient, AssumeRoleWithWebIdentityCommand} = await _stsP;
 
     // Get an unauthenticated Cognito identity ID, then exchange it for an OpenID token
     const cognitoClient = new CognitoIdentityClient({region: REGION});
@@ -190,10 +225,17 @@ async function startMic() {
         audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true},
     });
 
-    // Route mic stream through the AudioWorklet for downsampling
-    audioContext = new AudioContext();
+    // Reuse pre-loaded AudioContext + worklet module, or create fresh
+    if (_preAudioCtx && _workletReady) {
+        audioContext = _preAudioCtx;
+        _preAudioCtx = null;
+        if (audioContext.state === "suspended") await audioContext.resume();
+    } else {
+        audioContext = new AudioContext();
+        await audioContext.audioWorklet.addModule("mic-processor.js");
+    }
+
     const source = audioContext.createMediaStreamSource(stream);
-    await audioContext.audioWorklet.addModule("mic-processor.js");
     const worklet = new AudioWorkletNode(audioContext, "mic-processor");
 
     // Forward each downsampled PCM chunk to the WebSocket
@@ -260,9 +302,7 @@ async function startSession() {
                 throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into sonic.js");
             }
             setStatus("Getting credentials…");
-            const creds = await getCredentials();
-            setStatus("Signing URL…");
-            wsUrl = await buildSignedUrl(creds);
+            wsUrl = await ensureSignedUrl();
         }
 
         ws = new WebSocket(wsUrl);
@@ -370,6 +410,12 @@ function endSession() {
     addMessage("Session ended", "system");
 }
 
+// Debounce helper
+function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
 // Wire up UI and show local-dev banner if override URL is set
 function start() {
     elements.toggleBtn?.addEventListener("pointerup", toggle);
@@ -385,5 +431,10 @@ function start() {
 }
 
 // Check if page is already loaded
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); // Page is still loading
-else start(); // DOMContentLoaded already fired
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+else start();
+
+// Kick off credential + URL pre-warming (non-blocking, runs in background)
+if (!localWsUrl && !COGNITO_IDENTITY_POOL_ID.includes("REPLACE")) {
+    ensureSignedUrl();
+}
