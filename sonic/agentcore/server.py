@@ -5,6 +5,7 @@ import os
 import json
 import asyncio
 import requests
+from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
@@ -131,18 +132,8 @@ async def _refresh_credentials_loop():
             logger.error("Credential refresh error: %s", e)
             await asyncio.sleep(300)
 
-app = FastAPI(title="Minimal Nova Sonic Agent")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global _credential_refresh_task
 
     # Prefer explicit env var credentials (local dev) over IMDS (AgentCore container)
@@ -160,9 +151,7 @@ async def startup_event():
         else:
             logger.warning("IMDS unavailable — proceeding without explicit credentials")
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    global _credential_refresh_task
+    yield
 
     # Cancel the background refresh loop cleanly on shutdown
     if _credential_refresh_task and not _credential_refresh_task.done():
@@ -171,6 +160,16 @@ async def shutdown_event():
             await _credential_refresh_task
         except asyncio.CancelledError:
             pass
+
+app = FastAPI(title="Minimal Nova Sonic Agent", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/ping")
 async def ping():

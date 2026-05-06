@@ -6,16 +6,13 @@ A minimal Nova Sonic voice agent with a single-button HTML page that deploys to 
 
 ## TODOs
 
-- Review Strands implementation with https://docs.aws.amazon.com/nova/latest/nova2-userguide/sonic-integrations.html#sonic-strands-agents (+ what I sent Lana)
-- Text input
-- Speak first
+- Reduce startup time
+
 - Adjust prompt for Nova (XML -> ?)
 - Pull from Langfuse
-- Knowledge base for CV
+- Knowledge base for CV - pip install strands-agents-tools, retrieve
 
-- Reduce startup time
 - Address SonarQube complaints
-
 - Sentry
 - How to organize folders after HTML, CSS, and JS are distributed? guipt/ folder inside modules?
 
@@ -64,7 +61,7 @@ $env:AWS_SECRET_ACCESS_KEY = "..."
 $env:AWS_DEFAULT_REGION = "us-west-2"
 
 cd agentcore
-python server.py  # starts on port 8080
+python server.py # starts on port 8080
 ```
 
 In a second terminal, serve the client from `sonic/`:
