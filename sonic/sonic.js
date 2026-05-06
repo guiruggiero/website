@@ -1,18 +1,21 @@
-// ---------------------------------------------------------------------------
-// CONFIG — paste the two values printed by deploy/deploy.py after deploying
-// ---------------------------------------------------------------------------
+// Initializations
 const COGNITO_IDENTITY_POOL_ID = "us-west-2:c71bd164-55c9-4dba-9abd-fec92b8b5de4";
 const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole";
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
-
-// Voice ID
 const VOICE = "tiffany";
-// ---------------------------------------------------------------------------
-
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 16000;
 
+// DOM elements
+const elements = {
+    status: document.querySelector("#status"),
+    transcript: document.querySelector("#transcript"),
+    toggleBtn: document.querySelector("#toggleBtn"),
+    localBar: document.querySelector("#localBar"),
+};
+
+// State
 let ws = null;
 let audioContext = null;
 let audioPlaybackContext = null;
@@ -21,41 +24,31 @@ let audioCarryover = null;
 let isRunning = false;
 let pendingAgentTranscript = null; // Agent text and audio sync
 
-// Local-dev override: append ?wsUrl=ws://localhost:8080/ws to bypass Cognito
-const params = new URLSearchParams(location.search);
+// Local-dev override, bypass Cognito
+const params = new URLSearchParams(globalThis.location?.search);
 const localWsUrl = params.get("wsUrl");
 
-if (localWsUrl) {
-    const bar = document.getElementById("localBar");
-    bar.style.display = "block";
-    bar.textContent = `Local dev mode — connecting to: ${localWsUrl}`;
-}
-
-// Expose toggle() globally for the inline onclick
-window.toggle = toggle;
-
+// Update the status indicator
 function setStatus(text) {
-    document.getElementById("status").textContent = text;
+    elements.status.textContent = text;
 }
 
-function addMsg(text, cls) {
-    const t = document.getElementById("transcript");
-    t.style.display = "block";
+// Add a message to the transcript
+function addMessage(text, cls) {
+    elements.transcript.style.display = "block";
     const d = document.createElement("div");
-    d.className = "msg " + cls;
+    d.className = `msg ${cls}`;
     d.textContent = text;
-    t.appendChild(d);
-    t.scrollTop = t.scrollHeight;
+    elements.transcript.appendChild(d);
+    elements.transcript.scrollTop = elements.transcript.scrollHeight;
 }
 
-// ---------------------------------------------------------------------------
-// SigV4-signed WebSocket URL - TODO: reduce startup time
-// ---------------------------------------------------------------------------
+// Build a SigV4-signed WebSocket URL from temporary credentials
 async function buildSignedUrl(creds) {
-    const { SignatureV4 } = await import("https://cdn.jsdelivr.net/npm/@smithy/signature-v4/+esm");
-    const { Sha256 } = await import("https://cdn.jsdelivr.net/npm/@aws-crypto/sha256-browser/+esm");
+    const {SignatureV4} = await import("https://cdn.jsdelivr.net/npm/@smithy/signature-v4/+esm");
+    const {Sha256} = await import("https://cdn.jsdelivr.net/npm/@aws-crypto/sha256-browser/+esm");
 
-    const host = "bedrock-agentcore." + REGION + ".amazonaws.com";
+    const host = `bedrock-agentcore.${REGION}.amazonaws.com`;
     const rawPath = RUNTIME_WSS_BASE.replace(/^wss:\/\/[^/]+/, "");
     // Fully decode so Smithy re-encodes with its own rules to match what botocore produces
     const decodedPath = decodeURIComponent(rawPath);
@@ -70,43 +63,41 @@ async function buildSignedUrl(creds) {
     const signed = await signer.presign(
         {
             method: "GET",
-            headers: { host },
+            headers: {host},
             hostname: host,
             path: decodedPath,
-            query: { qualifier: "DEFAULT" },
+            query: {qualifier: "DEFAULT"},
             protocol: "https:",
         },
-        { expiresIn: 300 },
+        {expiresIn: 300},
     );
 
-    // Use signed.path so the URL matches the canonical URI Smithy signed over
+    // Rebuild query string from signed params and use signed.path so the URL matches the canonical URI Smithy signed over
     const qs = Object.entries(signed.query || {})
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join("&");
     return `wss://${host}${signed.path}?${qs}`;
 }
 
-// ---------------------------------------------------------------------------
-// Cognito unauthenticated credentials
-// ---------------------------------------------------------------------------
+// Get temporary AWS credentials from Cognito unauthenticated identity
 async function getCredentials() {
-    const { CognitoIdentityClient, GetIdCommand, GetOpenIdTokenCommand } =
+    const {CognitoIdentityClient, GetIdCommand, GetOpenIdTokenCommand} =
         await import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-cognito-identity/+esm");
-    const { STSClient, AssumeRoleWithWebIdentityCommand } =
+    const {STSClient, AssumeRoleWithWebIdentityCommand} =
         await import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-sts/+esm");
 
-    const cognitoClient = new CognitoIdentityClient({ region: REGION });
-
-    const { IdentityId } = await cognitoClient.send(
-        new GetIdCommand({ IdentityPoolId: COGNITO_IDENTITY_POOL_ID }),
+    // Get an unauthenticated Cognito identity ID, then exchange it for an OpenID token
+    const cognitoClient = new CognitoIdentityClient({region: REGION});
+    const {IdentityId} = await cognitoClient.send(
+        new GetIdCommand({IdentityPoolId: COGNITO_IDENTITY_POOL_ID}),
+    );
+    const {Token} = await cognitoClient.send(
+        new GetOpenIdTokenCommand({IdentityId}),
     );
 
-    const { Token } = await cognitoClient.send(
-        new GetOpenIdTokenCommand({ IdentityId }),
-    );
-
-    const stsClient = new STSClient({ region: REGION });
-    const { Credentials } = await stsClient.send(
+    // Exchange the OpenID token for temporary STS credentials via role assumption
+    const stsClient = new STSClient({region: REGION});
+    const {Credentials} = await stsClient.send(
         new AssumeRoleWithWebIdentityCommand({
             RoleArn: COGNITO_ROLE_ARN,
             RoleSessionName: "sonic-browser",
@@ -121,22 +112,23 @@ async function getCredentials() {
     };
 }
 
-// ---------------------------------------------------------------------------
-// Audio playback queue (Int16 PCM from base64) - TODO: built-in noise cancelation?
-// ---------------------------------------------------------------------------
+// Decode base64 PCM audio and queue it for gapless playback
 async function playAudio(base64) {
+    // Initialize playback context on first chunk
     if (!audioPlaybackContext) {
-        audioPlaybackContext = new AudioContext({ sampleRate: OUTPUT_SAMPLE_RATE });
+        audioPlaybackContext = new AudioContext({sampleRate: OUTPUT_SAMPLE_RATE});
         nextPlayTime = audioPlaybackContext.currentTime;
     }
     if (audioPlaybackContext.state === "suspended") {
         await audioPlaybackContext.resume();
     }
 
+    // Decode base64 to raw bytes
     const binary = atob(base64);
     let bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
+    // Prepend leftover byte from previous chunk if Int16 boundary was split
     if (audioCarryover) {
         const merged = new Uint8Array(1 + bytes.length);
         merged[0] = audioCarryover;
@@ -144,33 +136,37 @@ async function playAudio(base64) {
         bytes = merged;
         audioCarryover = null;
     }
-    if (bytes.length & 1) audioCarryover = bytes[bytes.length - 1];
+    if (bytes.length & 1) audioCarryover = bytes[bytes.length - 1]; // Save trailing byte for next chunk
+
+    // Convert Int16 PCM to Float32 for Web Audio
     const int16 = new Int16Array(bytes.buffer, 0, bytes.length >> 1);
     const float32 = new Float32Array(int16.length);
     for (let i = 0; i < int16.length; i++) float32[i] = int16[i] / 32768;
 
+    // Schedule chunk at the end of the playback queue for gapless output
     const buf = audioPlaybackContext.createBuffer(1, float32.length, OUTPUT_SAMPLE_RATE);
     buf.getChannelData(0).set(float32);
 
     const now = audioPlaybackContext.currentTime;
-    if (nextPlayTime < now) nextPlayTime = now;
+    if (nextPlayTime < now) nextPlayTime = now; // Catch up if queue fell behind
 
     const src = audioPlaybackContext.createBufferSource();
     src.buffer = buf;
     src.connect(audioPlaybackContext.destination);
 
-    // Agent text and audio sync - flush pending transcript exactly when this chunk starts playing
+    // Flush pending transcript exactly when this chunk starts playing
     if (pendingAgentTranscript !== null) {
         const transcript = pendingAgentTranscript;
         pendingAgentTranscript = null;
         const delayMs = Math.max(0, (nextPlayTime - audioPlaybackContext.currentTime) * 1000);
-        setTimeout(() => addMsg(`Agent: ${transcript}`, "assistant"), delayMs);
+        setTimeout(() => addMessage(`Agent: ${transcript}`, "assistant"), delayMs);
     }
 
     src.start(nextPlayTime);
     nextPlayTime += buf.duration;
 }
 
+// Stop and reset the audio playback context
 function stopPlayback() {
     if (audioPlaybackContext) {
         audioPlaybackContext.close();
@@ -180,36 +176,24 @@ function stopPlayback() {
     audioCarryover = null;
 }
 
-// ---------------------------------------------------------------------------
-// Microphone capture → bidi_audio_input - TODO: text input (+UI)
-// ---------------------------------------------------------------------------
+// Capture microphone input and stream it as bidi_audio_input frames
 async function startMic() {
     const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
+        audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true},
     });
 
+    // Route mic stream through the AudioWorklet for downsampling
     audioContext = new AudioContext();
     const source = audioContext.createMediaStreamSource(stream);
-    // TODO: migrate to AudioWorkletNode to replace deprecated ScriptProcessorNode
-    // [Deprecation] The ScriptProcessorNode is deprecated. Use AudioWorkletNode instead. (https://bit.ly/audio-worklet)
-    // startMic @ sonic.js:194
-    // await in startMic
-    // ws.onopen @ sonic.js:273
-    const processor = audioContext.createScriptProcessor(4096, 1, 1);
+    await audioContext.audioWorklet.addModule("mic-processor.js");
+    const worklet = new AudioWorkletNode(audioContext, "mic-processor");
 
-    processor.onaudioprocess = (e) => {
+    // Forward each downsampled PCM chunk to the WebSocket
+    worklet.port.onmessage = (e) => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-        const raw = e.inputBuffer.getChannelData(0);
-        const ratio = audioContext.sampleRate / INPUT_SAMPLE_RATE;
-        const out = new Int16Array(Math.floor(raw.length / ratio));
-
-        for (let i = 0; i < out.length; i++) {
-            const s = raw[Math.floor(i * ratio)];
-            out[i] = Math.max(-32768, Math.min(32767, s * 32768));
-        }
-
-        const bytes = new Uint8Array(out.buffer);
+        // Convert ArrayBuffer to base64
+        const bytes = new Uint8Array(e.data);
         let bin = "";
         for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
 
@@ -222,10 +206,11 @@ async function startMic() {
         }));
     };
 
-    source.connect(processor);
-    processor.connect(audioContext.destination);
+    source.connect(worklet);
+    worklet.connect(audioContext.destination);
 }
 
+// Close and reset the microphone AudioContext
 function stopMic() {
     if (audioContext) {
         audioContext.close();
@@ -233,9 +218,7 @@ function stopMic() {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Session lifecycle - TODO: speak first
-// ---------------------------------------------------------------------------
+// Toggle the session on or off
 async function toggle() {
     if (isRunning) {
         endSession();
@@ -244,19 +227,19 @@ async function toggle() {
     }
 }
 
+// Connect to AgentCore and start a bidi session
 async function startSession() {
-    const btn = document.getElementById("toggleBtn");
-    btn.disabled = true;
+    elements.toggleBtn.disabled = true;
     setStatus("Connecting…");
 
     try {
+        // Resolve WebSocket URL, local override bypasses Cognito entirely
         let wsUrl;
-
         if (localWsUrl) {
             wsUrl = localWsUrl;
         } else {
             if (COGNITO_IDENTITY_POOL_ID.includes("REPLACE") || RUNTIME_WSS_BASE.includes("REPLACE")) {
-                throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into index.html");
+                throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into sonic.js");
             }
             setStatus("Getting credentials…");
             const creds = await getCredentials();
@@ -276,11 +259,11 @@ async function startSession() {
 
             await startMic();
             isRunning = true;
-            btn.textContent = "End Session";
-            btn.classList.add("active");
-            btn.disabled = false;
+            elements.toggleBtn.textContent = "End Session";
+            elements.toggleBtn.classList.add("active");
+            elements.toggleBtn.disabled = false;
             setStatus("Listening…");
-            addMsg("Session started", "system");
+            addMessage("Session started", "system");
         };
 
         ws.onmessage = async (event) => {
@@ -296,11 +279,8 @@ async function startSession() {
                     const isUser = data.role === "user";
 
                     // Agent text and audio sync
-                    // if (isUser ? data.is_final : !data.is_final){
-                    //     addMsg(`${isUser ? "You" : "Agent"}: ${data.text}`, isUser ? "user" : "assistant");
-                    // }
                     if (isUser) {
-                        if (data.is_final) addMsg(`You: ${data.text}`, "user");
+                        if (data.is_final) addMessage(`You: ${data.text}`, "user");
                     } else if (!data.is_final) {
                         pendingAgentTranscript = data.text;
                     }
@@ -317,35 +297,35 @@ async function startSession() {
                     break;
 
                 case "system":
-                    addMsg(data.message, "system");
+                    addMessage(data.message, "system");
                     break;
 
                 case "error":
-                    addMsg("Error: " + data.message, "system");
+                    addMessage(`Error: ${data.message}`, "system");
                     break;
             }
         };
 
         ws.onerror = () => {
-            addMsg("Connection error", "system");
+            addMessage("Connection error", "system");
             endSession();
         };
 
         ws.onclose = () => {
             if (isRunning) {
-                addMsg("Disconnected", "system");
+                addMessage("Disconnected", "system");
                 endSession();
             }
         };
 
-    } catch (err) {
-        addMsg("Failed to start: " + err.message, "system");
-        setStatus("Error — check console");
-        console.error(err);
-        btn.disabled = false;
+    } catch (error) {
+        addMessage(`Failed to start: ${error.message}`, "system");
+        setStatus("Error");
+        elements.toggleBtn.disabled = false;
     }
 }
 
+// Tear down the WebSocket and audio streams
 function endSession() {
     isRunning = false;
     stopMic();
@@ -354,10 +334,23 @@ function endSession() {
         ws.close();
         ws = null;
     }
-    const btn = document.getElementById("toggleBtn");
-    btn.textContent = "Start Session";
-    btn.classList.remove("active");
-    btn.disabled = false;
+    elements.toggleBtn.textContent = "Start Session";
+    elements.toggleBtn.classList.remove("active");
+    elements.toggleBtn.disabled = false;
     setStatus("Idle");
-    addMsg("Session ended", "system");
+    addMessage("Session ended", "system");
 }
+
+// Wire up UI and show local-dev banner if override URL is set
+function start() {
+    elements.toggleBtn?.addEventListener("pointerup", toggle);
+
+    if (localWsUrl) {
+        elements.localBar.style.display = "block";
+        elements.localBar.textContent = `Local dev mode — connecting to: ${localWsUrl}`;
+    }
+}
+
+// Check if page is already loaded
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); // Page is still loading
+else start(); // DOMContentLoaded already fired

@@ -1,23 +1,4 @@
-#!/usr/bin/env python3
-"""
-Deploy the minimal Nova Sonic agent to Amazon Bedrock AgentCore.
-
-What this creates:
-  1. ECR repository + builds and pushes the Docker image
-  2. IAM execution role for the AgentCore runtime
-  3. AgentCore Runtime (waits until ACTIVE)
-  4. Cognito Identity Pool (unauthenticated) + scoped IAM role
-     so the browser can get temp creds to sign the WebSocket URL
-
-Run from repo root:
-    cd sonic
-    python scripts/deploy.py
-
-Outputs:
-  scripts/setup_config.json  — saved resource IDs
-  Printed instructions       — two constants to paste into sonic.js
-"""
-
+# Imports
 import boto3
 import json
 import subprocess
@@ -26,6 +7,7 @@ import time
 import os
 import base64
 
+# Initializations
 REGION = "us-west-2"
 APP_NAME = "minimal-sonic-agent"
 RUNTIME_NAME = "minimal_sonic_agent"
@@ -33,23 +15,20 @@ COGNITO_POOL_NAME = "MinimalSonicPool"
 AGENT_ROLE_NAME = "MinimalSonicAgentRole"
 COGNITO_ROLE_NAME = "MinimalSonicCognitoRole"
 REPO_NAME = "minimal-sonic-agent"
-
 WEBSOCKET_DIR = os.path.join(os.path.dirname(__file__), "..", "agentcore")
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "setup_config.json")
 
+# Print a prominent section header to the console
 def step(msg):
     print(f"\n{'='*60}\n{msg}\n{'='*60}")
 
-
+# Run a shell command and print it before executing
 def run(cmd, **kwargs):
     print(f"  $ {' '.join(cmd)}")
     result = subprocess.run(cmd, check=True, **kwargs)
     return result
 
-# ---------------------------------------------------------------------------
-# Step 1: ECR — create repo, build, push
-# ---------------------------------------------------------------------------
-
+# Step 1: Create the ECR repo if needed, build the Docker image, and push it
 def setup_ecr(account_id):
     step("Step 1/4: ECR — build and push Docker image")
 
@@ -64,13 +43,13 @@ def setup_ecr(account_id):
     except ecr.exceptions.RepositoryAlreadyExistsException:
         print(f"  ECR repo already exists: {REPO_NAME}")
 
-    # Docker login
+    # Authenticate Docker to ECR using a short-lived token
     token = ecr.get_authorization_token()["authorizationData"][0]
     user, pwd = base64.b64decode(token["authorizationToken"]).decode().split(":", 1)
     run(["docker", "login", "--username", user, "--password-stdin", ecr_uri],
         input=pwd.encode(), capture_output=True)
 
-    # Build (linux/arm64 to match AgentCore)
+    # Build for linux/arm64 — AgentCore containers run on ARM
     run(["docker", "buildx", "build", "--platform", "linux/arm64",
          "-t", image_uri, os.path.abspath(WEBSOCKET_DIR)])
 
@@ -79,10 +58,7 @@ def setup_ecr(account_id):
     print(f"  Image pushed: {image_uri}")
     return image_uri
 
-# ---------------------------------------------------------------------------
-# Step 2: IAM execution role for AgentCore
-# ---------------------------------------------------------------------------
-
+# Step 2: Create the IAM execution role that AgentCore will assume to run the container
 def setup_agent_role(account_id):
     step("Step 2/4: IAM — create AgentCore execution role")
 
@@ -109,23 +85,21 @@ def setup_agent_role(account_id):
         role_arn = iam.get_role(RoleName=AGENT_ROLE_NAME)["Role"]["Arn"]
         print(f"  Role already exists: {role_arn}")
 
+    # Attach the managed policies needed for Bedrock, CloudWatch, and ECR access
     for policy in ["arn:aws:iam::aws:policy/AmazonBedrockFullAccess",
                    "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
                    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"]:
         iam.attach_role_policy(RoleName=AGENT_ROLE_NAME, PolicyArn=policy)
 
+    # IAM changes take a few seconds to propagate before AgentCore can use the role
     print("  Waiting 10s for IAM propagation...")
     time.sleep(10)
     return role_arn
 
-# ---------------------------------------------------------------------------
-# Step 3: AgentCore Runtime
-# ---------------------------------------------------------------------------
-
+# Step 3: Create the AgentCore Runtime and poll until it reaches ACTIVE status
 def setup_runtime(image_uri, role_arn, account_id):
     step("Step 3/4: AgentCore — create runtime")
 
-    # bedrock-agentcore SDK uses this service name
     client = boto3.client("bedrock-agentcore-control", region_name=REGION)
 
     try:
@@ -144,6 +118,7 @@ def setup_runtime(image_uri, role_arn, account_id):
         runtime_arn = resp["agentRuntimeArn"]
         print(f"  Runtime created: {runtime_id}")
     except Exception as e:
+        # Fetch the existing runtime if it was already created by a previous deploy
         if "already exists" in str(e).lower() or "ConflictException" in type(e).__name__:
             print("  Runtime already exists — fetching existing...")
             runtimes = client.list_agent_runtimes()["agentRuntimes"]
@@ -155,7 +130,7 @@ def setup_runtime(image_uri, role_arn, account_id):
         else:
             raise
 
-    # Poll until ACTIVE
+    # Poll until ACTIVE — cold start typically takes 5-15 minutes
     print("  Waiting for runtime to become ACTIVE (this may take 5-15 min)...")
     for attempt in range(90):
         detail = client.get_agent_runtime(agentRuntimeId=runtime_id)
@@ -172,17 +147,14 @@ def setup_runtime(image_uri, role_arn, account_id):
 
     return runtime_id, runtime_arn
 
-# ---------------------------------------------------------------------------
-# Step 4: Cognito Identity Pool + scoped IAM role
-# ---------------------------------------------------------------------------
-
+# Step 4: Create a Cognito Identity Pool and a scoped IAM role so the browser can get temp creds
 def setup_cognito(account_id, runtime_arn):
     step("Step 4/4: Cognito — create identity pool and browser role")
 
     cognito = boto3.client("cognito-identity", region_name=REGION)
     iam = boto3.client("iam")
 
-    # Reuse existing pool if one exists, otherwise create
+    # Reuse an existing pool if one with the same name already exists
     pools = cognito.list_identity_pools(MaxResults=60)["IdentityPools"]
     match = next((p for p in pools if p["IdentityPoolName"] == COGNITO_POOL_NAME), None)
     if match:
@@ -196,7 +168,7 @@ def setup_cognito(account_id, runtime_arn):
         pool_id = pool["IdentityPoolId"]
         print(f"  Created Cognito pool: {pool_id}")
 
-    # IAM trust policy for Cognito unauthenticated identities
+    # Trust policy: allow Cognito unauthenticated identities from this specific pool to assume the role
     trust = {
         "Version": "2012-10-17",
         "Statement": [{
@@ -210,7 +182,7 @@ def setup_cognito(account_id, runtime_arn):
         }],
     }
 
-    # Scoped permission: only InvokeAgentRuntime on this specific runtime
+    # Permission policy: scoped to InvokeAgentRuntime on this runtime only
     permission_policy = {
         "Version": "2012-10-17",
         "Statement": [{
@@ -231,6 +203,7 @@ def setup_cognito(account_id, runtime_arn):
     except iam.exceptions.EntityAlreadyExistsException:
         cognito_role_arn = iam.get_role(RoleName=COGNITO_ROLE_NAME)["Role"]["Arn"]
         print(f"  Cognito role already exists: {cognito_role_arn}")
+        # Update the trust policy in case the pool ID changed
         iam.update_assume_role_policy(
             RoleName=COGNITO_ROLE_NAME,
             PolicyDocument=json.dumps(trust),
@@ -242,7 +215,7 @@ def setup_cognito(account_id, runtime_arn):
         PolicyDocument=json.dumps(permission_policy),
     )
 
-    # Attach the role to the pool's unauthenticated identity
+    # Attach the role to the pool's unauthenticated identity slot
     cognito.set_identity_pool_roles(
         IdentityPoolId=pool_id,
         Roles={"unauthenticated": cognito_role_arn},
@@ -251,20 +224,19 @@ def setup_cognito(account_id, runtime_arn):
     print(f"  Cognito pool configured")
     return pool_id
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
 def main():
+    # Resolve the AWS account ID for constructing ARNs and ECR URIs
     sts = boto3.client("sts", region_name=REGION)
     account_id = sts.get_caller_identity()["Account"]
     print(f"AWS account: {account_id}  region: {REGION}")
 
+    # Run all four setup steps in order
     image_uri = setup_ecr(account_id)
     role_arn = setup_agent_role(account_id)
     runtime_id, runtime_arn = setup_runtime(image_uri, role_arn, account_id)
     pool_id = setup_cognito(account_id, runtime_arn)
 
+    # Save resource IDs for cleanup.py to reference later
     config = {
         "region": REGION,
         "account_id": account_id,
@@ -273,13 +245,14 @@ def main():
         "identity_pool_id": pool_id,
         "image_uri": image_uri,
     }
-
     with open(CONFIG_FILE, "w") as f:
         json.dump(config, f, indent=2)
 
+    # Build the WebSocket base URL by URL-encoding the runtime ARN
     runtime_arn_encoded = runtime_arn.replace(":", "%3A").replace("/", "%2F")
     runtime_wss = f"wss://bedrock-agentcore.{REGION}.amazonaws.com/runtimes/{runtime_arn_encoded}/ws"
 
+    # Print the two constants the user needs to paste into sonic.js
     print("\n" + "="*60)
     print("DEPLOYMENT COMPLETE")
     print("="*60)

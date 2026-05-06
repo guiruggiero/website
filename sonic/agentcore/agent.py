@@ -1,23 +1,16 @@
+# Imports
 import logging
 import traceback
-
 from fastapi import WebSocket, WebSocketDisconnect
-
 from strands.experimental.bidi.agent import BidiAgent
 from strands.experimental.bidi.models.nova_sonic import BidiNovaSonicModel
 
+# Initializations
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Server-side agent config (client sends only voice preference)
-# ---------------------------------------------------------------------------
-
 MODEL_ID = "amazon.nova-2-sonic-v1:0"
 REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 16000
-
-# TODO: Pull from Langfuse
 SYSTEM_PROMPT = (
     "You are a friendly companion having a casual chat. "
     "Be warm, conversational, and natural. Keep responses concise and engaging."
@@ -29,20 +22,23 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
     logger.info("New WebSocket connection — waiting for config event")
 
     try:
+        # Block until the client sends a valid config event
         config = await _wait_for_config(websocket)
         if config is None:
             return
 
+        # Build and start the bidi agent
         agent = _create_agent(config)
         logger.info("Agent initialized — starting session")
-
         await websocket.send_json({"type": "system", "message": "Configuration applied. Agent ready."})
 
+        # Read incoming messages and forward non-config events to the agent
         async def handle_websocket_input():
             while True:
                 message = await websocket.receive_json()
 
                 if message.get("type") == "config":
+                    # Config can only be set once — reject re-configuration mid-session
                     await websocket.send_json({
                         "type": "system",
                         "message": "Configuration can only be set once per session. Reconnect to change settings.",
@@ -62,6 +58,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
     except WebSocketDisconnect:
         logger.info("Client disconnected")
     except Exception as e:
+        # Suppress noisy CRT cleanup errors from the AWS SDK on teardown
         if "InvalidStateError" in type(e).__name__ or "CANCELLED" in str(e):
             logger.warning("Ignoring CRT cleanup error")
         else:
@@ -74,6 +71,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
     finally:
         logger.info("Connection closed")
 
+# Wait for the first message and reject anything that isn't a config event
 async def _wait_for_config(websocket: WebSocket) -> dict | None:
     while True:
         message = await websocket.receive_json()
@@ -83,20 +81,20 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
             logger.info("Config received: voice=%s", config["voice"])
             return config
 
+        # Reject any other message type and keep waiting
         logger.warning("Expected config event first, got: %s", message.get("type"))
         await websocket.send_json({"type": "system", "message": "Please send config event first"})
 
+# Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
     model = BidiNovaSonicModel(
-        region=REGION,
         model_id=MODEL_ID,
-        provider_config={
-            "audio": {
-                "input_sample_rate": INPUT_SAMPLE_RATE,
-                "output_sample_rate": OUTPUT_SAMPLE_RATE,
-                "voice": config["voice"],
-            }
-        },
+        provider_config={"audio": {
+            "input_rate": INPUT_SAMPLE_RATE,
+            "output_rate": OUTPUT_SAMPLE_RATE,
+            "voice": config["voice"],
+        }},
+        client_config={"region": REGION},
     )
 
     return BidiAgent(

@@ -43,7 +43,7 @@ The browser and server exchange JSON frames. **The first message from the client
 
 ### Client audio pipeline
 
-Mic → `ScriptProcessor` (4096 samples) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
+Mic → `AudioWorkletNode` (`mic-processor.js`, 4096-sample buffer) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
 
 Received `bidi_audio_stream` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_interruption`, playback is stopped (with a short drain window of up to 300 ms if audio is already buffered).
 
