@@ -127,7 +127,7 @@ async def _refresh_credentials_loop():
                 logger.warning("IMDS credential fetch failed, retrying in 5 min")
                 await asyncio.sleep(300)
         except asyncio.CancelledError:
-            break
+            raise
         except Exception as e:
             logger.error("Credential refresh error: %s", e)
             await asyncio.sleep(300)

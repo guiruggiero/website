@@ -1,5 +1,6 @@
 # Imports
 import asyncio
+import functools
 import logging
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
@@ -17,6 +18,30 @@ SYSTEM_PROMPT = (
     "You are a friendly companion having a casual chat. "
     "Be warm, conversational, and natural. Keep responses concise and engaging."
 )
+
+# Read incoming messages and forward non-config events to the agent
+async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyncio.Event):
+    agent_ready.set()  # first call means agent.run() is initialized and ready
+    while True:
+        message = await websocket.receive_json()
+
+        if message.get("type") == "config":
+            # Config can only be set once — reject re-configuration mid-session
+            await websocket.send_json({
+                "type": "system",
+                "message": "Configuration can only be set once per session. Reconnect to change settings.",
+            })
+            continue
+
+        if message.get("type") == "text_input":
+            text = message.get("text", "")
+            logger.info("Text input received")
+            await agent.send(text)
+            continue
+
+        # Non-config, non-text messages (e.g. bidi_audio_input) return to agent.run()
+        return message
+
 
 async def handle_websocket_session(websocket: WebSocket, send_output=None):
     output_fn = send_output or websocket.send_json
@@ -36,34 +61,12 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
         agent = _create_agent(config)
 
         agent_ready = asyncio.Event()
-
-        # Read incoming messages and forward non-config events to the agent
-        async def handle_websocket_input():
-            agent_ready.set()  # first call means agent.run() is initialized and ready
-            while True:
-                message = await websocket.receive_json()
-
-                if message.get("type") == "config":
-                    # Config can only be set once — reject re-configuration mid-session
-                    await websocket.send_json({
-                        "type": "system",
-                        "message": "Configuration can only be set once per session. Reconnect to change settings.",
-                    })
-                    continue
-
-                if message.get("type") == "text_input":
-                    text = message.get("text", "")
-                    logger.info("Text input received")
-                    await agent.send(text)
-                    continue
-
-                # Non-config, non-text messages (e.g. bidi_audio_input) return to agent.run()
-                return message
+        ws_input = functools.partial(_handle_websocket_input, websocket, agent, agent_ready)
 
         # agent.run() manages start/stop internally, stop on exit even an exception
         try:
             run_task = asyncio.create_task(
-                agent.run(inputs=[handle_websocket_input], outputs=[output_fn])
+                agent.run(inputs=[ws_input], outputs=[output_fn])
             )
             await agent_ready.wait()
             await agent.send("Hi, who are you? Answer in 10 words or less")

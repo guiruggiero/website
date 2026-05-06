@@ -6,15 +6,19 @@ A minimal Nova Sonic voice agent with a single-button HTML page that deploys to 
 
 ## TODOs
 
-- Consider splitting sonic.js into auth/audio/orchestration modules
-
 - Adjust prompt for Nova (XML -> ?)
 - Pull from Langfuse
 - Knowledge base for CV - pip install strands-agents-tools, retrieve
 
 - Address SonarQube complaints
 - Sentry
-- How to organize folders after HTML, CSS, and JS are distributed? guipt/ folder inside modules?
+
+- Split sonic.js when adding tools. Seams:
+  - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
+  - `audio.js` — startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
+  - `tools.js` — tool definitions and handlers
+  - `sonic.js` — session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
+- Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT.
 
 ## Architecture
 
