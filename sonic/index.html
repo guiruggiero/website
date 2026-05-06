@@ -9,13 +9,18 @@
 
     <body>
         <h1>Nova Sonic + Strands Bidi Agent + Bedrock AgentCore</h1>
-    
+
         <div id="localBar"></div>
-    
+
         <div id="status">Idle</div>
-    
+
         <button id="toggleBtn" onclick="toggle()">Start Session</button>
-    
+
+        <div id="textInputRow">
+            <input type="text" id="textInput" placeholder="Type a message…" autocomplete="off" disabled>
+            <button id="sendBtn" disabled>Send</button>
+        </div>
+
         <div id="transcript"></div>
 
         <script type="module" src="sonic.js"></script>

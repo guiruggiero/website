@@ -7,12 +7,20 @@ const VOICE = "tiffany";
 const INPUT_SAMPLE_RATE = 16000;
 const OUTPUT_SAMPLE_RATE = 16000;
 
+// Debounce helper
+function debounce(fn, ms) {
+    let t;
+    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
 // DOM elements
 const elements = {
     status: document.querySelector("#status"),
     transcript: document.querySelector("#transcript"),
     toggleBtn: document.querySelector("#toggleBtn"),
     localBar: document.querySelector("#localBar"),
+    textInput: document.querySelector("#textInput"),
+    sendBtn: document.querySelector("#sendBtn"),
 };
 
 // State
@@ -218,6 +226,16 @@ function stopMic() {
     }
 }
 
+// Send a text message to the agent over the open WebSocket
+function sendTextInput() {
+    const text = elements.textInput.value.trim();
+    if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+    ws.send(JSON.stringify({type: "text_input", text}));
+    addMessage(`You: ${text}`, "user");
+    elements.textInput.value = "";
+}
+
 // Toggle the session on or off
 async function toggle() {
     if (isRunning) {
@@ -262,6 +280,9 @@ async function startSession() {
             elements.toggleBtn.textContent = "End Session";
             elements.toggleBtn.classList.add("active");
             elements.toggleBtn.disabled = false;
+            elements.textInput.disabled = false;
+            elements.sendBtn.disabled = false;
+            elements.textInput.focus();
             setStatus("Listening…");
             addMessage("Session started", "system");
         };
@@ -301,7 +322,7 @@ async function startSession() {
                     break;
 
                 case "session_end":
-                    isRunning = false; // prevents onclose from showing "Disconnected"
+                    isRunning = false; // prevents voice-based end from showing "Disconnected"
                     endSession();
                     break;
 
@@ -342,6 +363,9 @@ function endSession() {
     elements.toggleBtn.textContent = "Start Session";
     elements.toggleBtn.classList.remove("active");
     elements.toggleBtn.disabled = false;
+    elements.textInput.disabled = true;
+    elements.textInput.value = "";
+    elements.sendBtn.disabled = true;
     setStatus("Idle");
     addMessage("Session ended", "system");
 }
@@ -349,6 +373,10 @@ function endSession() {
 // Wire up UI and show local-dev banner if override URL is set
 function start() {
     elements.toggleBtn?.addEventListener("pointerup", toggle);
+    elements.sendBtn?.addEventListener("pointerup", sendTextInput);
+    elements.textInput?.addEventListener("keyup", debounce((e) => {
+        if (e.key === "Enter") sendTextInput();
+    }, 150));
 
     if (localWsUrl) {
         elements.localBar.style.display = "block";
