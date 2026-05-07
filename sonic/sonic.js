@@ -169,7 +169,7 @@ async function playAudio(base64) {
     // Decode base64 to raw bytes
     const binary = atob(base64);
     let bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.codePointAt(i);
 
     // Prepend leftover byte from previous chunk if Int16 boundary was split
     if (audioCarryover) {
@@ -179,7 +179,7 @@ async function playAudio(base64) {
         bytes = merged;
         audioCarryover = null;
     }
-    if (bytes.length & 1) audioCarryover = bytes[bytes.length - 1]; // Save trailing byte for next chunk
+    if (bytes.length & 1) audioCarryover = bytes.at(-1); // Save trailing byte for next chunk
 
     // Convert Int16 PCM to Float32 for Web Audio
     const int16 = new Int16Array(bytes.buffer, 0, bytes.length >> 1);
@@ -240,12 +240,12 @@ async function startMic() {
 
     // Forward each downsampled PCM chunk to the WebSocket
     worklet.port.onmessage = (e) => {
-        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+        if (ws?.readyState !== WebSocket.OPEN) return;
 
         // Convert ArrayBuffer to base64
         const bytes = new Uint8Array(e.data);
         let bin = "";
-        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        for (const byte of bytes) bin += String.fromCodePoint(byte);
 
         ws.send(JSON.stringify({
             type: "bidi_audio_input",
@@ -271,7 +271,7 @@ function stopMic() {
 // Send a text message to the agent over the open WebSocket
 function sendTextInput() {
     const text = elements.textInput.value.trim();
-    if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!text || ws?.readyState !== WebSocket.OPEN) return;
 
     ws.send(JSON.stringify({type: "text_input", text}));
     addMessage(`You: ${text}`, "user");

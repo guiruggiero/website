@@ -2,9 +2,8 @@ FROM --platform=linux/arm64 public.ecr.aws/docker/library/python:3.12-slim
 
 WORKDIR /app
 
-RUN pip install --upgrade pip
-
-RUN apt-get update && apt-get install -y \
+RUN pip install --upgrade pip \
+    && apt-get update && apt-get install -y \
     gcc \
     g++ \
     make \

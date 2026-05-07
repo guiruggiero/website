@@ -59,7 +59,7 @@ def setup_ecr(account_id):
     return image_uri
 
 # Step 2: Create the IAM execution role that AgentCore will assume to run the container
-def setup_agent_role(account_id):
+def setup_agent_role():
     step("Step 2/4: IAM — create AgentCore execution role")
 
     iam = boto3.client("iam")
@@ -115,7 +115,7 @@ ENV_FILE = os.path.join(os.path.dirname(__file__), "..", ".env")
 REQUIRED_ENV_VARS = ["LANGFUSE_SECRET_KEY", "LANGFUSE_PUBLIC_KEY"]
 
 # Step 3: Create the AgentCore Runtime and poll until it reaches ACTIVE status
-def setup_runtime(image_uri, role_arn, account_id):
+def setup_runtime(image_uri, role_arn):
     step("Step 3/4: AgentCore — create runtime")
 
     client = boto3.client("bedrock-agentcore-control", region_name=REGION)
@@ -175,7 +175,7 @@ def setup_runtime(image_uri, role_arn, account_id):
     return runtime_id, runtime_arn
 
 # Step 4: Create a Cognito Identity Pool and a scoped IAM role so the browser can get temp creds
-def setup_cognito(account_id, runtime_arn):
+def setup_cognito(runtime_arn):
     step("Step 4/4: Cognito — create identity pool and browser role")
 
     cognito = boto3.client("cognito-identity", region_name=REGION)
@@ -248,7 +248,7 @@ def setup_cognito(account_id, runtime_arn):
         Roles={"unauthenticated": cognito_role_arn},
     )
 
-    print(f"  Cognito pool configured")
+    print("  Cognito pool configured")
     return pool_id
 
 def main():
@@ -259,9 +259,9 @@ def main():
 
     # Run all four setup steps in order
     image_uri = setup_ecr(account_id)
-    role_arn = setup_agent_role(account_id)
-    runtime_id, runtime_arn = setup_runtime(image_uri, role_arn, account_id)
-    pool_id = setup_cognito(account_id, runtime_arn)
+    role_arn = setup_agent_role()
+    runtime_id, runtime_arn = setup_runtime(image_uri, role_arn)
+    pool_id = setup_cognito(runtime_arn)
 
     # Save resource IDs for cleanup.py to reference later
     config = {

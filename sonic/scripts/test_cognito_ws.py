@@ -63,6 +63,33 @@ def get_presigned_url(cognito_creds):
     # Convert back to wss:// — request.url holds the path botocore actually signed over
     return request.url.replace("https://", "wss://")
 
+async def recv_loop(ws):
+    async for raw in ws:
+        data = json.loads(raw)
+        msg_type = data.get("type")
+        if msg_type == "system":
+            print(f"System: {data.get('message')}")
+        elif msg_type == "bidi_audio_stream":
+            print(f"Audio chunk ({len(data.get('audio', ''))} base64 chars)")
+        elif msg_type == "bidi_transcript_stream":
+            role = data.get("role", "?")
+            suffix = "*" if data.get("is_final") else ""
+            print(f"Transcript [{role}{suffix}]: {data.get('text', '')[:80]}")
+        elif msg_type == "bidi_connection_start":
+            print("Bidi session established — connection verified")
+            return
+        elif msg_type == "bidi_response_complete":
+            print("Response complete — session verified")
+            return
+        elif msg_type == "session_end":
+            print("Session ended by agent")
+            return
+        elif msg_type == "error":
+            print(f"Error: {data.get('message')}")
+            return
+        else:
+            print(f"Received: {msg_type}")
+
 async def test():
     print("Getting Cognito credentials...")
     cognito_creds = get_cognito_credentials()
@@ -82,35 +109,8 @@ async def test():
             print(f"Sent config (voice: {VOICE_ID})")
 
             # Receive messages until the agent's opening response is complete or timeout
-            async def recv_loop():
-                async for raw in ws:
-                    data = json.loads(raw)
-                    msg_type = data.get("type")
-                    if msg_type == "system":
-                        print(f"System: {data.get('message')}")
-                    elif msg_type == "bidi_audio_stream":
-                        print(f"Audio chunk ({len(data.get('audio', ''))} base64 chars)")
-                    elif msg_type == "bidi_transcript_stream":
-                        role = data.get("role", "?")
-                        suffix = "*" if data.get("is_final") else ""
-                        print(f"Transcript [{role}{suffix}]: {data.get('text', '')[:80]}")
-                    elif msg_type == "bidi_connection_start":
-                        print("Bidi session established — connection verified")
-                        return
-                    elif msg_type == "bidi_response_complete":
-                        print("Response complete — session verified")
-                        return
-                    elif msg_type == "session_end":
-                        print("Session ended by agent")
-                        return
-                    elif msg_type == "error":
-                        print(f"Error: {data.get('message')}")
-                        return
-                    else:
-                        print(f"Received: {msg_type}")
-
             try:
-                await asyncio.wait_for(recv_loop(), timeout=30)
+                await asyncio.wait_for(recv_loop(ws), timeout=30)
             except asyncio.TimeoutError:
                 print("Timeout (30s) — closing")
 
