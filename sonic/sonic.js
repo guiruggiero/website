@@ -31,6 +31,7 @@ let nextPlayTime = 0;
 let audioCarryover = null;
 let isRunning = false;
 let pendingAgentTranscript = null; // Agent text and audio sync
+let sessionStartTime = null;
 
 // Local-dev override, bypass Cognito
 const params = new URLSearchParams(globalThis.location?.search);
@@ -289,6 +290,7 @@ async function toggle() {
 
 // Connect to AgentCore and start a bidi session
 async function startSession() {
+    sessionStartTime = performance.now();
     elements.toggleBtn.disabled = true;
     setStatus("Connecting…");
 
@@ -324,6 +326,11 @@ async function startSession() {
 
             switch (data.type) {
                 case "bidi_audio_stream":
+                    if (sessionStartTime) {
+                        const elapsed = ((performance.now() - sessionStartTime) / 1000).toFixed(3);
+                        addMessage(`UPL: ${elapsed}s`, "system");
+                        sessionStartTime = null;
+                    }
                     setStatus("Speaking…");
                     await playAudio(data.audio);
                     break;

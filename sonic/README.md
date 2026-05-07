@@ -6,7 +6,6 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 
 ## TODOs
 
-- Instrument to measure session startup latency
 - Split sonic.js when adding tools. Seams:
   - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
   - `audio.js` — startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
@@ -25,6 +24,8 @@ index.html                      AgentCore Runtime
   │  gets temp creds ──────→  Cognito Identity Pool (unauthenticated)
   │  signs WebSocket URL ──→  bedrock-agentcore SigV4
   └──────────────────────────→ /ws → BidiAgent → Nova Sonic
+                                       ↑ system prompt
+                                     Langfuse (us.cloud.langfuse.com)
 ```
 
 - `index.html`, `sonic.css`, `sonic.js` — pure static HTML/CSS/JS, deploy to GitHub Pages
@@ -80,13 +81,22 @@ Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` — the `?wsUrl=` para
 
 ## Step 2 — Deploy to AgentCore
 
+Create a `sonic/.env` file with the Langfuse keys (used by the container at runtime):
+
+```
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+```
+
+Then deploy:
+
 ```bash
 cd scripts
 python -m pip install -r requirements.txt
 python deploy.py
 ```
 
-This takes 10–15 minutes on first run. It will:
+This takes 10–15 minutes on first run (re-deploys are faster — it updates the existing runtime). It will:
 1. Build the Docker image for `linux/arm64` and push to ECR
 2. Create an IAM execution role
 3. Create the AgentCore Runtime and wait until it's `READY`
