@@ -106,7 +106,7 @@ def _load_env_file(path):
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 key, _, value = line.partition("=")
-                env[key.strip()] = value.strip()
+                env[key.strip()] = value.strip().strip("\"'")
     except FileNotFoundError:
         pass
     return env
@@ -147,13 +147,26 @@ def setup_runtime(image_uri, role_arn):
     except Exception as e:
         # Fetch the existing runtime if it was already created by a previous deploy
         if "already exists" in str(e).lower() or "ConflictException" in type(e).__name__:
-            print("  Runtime already exists — fetching existing...")
+            print("  Runtime already exists — updating with new image and env vars...")
             runtimes = client.list_agent_runtimes()["agentRuntimes"]
             match = next((r for r in runtimes if r["agentRuntimeName"] == RUNTIME_NAME), None)
             if not match:
                 raise RuntimeError(f"Runtime '{RUNTIME_NAME}' exists but could not be listed")
             runtime_id = match["agentRuntimeId"]
             runtime_arn = match["agentRuntimeArn"]
+
+            client.update_agent_runtime(
+                agentRuntimeId=runtime_id,
+                agentRuntimeArtifact={
+                    "containerConfiguration": {
+                        "containerUri": image_uri,
+                    }
+                },
+                roleArn=role_arn,
+                networkConfiguration={"networkMode": "PUBLIC"},
+                environmentVariables=env_vars,
+            )
+            print(f"  Runtime updated: {runtime_id}")
         else:
             raise
 
