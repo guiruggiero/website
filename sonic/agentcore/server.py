@@ -10,7 +10,7 @@ from datetime import datetime
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from agent import handle_websocket_session
+from agent import handle_websocket_session, init_langfuse
 
 # Initializations
 logging.basicConfig(level=logging.INFO)
@@ -151,6 +151,8 @@ async def lifespan(app: FastAPI):
         else:
             logger.warning("IMDS unavailable — proceeding without explicit credentials")
 
+    init_langfuse()
+
     yield
 
     # Cancel the background refresh loop cleanly on shutdown
@@ -173,13 +175,13 @@ app.add_middleware(
 
 @app.get("/ping")
 async def ping():
-    """AgentCore health check — must return this exact shape."""
+    # AgentCore health check — must return this exact shape
     import time
     return JSONResponse({"status": "Healthy", "time_of_last_update": int(time.time())})
 
 @app.post("/invocations")
 async def invocations():
-    """Required by AgentCore protocol. This agent is WebSocket-only."""
+    # Required by AgentCore protocol. This agent is WebSocket-only
     return JSONResponse({
         "message": "This agent uses WebSocket bidirectional streaming.",
         "websocket_endpoint": "/ws",

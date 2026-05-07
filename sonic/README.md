@@ -6,16 +6,15 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 
 ## TODOs
 
-- Pull from Langfuse - https://langfuse.com/docs/observability/sdk/overview
-- Knowledge base for CV? - `pip install strands-agents-tools`, `retrieve`
 - Address SonarQube complaints
+- Knowledge base for CV? - `pip install strands-agents-tools`, `retrieve`
 
 - Split sonic.js when adding tools. Seams:
   - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
   - `audio.js` — startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
   - `tools.js` — tool definitions and handlers
   - `sonic.js` — session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
-- Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT.
+- Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
 - Sentry error capture and logging
 - Minimization and deployment
 
@@ -57,11 +56,15 @@ python -m pip install "strands-agents[bidi]"
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_DEFAULT_REGION="us-west-2"
+export LANGFUSE_SECRET_KEY=...
+export LANGFUSE_PUBLIC_KEY=...
 
 # Windows PowerShell
 $env:AWS_ACCESS_KEY_ID = "..."
 $env:AWS_SECRET_ACCESS_KEY = "..."
 $env:AWS_DEFAULT_REGION = "us-west-2"
+$env:LANGFUSE_SECRET_KEY = "..."
+$env:LANGFUSE_PUBLIC_KEY = "..."
 
 cd agentcore
 python server.py # starts on port 8080

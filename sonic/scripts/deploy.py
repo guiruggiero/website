@@ -96,11 +96,37 @@ def setup_agent_role(account_id):
     time.sleep(10)
     return role_arn
 
+# Load deployment env vars from .env file (key=value, one per line, # comments ignored)
+def _load_env_file(path):
+    env = {}
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                env[key.strip()] = value.strip()
+    except FileNotFoundError:
+        pass
+    return env
+
+ENV_FILE = os.path.join(os.path.dirname(__file__), "..", ".env")
+REQUIRED_ENV_VARS = ["LANGFUSE_SECRET_KEY", "LANGFUSE_PUBLIC_KEY"]
+
 # Step 3: Create the AgentCore Runtime and poll until it reaches ACTIVE status
 def setup_runtime(image_uri, role_arn, account_id):
     step("Step 3/4: AgentCore — create runtime")
 
     client = boto3.client("bedrock-agentcore-control", region_name=REGION)
+
+    # Load only the required keys from .env — don't forward AWS creds or other local-only vars
+    all_env = _load_env_file(ENV_FILE)
+    missing = [k for k in REQUIRED_ENV_VARS if k not in all_env]
+    if missing:
+        print(f"  WARNING: Missing env vars in sonic/.env: {', '.join(missing)}")
+    env_vars = {k: all_env[k] for k in REQUIRED_ENV_VARS if k in all_env}
+    print(f"  Loaded env vars from sonic/.env: {', '.join(env_vars.keys())}")
 
     try:
         resp = client.create_agent_runtime(
@@ -113,6 +139,7 @@ def setup_runtime(image_uri, role_arn, account_id):
             roleArn=role_arn,
             networkConfiguration={"networkMode": "PUBLIC"},
             protocolConfiguration={"serverProtocol": "HTTP"},
+            environmentVariables=env_vars,
         )
         runtime_id = resp["agentRuntimeId"]
         runtime_arn = resp["agentRuntimeArn"]
