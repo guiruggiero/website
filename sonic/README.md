@@ -6,7 +6,6 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 
 ## TODOs
 
-- Instrument to measure session startup latency
 - Split sonic.js when adding tools. Seams:
   - `auth.js` — getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
   - `audio.js` — startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
