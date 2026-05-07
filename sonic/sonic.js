@@ -70,7 +70,7 @@ let _workletReady = false;
         _preAudioCtx = new AudioContext();
         await _preAudioCtx.audioWorklet.addModule("mic-processor.js");
         _workletReady = true;
-    } catch { /* browser may block without gesture — harmless */ }
+    } catch {/* browser may block without gesture — harmless */}
 })();
 
 // Update the status indicator
@@ -416,7 +416,7 @@ function endSession() {
 // Debounce helper
 function debounce(fn, ms) {
     let t;
-    return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+    return (...args) => {clearTimeout(t); t = setTimeout(() => fn(...args), ms);};
 }
 
 // Wire up UI and show local-dev banner if override URL is set
