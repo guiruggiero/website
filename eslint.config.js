@@ -9,7 +9,7 @@ import eslintPluginYml from "eslint-plugin-yml";
 
 export default defineConfig([
     // Global configuration
-    {ignores: ["functions/**"]},
+    {ignores: ["functions/**", "**/.venv*/**"]},
 
     // JavaScript configuration
     {
@@ -23,6 +23,9 @@ export default defineConfig([
             globals: {
                 ...globals.browser,
                 Sentry: true,
+                AudioWorkletProcessor: "readonly",
+                registerProcessor: "readonly",
+                sampleRate: "readonly",
             },
         },
         rules: {

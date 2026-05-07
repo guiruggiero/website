@@ -2,8 +2,10 @@
 import asyncio
 import functools
 import logging
+import os
 import traceback
 from fastapi import WebSocket, WebSocketDisconnect
+from langfuse import Langfuse
 from strands.experimental.bidi.agent import BidiAgent
 from strands.experimental.bidi.models import BidiNovaSonicModel
 from strands.experimental.bidi.tools import stop_conversation
@@ -14,10 +16,20 @@ MODEL_ID = "amazon.nova-2-sonic-v1:0"
 REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 16000
-SYSTEM_PROMPT = (
-    "You are a friendly companion having a casual chat. "
-    "Be warm, conversational, and natural. Keep responses concise and engaging."
-)
+LANGFUSE_PROMPT_NAME = "GuiPT-Sonic"
+
+_langfuse: Langfuse | None = None
+
+def init_langfuse():
+    # Initialize the Langfuse client and warm the prompt cache at server startup
+    global _langfuse
+    _langfuse = Langfuse(
+        secret_key=os.environ["LANGFUSE_SECRET_KEY"],
+        public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
+        base_url="https://us.cloud.langfuse.com",
+    )
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    logger.info("Langfuse initialized, prompt cached (v%s)", prompt.version)
 
 # Read incoming messages and forward non-config events to the agent
 async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyncio.Event):
@@ -69,7 +81,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
                 agent.run(inputs=[ws_input], outputs=[output_fn])
             )
             await agent_ready.wait()
-            await agent.send("Hi, who are you? Answer in 10 words or less")
+            await agent.send("Hello")
             await run_task
             await output_fn({"type": "session_end"}) # signal clean stop before close
         finally:
@@ -107,6 +119,11 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
 
 # Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
+    # Langfuse serves from local cache or fetches again
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    system_prompt = prompt.compile()
+    logger.info("System prompt fetched (Langfuse v%s)", prompt.version)
+
     model = BidiNovaSonicModel(
         model_id=MODEL_ID,
         provider_config={"audio": {
@@ -119,6 +136,7 @@ def _create_agent(config: dict) -> BidiAgent:
 
     return BidiAgent(
         model=model,
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=system_prompt,
         tools=[stop_conversation],
+        # messages=[], # Conversation history
     )

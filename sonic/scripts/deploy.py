@@ -59,7 +59,7 @@ def setup_ecr(account_id):
     return image_uri
 
 # Step 2: Create the IAM execution role that AgentCore will assume to run the container
-def setup_agent_role(account_id):
+def setup_agent_role():
     step("Step 2/4: IAM — create AgentCore execution role")
 
     iam = boto3.client("iam")
@@ -96,11 +96,37 @@ def setup_agent_role(account_id):
     time.sleep(10)
     return role_arn
 
+# Load deployment env vars from .env file (key=value, one per line, # comments ignored)
+def _load_env_file(path):
+    env = {}
+    try:
+        with open(path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, _, value = line.partition("=")
+                env[key.strip()] = value.strip().strip("\"'")
+    except FileNotFoundError:
+        pass
+    return env
+
+ENV_FILE = os.path.join(os.path.dirname(__file__), "..", ".env")
+REQUIRED_ENV_VARS = ["LANGFUSE_SECRET_KEY", "LANGFUSE_PUBLIC_KEY"]
+
 # Step 3: Create the AgentCore Runtime and poll until it reaches ACTIVE status
-def setup_runtime(image_uri, role_arn, account_id):
+def setup_runtime(image_uri, role_arn):
     step("Step 3/4: AgentCore — create runtime")
 
     client = boto3.client("bedrock-agentcore-control", region_name=REGION)
+
+    # Load only the required keys from .env — don't forward AWS creds or other local-only vars
+    all_env = _load_env_file(ENV_FILE)
+    missing = [k for k in REQUIRED_ENV_VARS if k not in all_env]
+    if missing:
+        print(f"  WARNING: Missing env vars in sonic/.env: {', '.join(missing)}")
+    env_vars = {k: all_env[k] for k in REQUIRED_ENV_VARS if k in all_env}
+    print(f"  Loaded env vars from sonic/.env: {', '.join(env_vars.keys())}")
 
     try:
         resp = client.create_agent_runtime(
@@ -113,6 +139,7 @@ def setup_runtime(image_uri, role_arn, account_id):
             roleArn=role_arn,
             networkConfiguration={"networkMode": "PUBLIC"},
             protocolConfiguration={"serverProtocol": "HTTP"},
+            environmentVariables=env_vars,
         )
         runtime_id = resp["agentRuntimeId"]
         runtime_arn = resp["agentRuntimeArn"]
@@ -120,13 +147,26 @@ def setup_runtime(image_uri, role_arn, account_id):
     except Exception as e:
         # Fetch the existing runtime if it was already created by a previous deploy
         if "already exists" in str(e).lower() or "ConflictException" in type(e).__name__:
-            print("  Runtime already exists — fetching existing...")
+            print("  Runtime already exists — updating with new image and env vars...")
             runtimes = client.list_agent_runtimes()["agentRuntimes"]
             match = next((r for r in runtimes if r["agentRuntimeName"] == RUNTIME_NAME), None)
             if not match:
                 raise RuntimeError(f"Runtime '{RUNTIME_NAME}' exists but could not be listed")
             runtime_id = match["agentRuntimeId"]
             runtime_arn = match["agentRuntimeArn"]
+
+            client.update_agent_runtime(
+                agentRuntimeId=runtime_id,
+                agentRuntimeArtifact={
+                    "containerConfiguration": {
+                        "containerUri": image_uri,
+                    }
+                },
+                roleArn=role_arn,
+                networkConfiguration={"networkMode": "PUBLIC"},
+                environmentVariables=env_vars,
+            )
+            print(f"  Runtime updated: {runtime_id}")
         else:
             raise
 
@@ -148,7 +188,7 @@ def setup_runtime(image_uri, role_arn, account_id):
     return runtime_id, runtime_arn
 
 # Step 4: Create a Cognito Identity Pool and a scoped IAM role so the browser can get temp creds
-def setup_cognito(account_id, runtime_arn):
+def setup_cognito(runtime_arn):
     step("Step 4/4: Cognito — create identity pool and browser role")
 
     cognito = boto3.client("cognito-identity", region_name=REGION)
@@ -182,13 +222,13 @@ def setup_cognito(account_id, runtime_arn):
         }],
     }
 
-    # Permission policy: scoped to InvokeAgentRuntime on this runtime only
+    # Permission policy: scoped to InvokeAgentRuntimeWithWebSocketStream on this runtime only
     permission_policy = {
         "Version": "2012-10-17",
         "Statement": [{
             "Effect": "Allow",
-            "Action": "bedrock-agentcore:InvokeAgentRuntime",
-            "Resource": runtime_arn,
+            "Action": "bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream",
+            "Resource": f"{runtime_arn}*", # Trailing * is required, AgentCore evaluates the ARN with a suffix
         }],
     }
 
@@ -221,7 +261,7 @@ def setup_cognito(account_id, runtime_arn):
         Roles={"unauthenticated": cognito_role_arn},
     )
 
-    print(f"  Cognito pool configured")
+    print("  Cognito pool configured")
     return pool_id
 
 def main():
@@ -232,9 +272,9 @@ def main():
 
     # Run all four setup steps in order
     image_uri = setup_ecr(account_id)
-    role_arn = setup_agent_role(account_id)
-    runtime_id, runtime_arn = setup_runtime(image_uri, role_arn, account_id)
-    pool_id = setup_cognito(account_id, runtime_arn)
+    role_arn = setup_agent_role()
+    runtime_id, runtime_arn = setup_runtime(image_uri, role_arn)
+    pool_id = setup_cognito(runtime_arn)
 
     # Save resource IDs for cleanup.py to reference later
     config = {
