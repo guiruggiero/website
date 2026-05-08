@@ -10,7 +10,7 @@ There are no automated tests or linters configured.
 Browser (GitHub Pages)          AWS us-west-2
 ──────────────────────          ──────────────────────────────────
 index.html                      Cognito Identity Pool (unauthenticated)
-sonic.js          ──get creds──▶  → temp AWS credentials
+sonic.js        ──get creds──▶   → temp AWS credentials
                 ──sign URL───▶  bedrock-agentcore SigV4
                 ══WebSocket══▶  AgentCore Runtime
                                   agentcore/server.py (FastAPI)

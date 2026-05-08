@@ -26,6 +26,7 @@ const elements = {
 // State
 let ws = null;
 let audioContext = null;
+let micStream = null;
 let audioPlaybackContext = null;
 let nextPlayTime = 0;
 let audioCarryover = null;
@@ -158,11 +159,7 @@ async function getCredentials() {
 
 // Decode base64 PCM audio and queue it for gapless playback
 async function playAudio(base64) {
-    // Initialize playback context on first chunk
-    if (!audioPlaybackContext) {
-        audioPlaybackContext = new AudioContext({sampleRate: OUTPUT_SAMPLE_RATE});
-        nextPlayTime = audioPlaybackContext.currentTime;
-    }
+    if (!audioPlaybackContext) return;
     if (audioPlaybackContext.state === "suspended") {
         await audioPlaybackContext.resume();
     }
@@ -221,10 +218,8 @@ function stopPlayback() {
 }
 
 // Capture microphone input and stream it as bidi_audio_input frames
-async function startMic() {
-    const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true},
-    });
+async function startMic(stream) {
+    micStream = stream;
 
     // Reuse pre-loaded AudioContext + worklet module, or create fresh
     if (_preAudioCtx && _workletReady) {
@@ -263,6 +258,10 @@ async function startMic() {
 
 // Close and reset the microphone AudioContext
 function stopMic() {
+    if (micStream) {
+        micStream.getTracks().forEach(t => t.stop());
+        micStream = null;
+    }
     if (audioContext) {
         audioContext.close();
         audioContext = null;
@@ -295,6 +294,14 @@ async function startSession() {
     setStatus("Connecting…");
 
     try {
+        // Acquire mic and create playback context immediately, needed for mobile browsers
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true},
+        });
+        audioPlaybackContext = new AudioContext({sampleRate: OUTPUT_SAMPLE_RATE});
+        await audioPlaybackContext.resume();
+        nextPlayTime = audioPlaybackContext.currentTime;
+
         // Resolve WebSocket URL, local override bypasses Cognito entirely
         let wsUrl;
         if (localWsUrl) {
@@ -306,8 +313,8 @@ async function startSession() {
             wsUrl = await ensureSignedUrl();
         }
 
-        // Start mic and WebSocket connection in parallel
-        const micPromise = startMic();
+        // Wire up mic worklet using the already-acquired stream
+        const micPromise = startMic(stream);
         ws = new WebSocket(wsUrl);
 
         const openPromise = new Promise((resolve, reject) => {
@@ -398,6 +405,7 @@ async function startSession() {
         setStatus("Error");
         elements.toggleBtn.disabled = false;
         stopMic();
+        stopPlayback();
     }
 }
 
