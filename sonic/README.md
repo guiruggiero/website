@@ -18,13 +18,13 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 ## Architecture
 
 ```
-GitHub Pages                    AWS (us-west-2)
-──────────────                  ──────────────────────────────
-index.html                      AgentCore Runtime
-  │  gets temp creds ──────→  Cognito Identity Pool (unauthenticated)
-  │  signs WebSocket URL ──→  bedrock-agentcore SigV4
+GitHub Pages                   AWS (us-west-2)
+──────────────                 ──────────────────────────────
+index.html                     AgentCore Runtime
+  │  gets temp creds ──────→ Cognito Identity Pool (unauthenticated)
+  │  signs WebSocket URL ──→ bedrock-agentcore SigV4
   └──────────────────────────→ /ws → BidiAgent → Nova Sonic
-                                       ↑ system prompt
+                                        ↑ system prompt
                                      Langfuse (us.cloud.langfuse.com)
 ```
 
