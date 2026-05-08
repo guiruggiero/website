@@ -60,7 +60,7 @@ def get_presigned_url(cognito_creds):
     )
     SigV4QueryAuth(creds, "bedrock-agentcore", REGION, expires=900).add_auth(request)
 
-    # Convert back to wss:// — request.url holds the path botocore actually signed over
+    # Convert back to wss://, request.url holds the path botocore signed over
     return request.url.replace("https://", "wss://")
 
 async def recv_loop(ws):
@@ -76,10 +76,10 @@ async def recv_loop(ws):
             suffix = "*" if data.get("is_final") else ""
             print(f"Transcript [{role}{suffix}]: {data.get('text', '')[:80]}")
         elif msg_type == "bidi_connection_start":
-            print("Bidi session established — connection verified")
+            print("Bidi session established - connection verified")
             return
         elif msg_type == "bidi_response_complete":
-            print("Response complete — session verified")
+            print("Response complete - session verified")
             return
         elif msg_type == "session_end":
             print("Session ended by agent")
@@ -112,7 +112,7 @@ async def test():
             try:
                 await asyncio.wait_for(recv_loop(ws), timeout=30)
             except asyncio.TimeoutError:
-                print("Timeout (30s) — closing")
+                print("Timeout (30s), closing")
 
     except websockets.exceptions.InvalidStatus as e:
         print(f"WS failed: HTTP {e.response.status_code}")

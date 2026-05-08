@@ -72,7 +72,7 @@ let _workletReady = false;
         _preAudioCtx = new AudioContext();
         await _preAudioCtx.audioWorklet.addModule("mic-processor.js");
         _workletReady = true;
-    } catch {/* browser may block without gesture — harmless */}
+    } catch {/* browser may block without gesture - harmless */}
 })();
 
 // Update the status indicator
@@ -324,7 +324,7 @@ async function startSession() {
 
         await Promise.all([micPromise, openPromise]);
 
-        // Both ready — send config and go live
+        // Both ready, send config and go live
         setStatus("Configuring agent…");
         ws.send(JSON.stringify({type: "config", voice: VOICE_ID}));
 
@@ -444,7 +444,7 @@ function start() {
 
     if (localWsUrl) {
         elements.localBar.style.display = "block";
-        elements.localBar.textContent = `Local dev mode — connecting to: ${localWsUrl}`;
+        elements.localBar.textContent = `Local dev mode - connecting to: ${localWsUrl}`;
     }
 }
 

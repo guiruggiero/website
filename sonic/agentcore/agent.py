@@ -3,12 +3,18 @@ import asyncio
 import functools
 import logging
 import os
+import re
+import smtplib
 import traceback
+from datetime import datetime
+from email.message import EmailMessage
+from zoneinfo import ZoneInfo
 from fastapi import WebSocket, WebSocketDisconnect
 from langfuse import Langfuse
+from strands import tool
 from strands.experimental.bidi.agent import BidiAgent
 from strands.experimental.bidi.models import BidiNovaSonicModel
-from strands.experimental.bidi.tools import stop_conversation
+from strands_tools import stop
 
 # Initializations
 logger = logging.getLogger(__name__)
@@ -17,8 +23,73 @@ REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 16000
 LANGFUSE_PROMPT_NAME = "GuiPT-Sonic"
-
 _langfuse: Langfuse | None = None
+PST = ZoneInfo("America/Los_Angeles")
+_EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+MAX_EMAILS_PER_SESSION = 2
+
+# Tool registrations via  Strands with docstrings as tool descriptions
+@tool
+def get_date_and_time() -> dict:
+    """Get the current date and time in PST timezone. Use when the user asks what day, date, or time it is."""
+    now = datetime.now(PST)
+    return {
+        "formattedTime": now.strftime("%I:%M %p"),
+        "date": now.strftime("%Y-%m-%d"),
+        "year": now.year,
+        "month": now.month,
+        "day": now.day,
+        "dayOfWeek": now.strftime("%A"),
+        "timezone": "PST",
+    }
+
+@tool
+def send_email(first_name: str, last_name: str, sender_email: str, message: str, agent: BidiAgent) -> str:
+    """Send an email to Gui on behalf of the user. Use when someone wants to send Gui a message.
+
+    Args:
+        first_name: The sender's first name.
+        last_name: The sender's last name.
+        sender_email: The sender's email address.
+        message: The message body to send.
+    """
+    # Per-session rate limit
+    if not hasattr(agent, "_emails_sent"):
+        agent._emails_sent = 0
+    if agent._emails_sent >= MAX_EMAILS_PER_SESSION:
+        return "Email limit reached for this session."
+
+    # Gmail SMTP credentials from environment
+    recipient = os.environ.get("EMAIL_GUI")
+    gmail_sender = os.environ.get("GMAIL_SENDER")
+    gmail_password = os.environ.get("GMAIL_APP_PASSWORD")
+    if not all([recipient, gmail_sender, gmail_password]):
+        return "Email service is not configured."
+
+    # Build the email
+    full_name = f"{first_name} {last_name}"
+    email = EmailMessage()
+    email["From"] = f"GuiPT Sonic <{gmail_sender}>"
+    email["To"] = recipient
+    email["Subject"] = f"New message from {full_name} via GuiPT Sonic"
+    if _EMAIL_REGEX.match(sender_email):  # only set Reply-To if valid email
+        email["Reply-To"] = f"{full_name} <{sender_email}>"
+
+    email.set_content(
+        f"<p>{message}</p><hr><p><strong>From:</strong> {full_name} &lt;{sender_email}&gt;</p>",
+        subtype="html",
+    )
+
+    # Send via Gmail SMTP
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(gmail_sender, gmail_password)
+            server.send_message(email)
+        agent._emails_sent += 1
+        return f"Email sent successfully to Gui from {full_name}."
+    except Exception as e:
+        logger.error("Failed to send email: %s", e)
+        return "Sorry, there was an error sending the email. Please try again."
 
 def init_langfuse():
     # Initialize the Langfuse client and warm the prompt cache at server startup
@@ -38,7 +109,7 @@ async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyn
         message = await websocket.receive_json()
 
         if message.get("type") == "config":
-            # Config can only be set once — reject re-configuration mid-session
+            # Config can only be set once, reject re-configuration mid-session
             await websocket.send_json({
                 "type": "system",
                 "message": "Configuration can only be set once per session. Reconnect to change settings.",
@@ -54,11 +125,10 @@ async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyn
         # Non-config, non-text messages (e.g. bidi_audio_input) return to agent.run()
         return message
 
-
 async def handle_websocket_session(websocket: WebSocket, send_output=None):
     output_fn = send_output or websocket.send_json
 
-    logger.info("New WebSocket connection — waiting for config event")
+    logger.info("New WebSocket connection - waiting for config event")
 
     try:
         # Block until the client sends a valid config event
@@ -67,7 +137,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
             return
 
         # Build and start the bidi agent
-        logger.info("Agent initialized — starting session")
+        logger.info("Agent initialized - starting session")
         await websocket.send_json({"type": "system", "message": "Configuration applied. Agent ready."})
 
         agent = _create_agent(config)
@@ -137,6 +207,6 @@ def _create_agent(config: dict) -> BidiAgent:
     return BidiAgent(
         model=model,
         system_prompt=system_prompt,
-        tools=[stop_conversation],
+        tools=[stop, get_date_and_time, send_email],
         # messages=[], # Conversation history
     )

@@ -23,7 +23,7 @@ def split_large_event(event_dict, max_size=MAX_WS_MESSAGE_SIZE):
     if len(event_json.encode("utf-8")) <= max_size:
         return [event_dict]
 
-    # Only audio events can be split — return others as-is even if oversized
+    # Only audio events can be split, return others as-is even if oversized
     if "audio" not in event_dict or not isinstance(event_dict["audio"], str):
         return [event_dict]
 
@@ -50,7 +50,7 @@ def split_large_event(event_dict, max_size=MAX_WS_MESSAGE_SIZE):
 
     return chunks
 
-# Background task handle — kept at module level so startup/shutdown can cancel it
+# Background task handle, kept at module level so startup/shutdown can cancel it
 _credential_refresh_task = None
 
 # Fetch the IMDSv2 session token needed to authenticate metadata requests
@@ -149,7 +149,7 @@ async def lifespan(app: FastAPI):
             logger.info("IMDS credentials loaded")
             _credential_refresh_task = asyncio.create_task(_refresh_credentials_loop())
         else:
-            logger.warning("IMDS unavailable — proceeding without explicit credentials")
+            logger.warning("IMDS unavailable - proceeding without explicit credentials")
 
     init_langfuse()
 
@@ -175,7 +175,7 @@ app.add_middleware(
 
 @app.get("/ping")
 async def ping():
-    # AgentCore health check — must return this exact shape
+    # AgentCore health check
     import time
     return JSONResponse({"status": "Healthy", "time_of_last_update": int(time.time())})
 

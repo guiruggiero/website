@@ -65,13 +65,13 @@ def delete_iam_role(role_name):
     step(f"Deleting IAM role: {role_name}")
     iam = boto3.client("iam")
     try:
-        # Detach managed policies before deletion — IAM rejects deleting a role with attachments
+        # Detach managed policies before deletion
         attached = iam.list_attached_role_policies(RoleName=role_name)["AttachedPolicies"]
         for p in attached:
             iam.detach_role_policy(RoleName=role_name, PolicyArn=p["PolicyArn"])
             print(f"  Detached: {p['PolicyArn']}")
 
-        # Delete inline policies before deletion — same constraint applies
+        # Delete inline policies before deletion
         inline = iam.list_role_policies(RoleName=role_name)["PolicyNames"]
         for name in inline:
             iam.delete_role_policy(RoleName=role_name, PolicyName=name)
@@ -99,7 +99,7 @@ def delete_ecr_repo():
 def main():
     config = load_config()
 
-    # Delete in reverse dependency order — runtime first, then Cognito, then IAM, then ECR
+    # Delete in reverse dependency order
     delete_runtime(config["runtime_id"])
     delete_cognito_pool(config["identity_pool_id"])
     delete_iam_role(COGNITO_ROLE_NAME)
