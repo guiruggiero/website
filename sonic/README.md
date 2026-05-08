@@ -81,11 +81,14 @@ Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` — the `?wsUrl=` para
 
 ## Step 2 — Deploy to AgentCore
 
-Create a `sonic/.env` file with the Langfuse keys (used by the container at runtime):
+Create a `sonic/.env` file with the Langfuse and email keys (used by the container at runtime):
 
 ```
 LANGFUSE_SECRET_KEY=sk-lf-...
 LANGFUSE_PUBLIC_KEY=pk-lf-...
+EMAIL_GUI="..."
+GMAIL_SENDER="..."
+GMAIL_APP_PASSWORD="..."
 ```
 
 Then deploy:

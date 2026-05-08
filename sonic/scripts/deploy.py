@@ -6,6 +6,7 @@ import sys
 import time
 import os
 import base64
+import platform
 
 # Initializations
 REGION = "us-west-2"
@@ -28,6 +29,23 @@ def run(cmd, **kwargs):
     result = subprocess.run(cmd, check=True, **kwargs)
     return result
 
+# Checks for QEMU binfmt handlers and registers it automatically if missing 
+def _ensure_qemu_arm64():
+    if platform.machine() in ("arm64", "aarch64"):
+        return  # Native ARM host — no emulation needed
+
+    result = subprocess.run(
+        ["docker", "run", "--rm", "--platform", "linux/arm64",
+         "public.ecr.aws/docker/library/busybox:latest", "echo", "ok"],
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        return  # QEMU already working
+
+    print("  ARM64 emulation (QEMU) not detected — installing binfmt handlers...")
+    run(["docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "all"])
+    print("  QEMU ARM64 emulation registered")
+
 # Step 1: Create the ECR repo if needed, build the Docker image, and push it
 def setup_ecr(account_id):
     step("Step 1/4: ECR - build and push Docker image")
@@ -48,6 +66,9 @@ def setup_ecr(account_id):
     user, pwd = base64.b64decode(token["authorizationToken"]).decode().split(":", 1)
     run(["docker", "login", "--username", user, "--password-stdin", ecr_uri],
         input=pwd.encode(), capture_output=True)
+
+    # Ensure QEMU ARM64 emulation is available (needed on x86 hosts)
+    _ensure_qemu_arm64()
 
     # Build for linux/arm64
     run(["docker", "buildx", "build", "--platform", "linux/arm64",

@@ -71,7 +71,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
     email = EmailMessage()
     email["From"] = f"GuiPT Sonic <{gmail_sender}>"
     email["To"] = recipient
-    email["Subject"] = f"New message from {full_name} via GuiPT Sonic"
+    email["Subject"] = f"Message from {full_name}"
     if _EMAIL_REGEX.match(sender_email):  # only set Reply-To if valid email
         email["Reply-To"] = f"{full_name} <{sender_email}>"
 
