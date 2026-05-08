@@ -29,7 +29,7 @@
     "deploy": "npx firebase deploy --only functions:guipt,functions:guiwise",
     "deploy-guipt": "npx firebase deploy --only functions:guipt",
     "deploy-guiwise": "npx firebase deploy --only functions:guiwise",
-    "prompt-pull": "node --env-file=.env scripts/prompt.js pull",
-    "prompt-push": "node --env-file=.env scripts/prompt.js push"
+    "prompt-pull": "node --env-file=.env scripts/promptSync.js pull",
+    "prompt-push": "node --env-file=.env scripts/promptSync.js push"
   }
 }

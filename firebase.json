@@ -9,7 +9,7 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local",
-        "guipt-prompt.md",
+        "prompt.md",
         "scripts",
         "scripts/**"
       ],
