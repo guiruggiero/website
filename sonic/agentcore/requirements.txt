@@ -1,6 +1,6 @@
 uvicorn[standard]==0.46.0
 fastapi==0.136.1
-strands-agents[bidi]==1.38.0
+strands-agents[bidi]==1.39.0
 strands-agents-tools==0.5.2
 requests==2.33.1
 langfuse==4.5.1
