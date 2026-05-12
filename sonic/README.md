@@ -31,42 +31,46 @@ index.html                     AgentCore Runtime
 - `index.html`, `sonic.css`, `sonic.js` — pure static HTML/CSS/JS, deploy to GitHub Pages
 - `agentcore/` — Docker image, runs on AgentCore
 - `scripts/` — run once locally to create all AWS resources
-- `terminal/` — standalone terminal scripts for local Nova Sonic experiments
 
 ## Prerequisites
 
 - AWS account with Nova Sonic enabled in `us-west-2` (Bedrock Console → Model access → Amazon Nova → Enable)
-- Docker with `docker buildx` support — on Linux install Docker Engine (`curl -fsSL https://get.docker.com | sh`); on Windows use WSL2 Docker Engine (same command inside WSL2)
+- Docker with `docker buildx` support — install Docker Engine (`curl -fsSL https://get.docker.com | sh`)
 - Python 3.11+
 
-## Step 1 — Local test
+Run all commands from the `sonic/` directory.
+
+Set up the virtualenv and install dependencies for both the agent and deploy scripts:
 
 ```bash
-# Linux
-python3 -m venv .venv && source .venv/bin/activate
+python -m venv .venv && source .venv/bin/activate
+python -m pip install -r agentcore/requirements.txt -r scripts/requirements.txt
+```
 
-# Windows PowerShell
-python -m venv .venv-win && .venv-win\Scripts\activate
+Add the following `export` lines to the end of `sonic/.venv/bin/activate` so they're set automatically every time you activate the venv:
 
-python -m pip install -r agentcore/requirements.txt
-python -m pip install "strands-agents[bidi]"
-
-# Linux
+```bash
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_DEFAULT_REGION="us-west-2"
 export LANGFUSE_SECRET_KEY=...
 export LANGFUSE_PUBLIC_KEY=...
+```
 
-# Windows PowerShell
-$env:AWS_ACCESS_KEY_ID = "..."
-$env:AWS_SECRET_ACCESS_KEY = "..."
-$env:AWS_DEFAULT_REGION = "us-west-2"
-$env:LANGFUSE_SECRET_KEY = "..."
-$env:LANGFUSE_PUBLIC_KEY = "..."
+Then create a `sonic/.env` file with the Langfuse and email keys (used by the deployed container at runtime):
 
-cd agentcore
-python server.py # starts on port 8080
+```
+LANGFUSE_SECRET_KEY=sk-lf-...
+LANGFUSE_PUBLIC_KEY=pk-lf-...
+EMAIL_GUI="..."
+GMAIL_SENDER="..."
+GMAIL_APP_PASSWORD="..."
+```
+
+## Step 1 — Local test
+
+```bash
+python agentcore/server.py # starts on port 8080
 ```
 
 In a second terminal, serve the client from `sonic/`:
@@ -81,22 +85,8 @@ Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` — the `?wsUrl=` para
 
 ## Step 2 — Deploy to AgentCore
 
-Create a `sonic/.env` file with the Langfuse and email keys (used by the container at runtime):
-
-```
-LANGFUSE_SECRET_KEY=sk-lf-...
-LANGFUSE_PUBLIC_KEY=pk-lf-...
-EMAIL_GUI="..."
-GMAIL_SENDER="..."
-GMAIL_APP_PASSWORD="..."
-```
-
-Then deploy:
-
 ```bash
-cd scripts
-python -m pip install -r requirements.txt
-python deploy.py
+python scripts/deploy.py
 ```
 
 This takes 10–15 minutes on first run (re-deploys are faster — it updates the existing runtime). It will:
@@ -131,7 +121,7 @@ The trailing `*` on the resource is required — AgentCore evaluates the ARN wit
 
 ## Step 3 — Configure and deploy client
 
-Paste the two constants into the `CONFIG` block at the top of `sonic.js`, then deploy `index.html`, `sonic.css`, and `sonic.js` the website.
+Paste the two constants into the `CONFIG` block at the top of `sonic.js`, then deploy `index.html`, `sonic.css`, and `sonic.js` to the website.
 
 You can also change `VOICE_ID` in the same block to customise the agent's personality.
 
@@ -140,8 +130,7 @@ You can also change `VOICE_ID` in the same block to customise the agent's person
 **Quick check — IAM credentials (test_ws.py)**
 
 ```bash
-cd scripts
-python test_ws.py
+python scripts/test_ws.py
 ```
 
 This generates a SigV4-presigned URL using your local AWS credentials and attempts a WebSocket connection. A successful run prints `WebSocket connected!`. The HTTPS 400 line before it is expected — it's a diagnostic probe that hits the WebSocket endpoint with a plain HTTP GET to capture the raw server response.
@@ -149,10 +138,18 @@ This generates a SigV4-presigned URL using your local AWS credentials and attemp
 **Full browser simulation — Cognito flow (test_cognito_ws.py)**
 
 ```bash
-python test_cognito_ws.py
+python scripts/test_cognito_ws.py
 ```
 
 This replicates the exact browser flow: Cognito unauthenticated identity → OpenID token → STS role assumption → SigV4-signed WebSocket URL. It then runs a real session — sends `config`, waits for the agent's opening greeting, and exits after `bidi_response_complete`. Use this to confirm the end-to-end path works before testing in the browser.
+
+In a second terminal, serve the client from `sonic/`:
+
+```bash
+python -m http.server 8001 --bind 0.0.0.0
+```
+
+Open `http://127.0.0.1:8001`, click **Start Session**, and speak.
 
 ## Step 5 — Cleanup
 
