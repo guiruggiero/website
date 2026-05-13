@@ -132,6 +132,10 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
     return;
   }
 
+  // Get chat history
+  const chatHistory = request.body?.history || [];
+  let failedStep = "langfuseFetch";
+
   try {
     // Get model prompt
     const promptResponse = await langfuse.prompt.get("GuiPT", {
@@ -144,9 +148,6 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
       prompt: instructions.slice(0, 200),
     });
 
-    // Get chat history
-    const chatHistory = request.body?.history || [];
-
     // Initialize chat
     const chat = ai.chats.create({
       ...modelConfig,
@@ -157,6 +158,7 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
       history: chatHistory,
     });
 
+    failedStep = "geminiCall";
     Sentry.logger.info("[3] Ready for Gemini call", {sanitizedMessage});
 
     // Call Gemini API
@@ -167,7 +169,17 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
 
     response.status(200).type("text/plain").send(guiptResponse);
   } catch (error) {
-    Sentry.captureException(error);
+    Sentry.captureException(error, {
+      contexts: {
+        requestDetails: {
+          failedStep,
+          sanitizedMessage,
+          historyLength: chatHistory.length,
+          errorStatus: error.status ?? null,
+          errorCode: error.code ?? null,
+        },
+      },
+    });
 
     response.status(500).json({
       errorName: error.name,

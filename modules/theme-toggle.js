@@ -2,7 +2,12 @@
 const langData = (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).default;
 
 // Initialization
-let preferredTheme = localStorage.getItem("themePreference") || "dark";
+let preferredTheme = "dark";
+try {
+    preferredTheme = localStorage.getItem("themePreference") || "dark";
+} catch {
+    // localStorage blocked, keep default
+}
 
 // Update icons and ARIA label
 function updateIcons(theme) {
@@ -69,7 +74,11 @@ function setupThemeToggle() {
 
         // Update icons and save the new theme preference
         updateIcons(preferredTheme);
-        localStorage.setItem("themePreference", preferredTheme);
+        try {
+            localStorage.setItem("themePreference", preferredTheme);
+        } catch {
+            // localStorage blocked, preference not persisted
+        }
 
         // Notify other listeners of the theme change
         globalThis.dispatchEvent(new CustomEvent("themechange", {detail: {theme: preferredTheme}}));
