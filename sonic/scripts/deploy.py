@@ -32,7 +32,7 @@ def run(cmd, **kwargs):
 # Checks for QEMU binfmt handlers and registers it automatically if missing 
 def _ensure_qemu_arm64():
     if platform.machine() in ("arm64", "aarch64"):
-        return  # Native ARM host — no emulation needed
+        return  # Native ARM host - no emulation needed
 
     result = subprocess.run(
         ["docker", "run", "--rm", "--platform", "linux/arm64",
@@ -42,7 +42,7 @@ def _ensure_qemu_arm64():
     if result.returncode == 0:
         return  # QEMU already working
 
-    print("  ARM64 emulation (QEMU) not detected — installing binfmt handlers...")
+    print("  ARM64 emulation (QEMU) not detected - installing binfmt handlers...")
     run(["docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "all"])
     print("  QEMU ARM64 emulation registered")
 
