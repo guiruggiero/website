@@ -1,5 +1,5 @@
-uvicorn[standard]==0.47.0
-fastapi==0.136.1
+uvicorn[standard]==0.48.0
+fastapi==0.136.3
 strands-agents[bidi]==1.41.0
 strands-agents-tools==0.6.0
 requests==2.34.2
