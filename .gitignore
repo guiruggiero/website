@@ -1,6 +1,6 @@
 node_modules/
 firebase-debug.log
-guipt-prompt.md
+prompt.md
 functions/scripts/*.json
 .env
 .venv

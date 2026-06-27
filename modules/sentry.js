@@ -2,6 +2,13 @@ globalThis.sentryOnLoad = function() {
     // Initialization
     Sentry.init({
         environment: globalThis.location?.href.includes("ngrok") ? "dev" : "v1",
+        integrations: [
+            Sentry.replayIntegration({
+                maskAllText: false,
+                maskAllInputs: false,
+                blockAllMedia: false,
+            }),
+        ],
         beforeSend(event) {
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
             if (frames?.some(f =>

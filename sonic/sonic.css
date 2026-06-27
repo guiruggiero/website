@@ -90,7 +90,7 @@ h1 { font-size: 1.4rem; margin-bottom: 0.5rem; }
 .msg.assistant { color: #333; }
 .msg.system { color: #999; font-style: italic; font-size: 0.8rem; }
 
-/* Local-dev override bar — hidden by default, shown when ?wsUrl= is set */
+/* Local-dev override bar, hidden by default */
 #localBar {
     display: none;
     background: #fef3c7;

@@ -9,7 +9,7 @@ import {LangfuseClient} from "@langfuse/client";
 // ESM path resolution
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PROMPT_FILE = path.join(__dirname, "..", "guipt-prompt.md");
+const PROMPT_FILE = path.join(__dirname, "..", "prompt.md");
 
 // Langfuse client
 const langfuse = new LangfuseClient({
@@ -18,7 +18,7 @@ const langfuse = new LangfuseClient({
   baseUrl: "https://us.cloud.langfuse.com",
 });
 
-// Pull: download production prompt from Langfuse and write to guipt-prompt.md
+// Pull: download production prompt from Langfuse and write to prompt.md
 const pull = async () => {
   // Read current local content before overwriting
   let localContent = null;
@@ -43,10 +43,10 @@ const pull = async () => {
   }
 
   writeFileSync(PROMPT_FILE, res.prompt);
-  console.log(`Pulled version ${res.version} to guipt-prompt.md`);
+  console.log(`Pulled version ${res.version} to prompt.md`);
 };
 
-// Push: upload guipt-prompt.md to Langfuse as a new version (not production)
+// Push: upload prompt.md to Langfuse as a new version (not production)
 const push = async () => {
   const content = readFileSync(PROMPT_FILE, "utf-8");
   const res = await langfuse.prompt.create({
@@ -56,7 +56,7 @@ const push = async () => {
     labels: [], // omit "production"
   });
   console.log(
-    `Pushed guipt-prompt.md as version ${res.version} (not production)`,
+    `Pushed prompt.md as version ${res.version} (not production)`,
   );
 };
 
@@ -64,4 +64,4 @@ const push = async () => {
 const command = process.argv[2];
 if (command === "pull") await pull();
 else if (command === "push") await push();
-else console.error("Usage: node scripts/prompt.js pull|push");
+else console.error("Usage: node scripts/promptSync.js pull|push");

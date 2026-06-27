@@ -6,6 +6,7 @@ import sys
 import time
 import os
 import base64
+import platform
 
 # Initializations
 REGION = "us-west-2"
@@ -28,9 +29,26 @@ def run(cmd, **kwargs):
     result = subprocess.run(cmd, check=True, **kwargs)
     return result
 
+# Checks for QEMU binfmt handlers and registers it automatically if missing 
+def _ensure_qemu_arm64():
+    if platform.machine() in ("arm64", "aarch64"):
+        return  # Native ARM host - no emulation needed
+
+    result = subprocess.run(
+        ["docker", "run", "--rm", "--platform", "linux/arm64",
+         "public.ecr.aws/docker/library/busybox:latest", "echo", "ok"],
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        return  # QEMU already working
+
+    print("  ARM64 emulation (QEMU) not detected - installing binfmt handlers...")
+    run(["docker", "run", "--privileged", "--rm", "tonistiigi/binfmt", "--install", "all"])
+    print("  QEMU ARM64 emulation registered")
+
 # Step 1: Create the ECR repo if needed, build the Docker image, and push it
 def setup_ecr(account_id):
-    step("Step 1/4: ECR — build and push Docker image")
+    step("Step 1/4: ECR - build and push Docker image")
 
     ecr = boto3.client("ecr", region_name=REGION)
     ecr_uri = f"{account_id}.dkr.ecr.{REGION}.amazonaws.com"
@@ -49,7 +67,10 @@ def setup_ecr(account_id):
     run(["docker", "login", "--username", user, "--password-stdin", ecr_uri],
         input=pwd.encode(), capture_output=True)
 
-    # Build for linux/arm64 — AgentCore containers run on ARM
+    # Ensure QEMU ARM64 emulation is available (needed on x86 hosts)
+    _ensure_qemu_arm64()
+
+    # Build for linux/arm64
     run(["docker", "buildx", "build", "--platform", "linux/arm64",
          "-t", image_uri, os.path.abspath(WEBSOCKET_DIR)])
 
@@ -60,7 +81,7 @@ def setup_ecr(account_id):
 
 # Step 2: Create the IAM execution role that AgentCore will assume to run the container
 def setup_agent_role():
-    step("Step 2/4: IAM — create AgentCore execution role")
+    step("Step 2/4: IAM - create AgentCore execution role")
 
     iam = boto3.client("iam")
 
@@ -112,15 +133,15 @@ def _load_env_file(path):
     return env
 
 ENV_FILE = os.path.join(os.path.dirname(__file__), "..", ".env")
-REQUIRED_ENV_VARS = ["LANGFUSE_SECRET_KEY", "LANGFUSE_PUBLIC_KEY"]
+REQUIRED_ENV_VARS = ["LANGFUSE_SECRET_KEY", "LANGFUSE_PUBLIC_KEY", "EMAIL_GUI", "GMAIL_SENDER", "GMAIL_APP_PASSWORD"]
 
 # Step 3: Create the AgentCore Runtime and poll until it reaches ACTIVE status
 def setup_runtime(image_uri, role_arn):
-    step("Step 3/4: AgentCore — create runtime")
+    step("Step 3/4: AgentCore - create runtime")
 
     client = boto3.client("bedrock-agentcore-control", region_name=REGION)
 
-    # Load only the required keys from .env — don't forward AWS creds or other local-only vars
+    # Load only the required keys from .env
     all_env = _load_env_file(ENV_FILE)
     missing = [k for k in REQUIRED_ENV_VARS if k not in all_env]
     if missing:
@@ -147,7 +168,7 @@ def setup_runtime(image_uri, role_arn):
     except Exception as e:
         # Fetch the existing runtime if it was already created by a previous deploy
         if "already exists" in str(e).lower() or "ConflictException" in type(e).__name__:
-            print("  Runtime already exists — updating with new image and env vars...")
+            print("  Runtime already exists - updating with new image and env vars...")
             runtimes = client.list_agent_runtimes()["agentRuntimes"]
             match = next((r for r in runtimes if r["agentRuntimeName"] == RUNTIME_NAME), None)
             if not match:
@@ -170,7 +191,7 @@ def setup_runtime(image_uri, role_arn):
         else:
             raise
 
-    # Poll until ACTIVE — cold start typically takes 5-15 minutes
+    # Poll until ACTIVE, as cold start takes 5-15 minutes
     print("  Waiting for runtime to become ACTIVE (this may take 5-15 min)...")
     for attempt in range(90):
         detail = client.get_agent_runtime(agentRuntimeId=runtime_id)
@@ -189,7 +210,7 @@ def setup_runtime(image_uri, role_arn):
 
 # Step 4: Create a Cognito Identity Pool and a scoped IAM role so the browser can get temp creds
 def setup_cognito(runtime_arn):
-    step("Step 4/4: Cognito — create identity pool and browser role")
+    step("Step 4/4: Cognito - create identity pool and browser role")
 
     cognito = boto3.client("cognito-identity", region_name=REGION)
     iam = boto3.client("iam")

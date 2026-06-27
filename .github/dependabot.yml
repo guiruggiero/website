@@ -8,6 +8,18 @@ updates:
       day: saturday
       time: "00:00"
       timezone: America/Los_Angeles
+    groups:
+      version:
+        update-types:
+          - patch
+          - minor
+          - major
+      security:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+          - major
 
   - package-ecosystem: npm
     directories:
@@ -19,13 +31,12 @@ updates:
       time: "00:00"
       timezone: America/Los_Angeles
     groups:
-      new-versions:
-        applies-to: version-updates
+      version:
         update-types:
           - patch
           - minor
           - major
-      security-patches:
+      security:
         applies-to: security-updates
         update-types:
           - patch
@@ -41,3 +52,15 @@ updates:
       day: saturday
       time: "00:00"
       timezone: America/Los_Angeles
+    groups:
+      version:
+        update-types:
+          - patch
+          - minor
+          - major
+      security:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+          - major

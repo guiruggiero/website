@@ -7,6 +7,12 @@ const userLocale = navigator.language || navigator.userLanguage;
 const userLang = userLocale.split("-")[0];
 const displayLang = availableLangs.includes(userLang) ? userLang : defaultLang;
 
+// Fallback, make page visible even if locale import or translation fails
+const visibilityFallback = setTimeout(
+    () => document.documentElement.style.visibility = "visible",
+    3000,
+);
+
 // Load and export the language data
 const {default: langData} = await import(`../locales/${displayLang}.js`);
 export default { // Only what's needed for index's JS-based interface
@@ -38,6 +44,8 @@ function getTranslation(langData, key) {
 
 // Translate the page
 function translatePage() {
+    clearTimeout(visibilityFallback);
+
     // Update the html lang attribute
     document.documentElement.lang = displayLang;
     
@@ -69,4 +77,7 @@ if (displayLang !== defaultLang) {
     else translatePage(); // DOMContentLoaded already fired
 }
 // If not, make the page visible immediately
-else document.documentElement.style.visibility = "visible";
+else {
+    clearTimeout(visibilityFallback);
+    document.documentElement.style.visibility = "visible";
+}

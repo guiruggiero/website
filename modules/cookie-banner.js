@@ -9,7 +9,11 @@ function showCookieConsentBanner() {
 
     // Dismiss banner on button press and save consent
     cookieConsent.querySelector("button").addEventListener("pointerup", () => {
-        localStorage.setItem("cookieConsent", "true");
+        try {
+            localStorage.setItem("cookieConsent", "true");
+        } catch {
+            // localStorage blocked, consent not persisted
+        }
         cookieConsent.classList.remove("show");
     });
 
@@ -19,5 +23,10 @@ function showCookieConsentBanner() {
 }
 
 // Check for consent
-const hasConsent = localStorage.getItem("cookieConsent");
+let hasConsent = false;
+try {
+    hasConsent = localStorage.getItem("cookieConsent");
+} catch {
+    // localStorage blocked, treat as no consent
+}
 if (!hasConsent) showCookieConsentBanner(); // New banner if no consent given
