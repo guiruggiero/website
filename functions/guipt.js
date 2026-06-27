@@ -1,9 +1,25 @@
 // Imports
 import * as Sentry from "@sentry/node";
-import {GoogleGenAI} from "@google/genai";
+import {GoogleGenAI, FunctionCallingConfigMode} from "@google/genai";
 import {LangfuseClient} from "@langfuse/client";
 import sanitizeHtml from "sanitize-html";
 import {onRequest} from "firebase-functions/v2/https";
+import {
+  definition as getCurrentDateTimeDef,
+  handler as getCurrentDateTimeHandler,
+} from "./tools/getCurrentDateTime.js";
+import {
+  definition as sendEmailDef,
+  handler as sendEmailHandler,
+} from "./tools/sendEmail.js";
+import {
+  definition as getAvailableSlotsDef,
+  handler as getAvailableSlotsHandler,
+} from "./tools/getAvailableSlots.js";
+import {
+  definition as bookMeetingDef,
+  handler as bookMeetingHandler,
+} from "./tools/bookMeeting.js";
 
 // Initializations
 Sentry.init({
@@ -34,12 +50,32 @@ const modelConfig = {
   model: "gemini-flash-lite-latest",
   config: {
     maxOutputTokens: 400,
-    responseMimeType: "text/plain",
     safetySettings,
     thinkingConfig: {
       thinkingLevel: "minimal",
     },
+    tools: [{
+      functionDeclarations: [
+        getCurrentDateTimeDef,
+        sendEmailDef,
+        getAvailableSlotsDef,
+        bookMeetingDef,
+      ],
+    }],
+    toolConfig: {
+      functionCallingConfig: {
+        mode: FunctionCallingConfigMode.AUTO,
+      },
+    },
   },
+};
+
+// Tool handler map
+const toolHandlers = {
+  [getCurrentDateTimeDef.name]: getCurrentDateTimeHandler,
+  [sendEmailDef.name]: sendEmailHandler,
+  [getAvailableSlotsDef.name]: getAvailableSlotsHandler,
+  [bookMeetingDef.name]: bookMeetingHandler,
 };
 
 // Sanitization options - removes all HTML tags/attributes
@@ -133,7 +169,8 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
   }
 
   // Get chat history
-  const chatHistory = request.body?.history || [];
+  const rawHistory = request.body?.history;
+  const chatHistory = Array.isArray(rawHistory) ? rawHistory : [];
   let failedStep = "langfuseFetch";
 
   try {
@@ -161,8 +198,39 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
     failedStep = "geminiCall";
     Sentry.logger.info("[3] Ready for Gemini call", {sanitizedMessage});
 
-    // Call Gemini API
-    const result = await chat.sendMessage({message: sanitizedMessage});
+    // Agentic loop — handles optional tool calls before the final response
+    let result = await chat.sendMessage({message: sanitizedMessage});
+    let emailsSent = 0;
+    let iterations = 0;
+    while (result.functionCalls?.length > 0 && iterations < 5) {
+      iterations++;
+      const toolCall = result.functionCalls[0];
+      const toolHandler = toolHandlers[toolCall.name];
+      if (!toolHandler) throw new Error(`Unknown tool: ${toolCall.name}`);
+
+      failedStep = "toolExecution";
+      Sentry.logger.info("[3a] Tool called", {toolName: toolCall.name});
+
+      let toolResult;
+      if (toolCall.name === sendEmailDef.name && emailsSent >= 1) {
+        toolResult = {error: "Email limit reached for this session"};
+      } else {
+        toolResult = await toolHandler(toolCall.args);
+        if (toolCall.name === sendEmailDef.name) emailsSent++;
+      }
+
+      failedStep = "geminiCall";
+      result = await chat.sendMessage({
+        message: [{
+          functionResponse: {
+            id: toolCall.id,
+            name: toolCall.name,
+            response: toolResult,
+          },
+        }],
+      });
+    }
+
     const guiptResponse = result.text;
 
     Sentry.logger.info("[4] GuiPT done", {guiptResponse});
