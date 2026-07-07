@@ -1,13 +1,23 @@
 // Imports
 import * as Sentry from "@sentry/node";
 import {onRequest} from "firebase-functions/v2/https";
+import axios from "axios";
 
 // Initializations
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   enableLogs: true,
 });
-const SPLITWISE_BASE = "https://secure.splitwise.com/api/v3.0";
+
+// Axios instance for Guiddleware
+const guiddlewareClient = axios.create({
+  baseURL: process.env.GUIDDLEWARE_URL,
+  timeout: 10000, // 10s
+  headers: {
+    "Authorization": `Bearer ${process.env.GUIDDLEWARE_SECRET_GUIWISE}`,
+    "Content-Type": "application/json",
+  },
+});
 
 // Allowed origins
 const allowedOrigins = [
@@ -23,7 +33,9 @@ const functionConfig = {
 };
 
 export const guiwise = onRequest(functionConfig, async (request, response) => {
-  Sentry.logger.info("[1] Guiwise started");
+  Sentry.logger.info("[1] Guiwise started", {
+    path: request.path, method: request.method,
+  });
 
   // Reject requests from unknown origins
   const origin = request.headers["origin"] || request.headers["referer"] || "";
@@ -36,55 +48,40 @@ export const guiwise = onRequest(functionConfig, async (request, response) => {
     return;
   }
 
-  // Get expense from request
-  const {description, amount} = request.body;
-  if (!description || !amount) {
-    Sentry.logger.error("[1b] Missing fields", {description, amount});
-
-    response.status(400).json({error: "Missing description or amount"});
-
-    await Sentry.flush(2000);
-    return;
-  }
-
-  // Build Splitwise expense object
-  const expense = {
-    cost: Number.parseFloat(amount).toFixed(2),
-    description,
-    currency_code: "USD",
-    group_id: 0, // Direct expense between users
-    split_equally: true,
-  };
-
-  Sentry.logger.info("[2] Expense object created", {
-    description,
-    amount: expense.cost,
-  });
-
+  // Thin proxy to Guiddleware: this function's only job is to hold the
+  // real GUIDDLEWARE_SECRET_GUIWISE server-side, since the website repo
+  // (and its built/minified JS) is public
   try {
-    const splitwiseResponse = await fetch(`${SPLITWISE_BASE}/create_expense`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.SPLITWISE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(expense),
+    let guiddlewareResponse;
+
+    if (request.method === "GET" && request.path === "/friends") {
+      guiddlewareResponse = await guiddlewareClient.get("/splitwise/friends");
+    } else if (request.method === "GET" && request.path === "/groups") {
+      guiddlewareResponse = await guiddlewareClient.get("/splitwise/groups");
+    } else if (request.method === "POST" &&
+      (request.path === "/" || request.path === "")) {
+      guiddlewareResponse = await guiddlewareClient.post(
+        "/splitwise/expenses", {...request.body, source: "Guiwise"});
+    } else {
+      response.status(404).json({error: "Not found"});
+
+      await Sentry.flush(2000);
+      return;
+    }
+
+    Sentry.logger.info("[2] Guiddleware responded", {
+      status: guiddlewareResponse.status,
     });
 
-    const data = await splitwiseResponse.json();
-
-    Sentry.logger.info("[3] Splitwise responded",
-      {status: splitwiseResponse.status});
-
-    response.status(splitwiseResponse.status).json(data);
+    response.status(guiddlewareResponse.status).json(guiddlewareResponse.data);
   } catch (error) {
     Sentry.captureException(error, {
-      extra: {description, amount},
+      extra: {path: request.path, method: request.method},
     });
 
-    response.status(502).json({error: error.message});
+    response.status(error.response?.status ?? 502)
+      .json(error.response?.data ?? {error: error.message});
   }
 
   await Sentry.flush(2000);
-  return;
 });

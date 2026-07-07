@@ -129,6 +129,185 @@ main {
 
                     .amount-wrapper input {padding-left: 28px}
 
+            /* Split-with multi-select (friends and groups) */
+            .multiselect {
+                position: relative;
+            }
+
+                .multiselect-control {
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 6px;
+                    width: 100%;
+                    padding: 8px 10px;
+                    border: 1.5px solid var(--guiwise-border);
+                    border-radius: 8px;
+                    background: var(--tertiary-bg-color);
+                    transition: border-color var(--guiwise-transition), box-shadow var(--guiwise-transition);
+                }
+
+                    .multiselect-control:focus-within {
+                        border-color: var(--guiwise-green);
+                        box-shadow: 0 0 0 3px var(--guiwise-green-focus);
+                    }
+
+                    .multiselect-control input {
+                        flex: 1;
+                        min-width: 90px;
+                        border: none;
+                        padding: 3px 2px;
+                        background: transparent;
+                    }
+
+                        .multiselect-control input:focus {
+                            box-shadow: none;
+                        }
+
+                .chips {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
+                }
+
+                    .chip {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 5px;
+                        padding: 4px 8px;
+                        border-radius: 999px;
+                        font-size: 13px;
+                        font-weight: 500;
+                        background: var(--guiwise-green-focus);
+                        color: var(--guiwise-green);
+                        white-space: nowrap;
+                    }
+
+                        .chip.chip-group {
+                            background: rgba(255, 255, 255, 0.08);
+                            color: var(--primary-text-color);
+                        }
+
+                        .chip button {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: none;
+                            border: none;
+                            color: inherit;
+                            cursor: pointer;
+                            padding: 0;
+                            font-size: 14px;
+                            line-height: 1;
+                            opacity: 0.7;
+                        }
+
+                            .chip button:hover {
+                                opacity: 1;
+                            }
+
+                .multiselect-dropdown {
+                    position: absolute;
+                    top: calc(100% + 6px);
+                    left: 0;
+                    right: 0;
+                    max-height: 220px;
+                    overflow-y: auto;
+                    background: var(--secondary-bg-color);
+                    border: 1px solid var(--guiwise-border);
+                    border-radius: 8px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                    z-index: 10;
+                }
+
+                    .dropdown-section-label {
+                        padding: 8px 12px 4px;
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: var(--secondary-text-color);
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .dropdown-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 9px 12px;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }
+
+                        .dropdown-item:hover,
+                        .dropdown-item.active {
+                            background: var(--tertiary-bg-color);
+                        }
+
+                        .dropdown-item.selected {
+                            color: var(--guiwise-green);
+                        }
+
+                        .dropdown-item .item-icon {
+                            font-size: 13px;
+                            opacity: 0.7;
+                        }
+
+                    .dropdown-empty {
+                        padding: 12px;
+                        font-size: 13px;
+                        color: var(--secondary-text-color);
+                    }
+
+            /* Uneven split */
+            .uneven-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                color: var(--secondary-text-color);
+                cursor: pointer;
+                margin-top: -8px;
+            }
+
+                .uneven-toggle input {
+                    width: auto;
+                }
+
+            .uneven-rows {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+                .uneven-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                    .uneven-row .uneven-name {
+                        flex: 1;
+                        font-size: 14px;
+                    }
+
+                    .uneven-row .amount-wrapper {
+                        width: 120px;
+                    }
+
+            .uneven-remaining {
+                font-size: 13px;
+                text-align: right;
+                color: var(--secondary-text-color);
+            }
+
+                .uneven-remaining.balanced {
+                    color: var(--guiwise-green);
+                }
+
+                .uneven-remaining.unbalanced {
+                    color: var(--guiwise-red);
+                }
+
             .btn-submit {
                 width: 100%;
                 padding: 13px;

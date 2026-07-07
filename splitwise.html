@@ -120,6 +120,28 @@
                         </div>
                     </div>
 
+                    <div class="field">
+                        <label for="splitSearch">Split with</label>
+
+                        <div class="multiselect" id="splitMultiselect">
+                            <div class="multiselect-control" id="splitControl">
+                                <div class="chips" id="splitChips"></div>
+                                <input type="text" id="splitSearch" placeholder="Just me — search to add people or a group" autocomplete="off">
+                            </div>
+                            <div class="multiselect-dropdown" id="splitDropdown" hidden></div>
+                        </div>
+                    </div>
+
+                    <label class="uneven-toggle" id="unevenToggleWrapper" hidden>
+                        <input type="checkbox" id="unevenToggle">
+                        <span>Split unevenly (custom amounts)</span>
+                    </label>
+
+                    <div class="field" id="unevenField" hidden>
+                        <div class="uneven-rows" id="unevenRows"></div>
+                        <div class="uneven-remaining" id="unevenRemaining"></div>
+                    </div>
+
                     <button class="btn-submit" id="submitBtn">
                         <span class="btn-icon">➕</span>
                         <span class="btn-text">Add expense</span>

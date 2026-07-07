@@ -10,7 +10,7 @@ Receives `{message, history}` (stateless — history is passed in from the clien
 
 ### Guiwise (`guiwise.js`)
 
-Receives `{description, amount}`, proxies to the Splitwise API (`POST /create_expense`) as a direct USD expense split, and returns the Splitwise API response as JSON. CORS restricted to `guiruggiero.com` and the ngrok dev URL; also enforces a server-side origin check (returns 403 for unknown origins). Required env vars (set in Firebase Console, never in source): `SPLITWISE_API_KEY`, `SENTRY_DSN`. Max 2 instances, 10-second timeout.
+A thin authenticated proxy to the shared Guiddleware service (`https://us-central1-guiruggiero.cloudfunctions.net/guiddleware`) — it holds no Splitwise business logic itself. Forwards based on path/method: `GET /friends` → Guiddleware's `/splitwise/friends`, `GET /groups` → `/splitwise/groups`, `POST /` (root) → `/splitwise/expenses` (with `source: "Guiwise"` stamped on, overriding anything the client sends). This exists specifically because the `website` repo is public — the real `GUIDDLEWARE_SECRET_GUIWISE` bearer token has to live server-side (a Firebase secret), never in committed/minified frontend JS. CORS restricted to `guiruggiero.com` and the ngrok dev URL; also enforces a server-side origin check (returns 403 for unknown origins). Required env vars (set in Firebase Console, never in source): `GUIDDLEWARE_URL`, `GUIDDLEWARE_SECRET_GUIWISE`, `SENTRY_DSN`. Max 2 instances, 10-second timeout.
 
 ### Firestore Logging
 
