@@ -6,3 +6,4 @@ functions/scripts/*.json
 .venv
 __pycache__
 setup_config.json
+.DS_Store
