@@ -4,8 +4,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: saturday
+      interval: monthly
       time: "00:00"
       timezone: America/Los_Angeles
     groups:
@@ -26,8 +25,7 @@ updates:
       - /
       - /functions
     schedule:
-      interval: weekly
-      day: saturday
+      interval: monthly
       time: "00:00"
       timezone: America/Los_Angeles
     groups:
@@ -48,8 +46,7 @@ updates:
       - /sonic/agentcore
       - /sonic/scripts
     schedule:
-      interval: weekly
-      day: saturday
+      interval: monthly
       time: "00:00"
       timezone: America/Los_Angeles
     groups:
