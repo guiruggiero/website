@@ -51,3 +51,7 @@ The `main` branch is for development; `live` is the pre-minification source; `li
 ## Sentry
 
 Errors logged to the `website` project (`WEBSITE-*` issue IDs).
+
+## SonarQube Cloud
+
+Project key `guiruggiero_website`.
