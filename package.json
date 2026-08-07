@@ -29,9 +29,9 @@
     "@html-eslint/eslint-plugin": "^0.64.0",
     "@html-eslint/parser": "^0.64.0",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "eslint": "^10.7.0",
-    "eslint-plugin-yml": "^3.6.0",
-    "globals": "^17.6.0",
+    "eslint": "^10.8.0",
+    "eslint-plugin-yml": "^3.7.0",
+    "globals": "^17.9.0",
     "http-server": "^14.1.1"
   },
   "scripts": {
