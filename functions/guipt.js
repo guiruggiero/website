@@ -24,6 +24,12 @@ import {
 // Initializations
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    databaseQueryData: false,
+  },
+  tracesSampleRate: 1.0,
   enableLogs: true,
 });
 const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
