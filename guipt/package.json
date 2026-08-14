@@ -1,6 +1,6 @@
 {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "name": "guipt",
+  "description": "Firebase Cloud Function for GuiPT",
   "type": "module",
   "engines": {
     "node": "22"
@@ -27,9 +27,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
-    "deploy": "npx firebase deploy --only functions:guipt,functions:guiwise",
+    "deploy": "npx firebase deploy --only functions:guipt",
     "deploy-guipt": "npx firebase deploy --only functions:guipt",
-    "deploy-guiwise": "npx firebase deploy --only functions:guiwise",
     "prompt-pull": "node --env-file=.env scripts/promptSync.js pull",
     "prompt-push": "node --env-file=.env scripts/promptSync.js push"
   }
