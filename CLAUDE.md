@@ -2,14 +2,14 @@
 
 ## Architecture
 
-This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`. The backend API is a Firebase Cloud Function in `functions/`.
+This is a **static vanilla JavaScript website** — no framework, no bundler, no transpilation. All JS is written as ES6 modules and loaded directly from HTML via `<script type="module">`. The backend API is a Firebase Cloud Function in `guipt/`.
 
 ### Pages and Modules
 
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with `noindex` meta tag
-- Internal/personal utility pages (`splitwise.html`, `onairsign.html`) with `noindex` meta tag and no GTM or Google Analytics
+- Internal/personal utility pages (`onairsign.html`) with `noindex` meta tag and no GTM or Google Analytics
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js`
 - `modules/` — ES6 modules:
   - `main.js` — Orchestrates chat: event listeners, turn flow, history management
@@ -22,7 +22,6 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `sentry.js` — Error tracking initialization
   - `cookie-banner.js` — Google Analytics consent
   - `redirect.js` — URL redirection helper
-  - `splitwise.js` — Guiwise expense form; calls the `guiwise` Firebase Cloud Function
 
 ### Dev vs. Production Loading
 

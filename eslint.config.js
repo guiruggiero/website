@@ -9,7 +9,7 @@ import eslintPluginYml from "eslint-plugin-yml";
 
 export default defineConfig([
     // Global configuration
-    {ignores: ["functions/**", "**/.venv*/**"]},
+    {ignores: ["guipt/**", "**/.venv*/**"]},
 
     // JavaScript configuration
     {

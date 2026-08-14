@@ -23,7 +23,7 @@ updates:
   - package-ecosystem: npm
     directories:
       - /
-      - /functions
+      - /guipt
     schedule:
       interval: monthly
       time: "00:00"

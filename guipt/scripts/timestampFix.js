@@ -1,5 +1,5 @@
 // Inspect and repair numeric `start` fields in Firestore chat logs
-// Usage (from functions/ directory):
+// Usage (from guipt/ directory):
 //   node scripts/timestamp-fix.js pull           → fetch and display all docs
 //   node scripts/timestamp-fix.js fix --dry-run  → preview fixes, no writes
 //   node scripts/timestamp-fix.js fix            → apply fixes (y/N prompt)
