@@ -1,8 +1,9 @@
 node_modules/
 firebase-debug.log
 prompt.md
-functions/scripts/*.json
+guipt/scripts/*.json
 .env
 .venv
 __pycache__
 setup_config.json
+.DS_Store

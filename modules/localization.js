@@ -13,19 +13,10 @@ const visibilityFallback = setTimeout(
     3000,
 );
 
-// Load and export the language data
-const {default: langData} = await import(`../locales/${displayLang}.js`);
-export default { // Only what's needed for index's JS-based interface
-    ...langData.index,
-    themeDark: langData.website.themeDark,
-    themeLight: langData.website.themeLight,
-    cookieConsent: langData.website.cookieConsent,
-};
-
 // Get the translation for a given key
-function getTranslation(langData, key) {
+function getTranslation(rawLangData, key) {
     // Retrive a nested translation
-    const translation = key.split(".").reduce((obj, k) => (obj?.[k]), langData);
+    const translation = key.split(".").reduce((obj, k) => (obj?.[k]), rawLangData);
 
     // Capture error with context
     if (!translation) {
@@ -43,16 +34,16 @@ function getTranslation(langData, key) {
 }
 
 // Translate the page
-function translatePage() {
+function translatePage(rawLangData) {
     clearTimeout(visibilityFallback);
 
     // Update the html lang attribute
     document.documentElement.lang = displayLang;
-    
+
     // Translate eligible elements
     document.querySelectorAll("[data-i18n]").forEach((element) => {
         const key = element.dataset.i18n;
-        const translation = getTranslation(langData, key);
+        const translation = getTranslation(rawLangData, key);
         if (translation) {
             if (element.tagName === "TITLE") element.textContent = translation;
             else if (element.tagName === "IFRAME") element.title = translation;
@@ -70,14 +61,31 @@ function translatePage() {
     document.documentElement.style.visibility = "visible";
 }
 
-// Add event listener only if translation is needed
-if (displayLang !== defaultLang) {
-    // Check if page is already loaded
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", translatePage); // Page is still loading
-    else translatePage(); // DOMContentLoaded already fired
-}
-// If not, make the page visible immediately
-else {
-    clearTimeout(visibilityFallback);
-    document.documentElement.style.visibility = "visible";
+// Load and expose the language data via an async function
+let langDataPromise = null;
+export function getLangData() {
+    if (!langDataPromise) {
+        langDataPromise = (async () => {
+            const {default: rawLangData} = await import(`../locales/${displayLang}.js`);
+
+            // Add event listener only if translation is needed
+            if (displayLang !== defaultLang) {
+                if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => translatePage(rawLangData)); // Page is still loading
+                else translatePage(rawLangData); // DOMContentLoaded already fired
+            }
+            // If not, make the page visible immediately
+            else {
+                clearTimeout(visibilityFallback);
+                document.documentElement.style.visibility = "visible";
+            }
+
+            return { // Only what's needed for index's JS-based interface
+                ...rawLangData.index,
+                themeDark: rawLangData.website.themeDark,
+                themeLight: rawLangData.website.themeLight,
+                cookieConsent: rawLangData.website.cookieConsent,
+            };
+        })();
+    }
+    return langDataPromise;
 }

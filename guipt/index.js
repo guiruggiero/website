@@ -8,6 +8,12 @@ import {onRequest} from "firebase-functions/v2/https";
 // Initializations
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
+  dataCollection: {
+    userInfo: false,
+    cookies: false,
+    databaseQueryData: false,
+  },
+  tracesSampleRate: 1.0,
   enableLogs: true,
 });
 const ai = new GoogleGenAI({apiKey: process.env.GEMINI_API_KEY});
@@ -34,7 +40,6 @@ const modelConfig = {
   model: "gemini-flash-lite-latest",
   config: {
     maxOutputTokens: 400,
-    responseMimeType: "text/plain",
     safetySettings,
     thinkingConfig: {
       thinkingLevel: "minimal",
@@ -133,7 +138,8 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
   }
 
   // Get chat history
-  const chatHistory = request.body?.history || [];
+  const rawHistory = request.body?.history;
+  const chatHistory = Array.isArray(rawHistory) ? rawHistory : [];
   let failedStep = "langfuseFetch";
 
   try {
@@ -161,7 +167,6 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
     failedStep = "geminiCall";
     Sentry.logger.info("[3] Ready for Gemini call", {sanitizedMessage});
 
-    // Call Gemini API
     const result = await chat.sendMessage({message: sanitizedMessage});
     const guiptResponse = result.text;
 
