@@ -9,7 +9,7 @@ const UI = await importModule("./ui.min.js");
 const Validation = await importModule("./validation.min.js");
 const Firebase = await importModule("./firebase.min.js");
 const callGuiPT = (await importModule("./guipt.min.js")).default;
-const langData = (await importModule("./localization.min.js")).default;
+const langData = await (await importModule("./localization.min.js")).getLangData();
 
 // Initializations
 let turnCount = 0;
