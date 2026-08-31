@@ -129,7 +129,7 @@ async def _refresh_credentials_loop():
         except asyncio.CancelledError:
             raise
         except Exception as e:
-            logger.error("Credential refresh error: %s", e)
+            logger.exception("Credential refresh error: %s", e)
             await asyncio.sleep(300)
 
 @asynccontextmanager

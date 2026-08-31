@@ -88,7 +88,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
         agent._emails_sent += 1
         return f"Email sent successfully to Gui from {full_name}."
     except Exception as e:
-        logger.error("Failed to send email: %s", e)
+        logger.exception("Failed to send email: %s", e)
         return "Sorry, there was an error sending the email. Please try again."
 
 def init_langfuse():
@@ -164,7 +164,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
         if "InvalidStateError" in type(e).__name__ or "CANCELLED" in str(e):
             logger.warning("Ignoring CRT cleanup error")
         else:
-            logger.error("Session error: %s", type(e).__name__)
+            logger.exception("Session error: %s", type(e).__name__)
             traceback.print_exc()
             try:
                 await output_fn({"type": "error", "message": str(e)})

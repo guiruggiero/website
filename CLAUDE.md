@@ -38,13 +38,14 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 ## Deployment Pipeline
 
 Pushing to the `live` branch triggers the minification workflow:
-1. HTML → html-minifier-next
-2. CSS → lightningcss-cli
-3. JS → terser (with source maps)
-4. Source maps uploaded to Sentry (before the delete step, since sourcemaps need the plain `.js` files and their content to still be present)
-5. Delete files not needed at runtime: `.github/`, `guipt/`, `sonic/agentcore/`, `sonic/scripts/`, the plain (non-`.min.js`) `modules/*.js` sources, and dev-only root files (`CLAUDE.md`, `package.json`, etc.) — any new backend-only or dev-only directory should be added to this list so its source doesn't leak into the public `live-min` branch
-6. Minified output force-pushed to `live-min` branch
-7. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
+1. `npm ci` installs the minifier CLI tools (`html-minifier-next`, `lightningcss-cli`, `terser`) as pinned root `devDependencies` — not `npm install -g ...@latest` — so version bumps go through Dependabot/`npm update` like any other dependency, reviewable before they ever touch a live deploy; `node_modules/.bin` is added to `$GITHUB_PATH` so the rest of the steps can call them by bare name
+2. HTML → html-minifier-next
+3. CSS → lightningcss-cli
+4. JS → terser (with source maps)
+5. Source maps uploaded to Sentry (before the delete step, since sourcemaps need the plain `.js` files and their content to still be present)
+6. Delete files not needed at runtime: `.github/`, `guipt/`, `sonic/agentcore/`, `sonic/scripts/`, `node_modules/` (created by step 1 — must be removed here since `.gitignore` itself is also deleted, so it's no longer around to keep it out of the commit), the plain (non-`.min.js`) `modules/*.js` sources, and dev-only root files (`CLAUDE.md`, `package.json`, etc.) — any new backend-only or dev-only directory should be added to this list so its source doesn't leak into the public `live-min` branch
+7. Minified output force-pushed to `live-min` branch
+8. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
 
 The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com.
 
