@@ -3,7 +3,7 @@
   "description": "Firebase Cloud Function for GuiPT",
   "type": "module",
   "engines": {
-    "node": "22"
+    "node": "24"
   },
   "private": true,
   "main": "index.js",
