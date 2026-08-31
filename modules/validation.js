@@ -6,7 +6,7 @@ export function sanitizeInput(input) {
     return input
         .replace(/\s+/g, " ") // Normalize whitespace
         .trim() // Remove whitespace from both ends
-        .replace(/<[^>]*?>/g, ""); // Remove HTML tags
+        .replace(/<[^>]{0,1000}>/g, ""); // Remove HTML tags
 }
 
 // Assess guardrails

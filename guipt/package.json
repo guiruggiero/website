@@ -3,7 +3,7 @@
   "description": "Firebase Cloud Function for GuiPT",
   "type": "module",
   "engines": {
-    "node": "22"
+    "node": "24"
   },
   "private": true,
   "main": "index.js",
@@ -23,6 +23,10 @@
     "eslint-config-google": "^0.14.0",
     "firebase-tools": "^15.23.0",
     "globals": "^17.6.0"
+  },
+  "overrides": {
+    "uuid": ">=11.1.1",
+    "qs": ">=6.16.0"
   },
   "scripts": {
     "lint": "eslint .",

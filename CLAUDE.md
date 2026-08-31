@@ -17,7 +17,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `guipt.js` — API call to the GuiPT Cloud Function with axios + retry
   - `firebase.js` — Firestore Lite logging (`createLog`, `logTurn`)
   - `validation.js` — Input sanitization, length check, rate limiting (5 msg/min)
-  - `localization.js` — i18n, auto-detects browser locale
+  - `localization.js` — i18n, auto-detects browser locale; exposes an async `getLangData()` (not a top-level-await default export — that pattern caused an intermittent WebKit TDZ error, see WEBSITE-23) that callers `await`
   - `theme-toggle.js` — Dark/light mode, persisted in localStorage
   - `sentry.js` — Error tracking initialization
   - `cookie-banner.js` — Google Analytics consent
@@ -38,14 +38,26 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 ## Deployment Pipeline
 
 Pushing to the `live` branch triggers the minification workflow:
-1. HTML → html-minifier-next
-2. CSS → lightningcss-cli
-3. JS → terser (with source maps)
-4. Source maps uploaded to Sentry
-5. Minified output force-pushed to `live-min` branch
-6. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
+1. `npm ci` installs the minifier CLI tools (`html-minifier-next`, `lightningcss-cli`, `terser`) as pinned root `devDependencies` — not `npm install -g ...@latest` — so version bumps go through Dependabot/`npm update` like any other dependency, reviewable before they ever touch a live deploy; `node_modules/.bin` is added to `$GITHUB_PATH` so the rest of the steps can call them by bare name
+2. HTML → html-minifier-next
+3. CSS → lightningcss-cli
+4. JS → terser (with source maps)
+5. Source maps uploaded to Sentry (before the delete step, since sourcemaps need the plain `.js` files and their content to still be present)
+6. Delete files not needed at runtime: `.github/`, `guipt/`, `sonic/agentcore/`, `sonic/scripts/`, `node_modules/` (created by step 1 — must be removed here since `.gitignore` itself is also deleted, so it's no longer around to keep it out of the commit), the plain (non-`.min.js`) `modules/*.js` sources, and dev-only root files (`CLAUDE.md`, `package.json`, etc.) — any new backend-only or dev-only directory should be added to this list so its source doesn't leak into the public `live-min` branch
+7. Minified output force-pushed to `live-min` branch
+8. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
 
 The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com.
+
+### Syncing `main` into `live`
+
+`main` and `live` have diverged commit histories (past syncs went through squash-merged PRs), so `git push origin main:live` is rejected as non-fast-forward even when the two branches' file contents already match. Don't force-push to reconcile them. Instead, open a PR with base `live` and head `main`, then merge it with a regular merge commit (`gh pr merge <number> --merge`) — not squash or rebase, to preserve history. Before merging, `git diff --stat origin/live origin/main` is worth a look to confirm nothing surprising is riding along.
+
+Name the sync PR for its actual content, not the mechanical action — e.g. `Weekly update`, `Bump dependencies`, or (for a large mixed batch) `Too many changes/updates accumulated to list`, not a generic title like "Sync main into live".
+
+The SonarCloud check on these PRs can fail on pre-existing findings unrelated to the sync itself (e.g. Dockerfile or Python findings in `sonic/agentcore/`) — it isn't a required check, so a failure there doesn't block merging; confirm via `sonarqube-code-scanning` that the findings predate the sync before merging anyway.
+
+`guipt/` is deployed independently and separately from this pipeline (`npm run deploy` from within `guipt/`, using whatever is on local disk — not tied to git state). Never let `guipt/index.js` reference files that aren't committed to git (e.g. an in-progress `tools/`/`utils/` addition) — it'll deploy fine from local disk, but leaves `main` broken for a fresh clone and creates drift between what's committed and what's actually running in production.
 
 ## Sentry
 

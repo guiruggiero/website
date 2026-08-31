@@ -5,10 +5,10 @@ WORKDIR /app
 
 RUN pip install --upgrade pip \
     && apt-get update && apt-get install -y \
-    gcc \
     g++ \
-    make \
+    gcc \
     git \
+    make \
     portaudio19-dev \
     && rm -rf /var/lib/apt/lists/*
 
