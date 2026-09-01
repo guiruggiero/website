@@ -9,6 +9,7 @@ const cloudFunctionURL = "https://us-central1-guiruggiero.cloudfunctions.net/gui
 axiosRetry(axios, {
     retries: 2, // Retry attempts
     retryDelay: axiosRetry.exponentialDelay, // 1s then 2s between retries
+    shouldResetTimeout: true, // Give each retry its own full timeout window
     retryCondition: (error) => { // Only retry on network, timeout, or 5xx errors
         return axiosRetry.isNetworkOrIdempotentRequestError(error) ||
                error.code === "ECONNABORTED" || // Explicit timeout retry (axios-retry v4+ excludes timeouts)
