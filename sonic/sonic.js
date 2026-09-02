@@ -63,6 +63,24 @@ function ensureSignedUrl() {
     return _signedUrlPromise;
 }
 
+// Pre-warm: idle WebSocket connection (opened eagerly, reused on click to skip the connect round-trip)
+let _wsPromise = null;
+
+function ensureWebSocket() {
+    if (!_wsPromise) {
+        _wsPromise = (async () => {
+            const url = localWsUrl || await ensureSignedUrl();
+            const socket = new WebSocket(url);
+            await new Promise((resolve, reject) => {
+                socket.onopen = resolve;
+                socket.onerror = () => reject(new Error("Pre-warm WebSocket connection failed"));
+            });
+            return socket;
+        })().catch(() => null); // Harmless if it fails, startSession() opens a fresh one
+    }
+    return _wsPromise;
+}
+
 // Pre-warm: AudioWorklet module (loaded at page idle, reused on click)
 let _preAudioCtx = null;
 let _workletReady = false;
@@ -302,25 +320,27 @@ async function startSession() {
         await audioPlaybackContext.resume();
         nextPlayTime = audioPlaybackContext.currentTime;
 
-        // Resolve WebSocket URL, local override bypasses Cognito entirely
-        let wsUrl;
-        if (localWsUrl) {
-            wsUrl = localWsUrl;
-        } else {
-            if (COGNITO_IDENTITY_POOL_ID.includes("REPLACE") || RUNTIME_WSS_BASE.includes("REPLACE")) {
-                throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into sonic.js");
-            }
-            wsUrl = await ensureSignedUrl();
+        // Local override bypasses Cognito entirely, otherwise the agent must be deployed first
+        if (!localWsUrl && (COGNITO_IDENTITY_POOL_ID.includes("REPLACE") || RUNTIME_WSS_BASE.includes("REPLACE"))) {
+            throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into sonic.js");
         }
 
         // Wire up mic worklet using the already-acquired stream
         const micPromise = startMic(stream);
-        ws = new WebSocket(wsUrl);
 
-        const openPromise = new Promise((resolve, reject) => {
-            ws.onopen = resolve;
-            ws.onerror = () => reject(new Error("WebSocket connection failed"));
-        });
+        // Reuse the pre-warmed idle connection if it's still open, otherwise open a fresh one
+        const preWarmed = await ensureWebSocket();
+        let openPromise;
+        if (preWarmed?.readyState === WebSocket.OPEN) {
+            ws = preWarmed;
+            openPromise = Promise.resolve();
+        } else {
+            ws = new WebSocket(localWsUrl || await ensureSignedUrl());
+            openPromise = new Promise((resolve, reject) => {
+                ws.onopen = resolve;
+                ws.onerror = () => reject(new Error("WebSocket connection failed"));
+            });
+        }
 
         await Promise.all([micPromise, openPromise]);
 
@@ -335,10 +355,10 @@ async function startSession() {
                 case "bidi_audio_stream":
                     if (sessionStartTime) {
                         const elapsed = ((performance.now() - sessionStartTime) / 1000).toFixed(3);
-                        addMessage(`UPL: ${elapsed}s`, "system");
+                        addMessage(`Session start TTFA: ${elapsed}s`, "system");
                         sessionStartTime = null;
                     }
-                    setStatus("Speaking…");
+                    setStatus("Active");
                     await playAudio(data.audio);
                     break;
 
@@ -356,11 +376,11 @@ async function startSession() {
 
                 case "bidi_interruption":
                     stopPlayback();
-                    setStatus("Listening…");
+                    setStatus("Active");
                     break;
 
                 case "bidi_response_complete":
-                    setStatus("Listening…");
+                    setStatus("Active");
                     break;
 
                 case "system":
@@ -397,7 +417,7 @@ async function startSession() {
         elements.textInput.disabled = false;
         elements.sendBtn.disabled = false;
         elements.textInput.focus();
-        setStatus("Listening…");
+        setStatus("Active");
         addMessage("Session started", "system");
 
     } catch (error) {
@@ -452,7 +472,7 @@ function start() {
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
 else start();
 
-// Kick off credential + URL pre-warming (non-blocking, runs in background)
-if (!localWsUrl && !COGNITO_IDENTITY_POOL_ID.includes("REPLACE")) {
-    ensureSignedUrl();
+// Kick off WebSocket pre-warming (non-blocking, runs in background - also warms credentials + signed URL)
+if (localWsUrl || !COGNITO_IDENTITY_POOL_ID.includes("REPLACE")) {
+    ensureWebSocket();
 }

@@ -9,7 +9,8 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with `noindex` meta tag
-- Internal/personal utility pages (`onairsign.html`) with `noindex` meta tag and no GTM or Google Analytics
+- Internal/personal utility pages (`onairsign.html`) with `noindex` meta tag
+- Admin pages (`admin.html`, `admin-firestore.html`) — see [Admin Area](#admin-area)
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js`
 - `modules/` — ES6 modules:
   - `main.js` — Orchestrates chat: event listeners, turn flow, history management
@@ -22,6 +23,9 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `sentry.js` — Error tracking initialization
   - `cookie-banner.js` — Google Analytics consent
   - `redirect.js` — URL redirection helper
+  - `admin-auth.js` — Firebase Auth gate for the admin pages
+  - `admin-status.js` — Service health cards on `admin.html`
+  - `admin-firestore.js` — Chat log viewer on `admin-firestore.html`
 
 ### Dev vs. Production Loading
 
@@ -34,6 +38,32 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 ### Linting
 
 ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline does not run lint automatically — it only minifies and deploys.
+
+## Admin Area
+
+`admin.html` (service health) and `admin-firestore.html` (chat log viewer) sit behind two independent gates:
+
+1. **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both pages via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths). Same email policy as `onairsign.html`
+2. **Firebase Auth** — Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally: `firestore.rules` grants `read` and `delete` only to the owner's UID, so without it the viewer just gets `PERMISSION_DENIED`
+
+Both pages deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only.
+
+`modules/admin-firestore.js` uses the **full** Firestore SDK rather than the Lite build in `modules/firebase.js`, because it needs `getDocs` queries and `deleteDoc`. It reuses the app instance exported by `admin-auth.js` instead of initializing a second one. Chat text is rendered with `textContent`, never `innerHTML` — those strings are unsanitized input from anonymous visitors.
+
+### Chat Log Schema
+
+```
+{v1|dev}/{chatID}
+  origin: string
+  start: Timestamp
+  turnCount: number
+  duration: number    // Minutes, and only written from turn 2 onward — single-turn chats have no duration
+  turns: {"1": {user, model}, "2": {user, model}, ...}   // Keys are stringified numbers, so they need a numeric sort
+```
+
+### Firestore Rules
+
+`firestore.rules` is the source of truth, deployed with `firebase deploy --only firestore:rules`. It keeps chat logging working for anonymous visitors (`create` and `update` on the `v1` and `dev` collections) while restricting `read` and `delete` to the owner's UID. Deleting a chat from the viewer is permanent — no undo, no soft-delete flag.
 
 ## Deployment Pipeline
 

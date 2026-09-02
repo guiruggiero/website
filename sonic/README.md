@@ -43,8 +43,8 @@ Run all commands from the `sonic/` directory.
 In WSL, set up the virtualenv and install dependencies for both the agent and deploy scripts:
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-python -m pip install -r agentcore/requirements.txt -r scripts/requirements.txt
+python3 -m venv .venv && source .venv/bin/activate
+python3 -m pip install -r agentcore/requirements.txt -r scripts/requirements.txt
 ```
 
 Add the following `export` lines to the end of `sonic/.venv/bin/activate` so they're set automatically every time you activate the venv:
@@ -72,13 +72,13 @@ GMAIL_APP_PASSWORD="..."
 In one terminal in WSL, run the server:
 
 ```bash
-python agentcore/server.py # starts on port 8080
+python3 agentcore/server.py # starts on port 8080
 ```
 
 In a second terminal, serve the client from `sonic/`:
 
 ```bash
-python -m http.server 8001 --bind 0.0.0.0
+python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
 Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing. Click **Start Session** and speak.
@@ -90,7 +90,7 @@ Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parame
 In the WSL terminal, deploy to AgentCore:
 
 ```bash
-python scripts/deploy.py
+python3 scripts/deploy.py
 ```
 
 This takes 10–15 minutes on first run (re-deploys are faster - it updates the existing runtime). It will:
@@ -136,7 +136,7 @@ Run these commands in the WSL terminal.
 **Quick check - IAM credentials (test_ws.py)**
 
 ```bash
-python scripts/test_ws.py
+python3 scripts/test_ws.py
 ```
 
 This generates a SigV4-presigned URL using your local AWS credentials and attempts a WebSocket connection. A successful run prints `WebSocket connected!`. The HTTPS 400 line before it is expected - it's a diagnostic probe that hits the WebSocket endpoint with a plain HTTP GET to capture the raw server response.
@@ -144,7 +144,7 @@ This generates a SigV4-presigned URL using your local AWS credentials and attemp
 **Full browser simulation - Cognito flow (test_cognito_ws.py)**
 
 ```bash
-python scripts/test_cognito_ws.py
+python3 scripts/test_cognito_ws.py
 ```
 
 This replicates the exact browser flow: Cognito unauthenticated identity → OpenID token → STS role assumption → SigV4-signed WebSocket URL. It then runs a real session - sends `config`, waits for the agent's opening greeting, and exits after `bidi_response_complete`. Use this to confirm the end-to-end path works before testing in the browser.
@@ -154,7 +154,7 @@ This replicates the exact browser flow: Cognito unauthenticated identity → Ope
 In the second terminal, serve the client from `sonic/`:
 
 ```bash
-python -m http.server 8001 --bind 0.0.0.0
+python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
 Open `http://127.0.0.1:8001`, click **Start Session**, and speak.
@@ -162,7 +162,7 @@ Open `http://127.0.0.1:8001`, click **Start Session**, and speak.
 ## Cleanup
 
 ```bash
-python scripts/cleanup.py
+python3 scripts/cleanup.py
 ```
 
 Deletes the AgentCore Runtime, Cognito pool, and IAM roles. Asks before deleting the ECR repository.
