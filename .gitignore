@@ -1,9 +1,0 @@
-node_modules/
-firebase-debug.log
-prompt.md
-guipt/scripts/*.json
-.env
-.venv
-__pycache__
-setup_config.json
-.DS_Store
