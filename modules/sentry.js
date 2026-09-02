@@ -3,6 +3,7 @@ globalThis.sentryOnLoad = function() {
     Sentry.init({
         environment: globalThis.location?.href.includes("ngrok") ? "dev" : "v1",
         dataCollection: {},
+        enableLogs: true,
         integrations: [
             Sentry.replayIntegration({
                 maskAllText: false,
