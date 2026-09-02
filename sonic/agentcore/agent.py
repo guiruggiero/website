@@ -138,23 +138,30 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
         # Build and start the bidi agent
         logger.info("Agent initialized - starting session")
-        await websocket.send_json({"type": "system", "message": "Configuration applied. Agent ready."})
+        await websocket.send_json({"type": "system", "message": "Configuration applied, agent ready"})
 
         agent = _create_agent(config)
 
         agent_ready = asyncio.Event()
         ws_input = functools.partial(_handle_websocket_input, websocket, agent, agent_ready)
 
+        # Relay Nova Sonic's session ID to the client once the model captures it
+        async def _send_session_id():
+            await agent.model.session_id_ready.wait()
+            await output_fn({"type": "system", "message": f"Session ID: {agent.model.session_id}"})
+
         # agent.run() manages start/stop internally, stop on exit even an exception
         try:
             run_task = asyncio.create_task(
                 agent.run(inputs=[ws_input], outputs=[output_fn])
             )
+            session_id_task = asyncio.create_task(_send_session_id())
             await agent_ready.wait()
             await agent.send("Hello")
             await run_task
             await output_fn({"type": "session_end"}) # signal clean stop before close
         finally:
+            session_id_task.cancel()
             await agent.stop()
 
     except WebSocketDisconnect:
@@ -187,6 +194,21 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
         logger.warning("Expected config event first, got: %s", message.get("type"))
         await websocket.send_json({"type": "system", "message": "Please send config event first"})
 
+# Nova Sonic model subclass that captures its own session ID; Strands doesn't surface it publicly
+class _SessionIdCapturingNovaSonicModel(BidiNovaSonicModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.session_id = None
+        self.session_id_ready = asyncio.Event()
+
+    def _convert_nova_event(self, nova_event):
+        if self.session_id is None:
+            session_id = (nova_event.get("completionStart") or nova_event.get("usageEvent") or {}).get("sessionId")
+            if session_id:
+                self.session_id = session_id
+                self.session_id_ready.set()
+        return super()._convert_nova_event(nova_event)
+
 # Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
     # Langfuse serves from local cache or fetches again
@@ -194,7 +216,7 @@ def _create_agent(config: dict) -> BidiAgent:
     system_prompt = prompt.compile()
     logger.info("System prompt fetched (Langfuse v%s)", prompt.version)
 
-    model = BidiNovaSonicModel(
+    model = _SessionIdCapturingNovaSonicModel(
         model_id=MODEL_ID,
         provider_config={"audio": {
             "input_rate": INPUT_SAMPLE_RATE,

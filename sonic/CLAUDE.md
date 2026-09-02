@@ -52,12 +52,13 @@ Received `bidi_audio_stream` audio is decoded from base64 → Int16 → Float32 
 
 ### Eager pre-loading
 
-On page load (before the user clicks Start), `sonic.js` kicks off three non-blocking tasks in the background:
+On page load (before the user clicks Start), `sonic.js` kicks off non-blocking tasks in the background:
 1. **Credentials** - `ensureCredentials()` fetches Cognito temp credentials via `_credentialPromise`.
 2. **Signed URL** - `ensureSignedUrl()` chains off credentials to pre-build the SigV4 WebSocket URL via `_signedUrlPromise`.
-3. **AudioWorklet** - `_workletReady` promise creates a silent `AudioContext` and calls `audioWorklet.addModule("mic-processor.js")` so the worklet module is already compiled when `startMic()` runs.
+3. **WebSocket** - `ensureWebSocket()` chains off the signed URL (or `localWsUrl` override) to open and hold an idle connection via `_wsPromise`, so the connect round-trip and AgentCore container boot happen before the click instead of during it. The server just waits for `config` - no agent or model work happens on this pre-warmed connection until the user actually starts a session. `startSession()` reuses it if still `OPEN`, otherwise opens a fresh one as a fallback.
+4. **AudioWorklet** - `_workletReady` promise creates a silent `AudioContext` and calls `audioWorklet.addModule("mic-processor.js")` so the worklet module is already compiled when `startMic()` runs.
 
-When `startSession()` is called, mic setup and the WebSocket connection are started in parallel (`Promise.all([micPromise, openPromise])`), then config is sent once both are ready.
+When `startSession()` is called, mic setup and the WebSocket connection (pre-warmed or fresh) are raced in parallel (`Promise.all([micPromise, openPromise])`), then config is sent once both are ready.
 
 ### System prompt
 
@@ -67,9 +68,13 @@ The agent's system prompt is fetched from Langfuse (prompt name `GuiPT-Sonic`) r
 
 After the server sends `"Configuration applied. Agent ready."`, `agent.py` waits for `agent.run()` to initialize (signalled by `agent_ready` event), then immediately calls `await agent.send("Hello")` so the agent speaks an opening greeting without waiting for user input.
 
-### UPL measurement
+### Nova Sonic session ID
 
-`sonic.js` records `performance.now()` at session start and logs the elapsed time (as a "UPL" system message) when the first `bidi_audio_stream` frame arrives. This measures the user-perceived latency from clicking Start to hearing the agent's first audio.
+Strands doesn't surface Nova Sonic's own session ID publicly, so `agent.py`'s `_SessionIdCapturingNovaSonicModel` overrides `_convert_nova_event` (a sync method) to peek at the raw `completionStart`/`usageEvent` payloads for `sessionId` and capture it once via `self.session_id` + an `asyncio.Event`. `handle_websocket_session` awaits that event in a background task and relays the ID to the client as a `system` message, so it shows up in the transcript like any other system message - no dedicated protocol type or `sonic.js` change needed. This is Nova Sonic's model-level session ID, unrelated to AgentCore's own `runtimeSessionId` header (which the browser can't set or read on a WebSocket handshake anyway).
+
+### Session start TTFA measurement
+
+`sonic.js` records `performance.now()` at session start and logs the elapsed time (as a "Session start TTFA" system message) when the first `bidi_audio_stream` frame arrives. This measures the time from clicking Start to the first audio byte arriving over the WebSocket - not full playback, and distinct from any future per-turn TTFA metric.
 
 ### Deploy artifacts
 
