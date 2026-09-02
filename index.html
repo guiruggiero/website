@@ -22,11 +22,19 @@
         <!-- Critical scripts -->
         <script>
             // Warm up the GuiPT Cloud Function ASAP (fire-and-forget)
+            const pingStart = Date.now();
             fetch("https://us-central1-guiruggiero.cloudfunctions.net/guipt", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({ping: true}),
-            }).catch(() => {});
+            }).then(response => {
+                // Sentry may not have finished loading yet; log only if it's ready
+                if (typeof Sentry !== "undefined" && Sentry.logger) Sentry.logger[response.ok ? "info" : "warn"](
+                    `[1c] Warm-up ping ${response.ok ? "succeeded" : "failed"} (${response.status}, ${Date.now() - pingStart}ms)`,
+                );
+            }).catch(error => {
+                if (typeof Sentry !== "undefined") Sentry.captureException(error);
+            });
 
             // Import scripts dynamically
             function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
