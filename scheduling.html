@@ -20,12 +20,12 @@
         <!-- Critical scripts -->
         <script>
             // Import scripts dynamically
-            function loadScript(baseName, {type = "module", defer, crossorigin, target = "head"} = {}) {
+            function loadScript(baseName, {type = "module", crossorigin, target = "head"} = {}) {
                 const script = document.createElement("script");
                 const isDev = globalThis.location.href.includes("ngrok");
                 script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
                 script.type = type;
-                if (defer) script.defer = true;
+                script.async = false; // Restore execution order (default is async)
                 if (crossorigin) script.crossorigin = crossorigin;
                 (target === "body" ? document.body : document.head).appendChild(script);
             }
@@ -127,6 +127,6 @@
         </footer>
 
         <!-- Other script -->
-        <script>loadScript("cookie-banner", {defer: true, target: "body"});</script>
+        <script>loadScript("cookie-banner", {target: "body"});</script>
     </body>
 </html>
