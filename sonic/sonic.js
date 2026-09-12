@@ -35,8 +35,9 @@ let pendingAgentTranscript = null; // Agent text and audio sync
 let sessionStartTime = null;
 
 // Local-dev override, bypass Cognito
+const isDev = globalThis.location?.href.includes("ngrok") || globalThis.location?.hostname === "localhost";
 const params = new URLSearchParams(globalThis.location?.search);
-const localWsUrl = params.get("wsUrl");
+const localWsUrl = isDev ? params.get("wsUrl") : null;
 
 // Pre-warm: credentials and signed URL (fetched eagerly at page load, cached for reuse)
 let _credPromise = null;
