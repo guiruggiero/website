@@ -35,9 +35,24 @@ let pendingAgentTranscript = null; // Agent text and audio sync
 let sessionStartTime = null;
 
 // Local-dev override, bypass Cognito
-const isDev = globalThis.location?.href.includes("ngrok") || globalThis.location?.hostname === "localhost";
+const isDev = globalThis.location?.hostname === "localhost" || globalThis.location?.hostname === "probable-firmly-gobbler.ngrok-free.app";
 const params = new URLSearchParams(globalThis.location?.search);
-const localWsUrl = isDev ? params.get("wsUrl") : null;
+
+// Prevent connection hijacking via a crafted "wsUrl" link
+function sanitizeLocalWsUrl(rawUrl) {
+    if (!isDev || !rawUrl) return null;
+    let parsed;
+    try {
+        parsed = new URL(rawUrl);
+    } catch {
+        return null;
+    }
+    const isLoopbackHost = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+    if (parsed.protocol !== "ws:" || !isLoopbackHost) return null;
+    return parsed.href;
+}
+
+const localWsUrl = sanitizeLocalWsUrl(params.get("wsUrl"));
 
 // Pre-warm: credentials and signed URL (fetched eagerly at page load, cached for reuse)
 let _credPromise = null;
