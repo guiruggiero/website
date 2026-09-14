@@ -7,3 +7,4 @@ guipt/scripts/*.json
 __pycache__
 setup_config.json
 .DS_Store
+firestore.rules

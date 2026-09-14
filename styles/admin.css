@@ -1,0 +1,345 @@
+@import "global.css";
+
+/* Status dot colors, readable against both themes */
+:root {
+    --status-up-color: #22c55e;
+    --status-down-color: #ef4444;
+    --status-unknown-color: #9ca3af;
+}
+
+/* Shared buttons */
+.primary-button {
+    background-color: var(--accent-color);
+    color: #ffffffd9;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+    .primary-button:hover {
+        opacity: 0.8;
+    }
+
+    .primary-button:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+.text-button {
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 0.9em;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+    .text-button:hover {
+        color: var(--accent-color);
+    }
+
+main {
+    padding-bottom: 20px;
+}
+
+    /* Sign-in gate, centered under the fixed header */
+    #auth-overlay[hidden] {
+        display: none;
+    }
+
+    #auth-overlay {
+        width: 100%;
+        min-height: calc(100dvh - 120px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+    }
+
+        .auth-error {
+            color: var(--status-down-color);
+            font-size: 0.9em;
+            min-height: 1.2em;
+        }
+
+    #admin-content {
+        width: 100%;
+        padding-top: 20px;
+    }
+
+        .admin-nav {
+            display: flex;
+            gap: 16px;
+            font-size: 0.95em;
+            margin-bottom: 20px;
+        }
+
+            .admin-nav a {
+                color: var(--secondary-text-color);
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .admin-nav a:hover {
+                    color: var(--accent-color);
+                }
+
+            .admin-nav-current {
+                font-weight: 600;
+            }
+
+            .admin-nav-external {
+                margin-left: auto;
+            }
+
+        /* Service health cards - 2 columns at full width, 1 on narrow screens */
+        #service-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+            .service-card {
+                background-color: var(--secondary-bg-color);
+                border: 1px solid var(--media-border-color);
+                border-radius: 10px;
+                box-shadow: var(--media-item-shadow);
+                padding: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+                .card-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                    .status-dot {
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                        flex-shrink: 0;
+                        background-color: var(--status-unknown-color);
+                    }
+
+                        .status-dot[data-state="up"] {
+                            background-color: var(--status-up-color);
+                        }
+
+                        .status-dot[data-state="down"] {
+                            background-color: var(--status-down-color);
+                        }
+
+                        /* Nothing to poll, so neither up nor down applies */
+                        .status-dot[data-state="static"] {
+                            background-color: var(--secondary-text-color);
+                        }
+
+                        .status-dot[data-state="checking"] {
+                            animation: dot-pulse 1.2s ease-in-out infinite;
+                        }
+
+                    .card-header h2 {
+                        font-size: 1.05em;
+                        font-weight: 600;
+                    }
+
+                    .mock-badge {
+                        margin-left: auto;
+                        font-size: 0.7em;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                        color: var(--secondary-text-color);
+                        border: 1px solid var(--media-border-color);
+                        border-radius: 4px;
+                        padding: 2px 6px;
+                    }
+
+                .card-detail {
+                    font-size: 0.95em;
+                }
+
+                .card-note {
+                    font-size: 0.8em;
+                    color: var(--secondary-text-color);
+                    line-height: 1.4;
+                }
+
+                .card-stats {
+                    display: grid;
+                    grid-template-columns: auto 1fr;
+                    gap: 4px 12px;
+                    font-size: 0.9em;
+                }
+
+                    .card-stats dt {
+                        color: var(--secondary-text-color);
+                    }
+
+                .card-controls {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                    .card-controls button {
+                        flex: 1;
+                        background-color: var(--tertiary-bg-color);
+                        border: none;
+                        border-radius: 6px;
+                        padding: 8px;
+                        font-family: inherit;
+                        font-size: 0.8em;
+                        cursor: pointer;
+                    }
+
+                        .card-controls button:disabled {
+                            opacity: 0.4;
+                            cursor: default;
+                        }
+
+                .card-links {
+                    font-size: 0.85em;
+                    color: var(--secondary-text-color);
+                }
+
+                    .card-links a {
+                        color: var(--accent-color);
+                        text-decoration: none;
+                    }
+
+                        .card-links a:hover {
+                            text-decoration: underline;
+                        }
+
+        .last-refresh {
+            margin-top: 16px;
+            font-size: 0.8em;
+            color: var(--secondary-text-color);
+        }
+
+        /* Chat log filters */
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            margin-bottom: 16px;
+        }
+
+            .filters label {
+                font-size: 0.85em;
+                color: var(--secondary-text-color);
+            }
+
+            .filters select,
+            .filters input {
+                background-color: var(--secondary-bg-color);
+                border: 1px solid var(--media-border-color);
+                border-radius: 6px;
+                padding: 7px 10px;
+                font-family: inherit;
+                font-size: 0.9em;
+            }
+
+        .chat-status {
+            font-size: 0.85em;
+            color: var(--secondary-text-color);
+            min-height: 1.2em;
+            margin-bottom: 12px;
+        }
+
+        /* Conversation list */
+        #chat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+            .chat-row {
+                background-color: var(--secondary-bg-color);
+                border: 1px solid var(--media-border-color);
+                border-radius: 8px;
+            }
+
+                .chat-summary {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 12px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                }
+
+                    .chat-label {
+                        flex: 1;
+                    }
+
+                    .chat-id {
+                        font-size: 0.75em;
+                        color: var(--secondary-text-color);
+                        flex-shrink: 0;
+                    }
+
+                .turns {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
+                    padding: 0 12px 14px;
+                }
+
+                    .turn {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+                    }
+
+                        .turn-number {
+                            font-size: 0.75em;
+                            color: var(--secondary-text-color);
+                        }
+
+                        .turn-user,
+                        .turn-model {
+                            font-size: 0.9em;
+                            line-height: 1.45;
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                            white-space: pre-wrap;
+                            overflow-wrap: anywhere;
+                        }
+
+                        /* Same visual split as the chat window on the home page */
+                        .turn-user {
+                            background-color: var(--secondary-accent-color);
+                            align-self: flex-end;
+                            max-width: 85%;
+                        }
+
+                        .turn-model {
+                            background-color: var(--tertiary-bg-color);
+                            align-self: flex-start;
+                            max-width: 85%;
+                        }
+
+                    .turn-empty {
+                        font-size: 0.85em;
+                        color: var(--secondary-text-color);
+                    }
+
+@keyframes dot-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
