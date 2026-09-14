@@ -1,8 +1,5 @@
-// Service endpoints
-// TODO: swap in the runtime-server host once /health is deployed
-const GUIDO_HEALTH_URL = "https://REPLACE_WITH_RUNTIME_HOST/health";
-
 // Initializations
+const GUIDO_HEALTH_URL = "https://runtime.guiruggiero.com/guido-health";
 const REQUEST_TIMEOUT = 8000; // 8s
 
 // Paint a card's status dot and detail line
