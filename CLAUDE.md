@@ -23,7 +23,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `sentry.js` — Error tracking initialization
   - `cookie-banner.js` — Google Analytics consent
   - `redirect.js` — URL redirection helper
-  - `admin-auth.js` — Firebase Auth gate for the admin pages
+  - `admin-auth.js` — Firebase Auth gate for `admin-firestore.html`
   - `admin-status.js` — Service health cards on `admin.html`
   - `admin-firestore.js` — Chat log viewer on `admin-firestore.html`
 
@@ -31,9 +31,13 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 
 Scripts auto-detect the environment at runtime. On `localhost` or ngrok, `.js` modules are loaded; on production, `.min.js` is used. This means the file a page loads is determined by the script tag in the HTML — no webpack aliases or env flags.
 
+The same split applies one level down, when one module imports another: a static `import` would hardcode one extension, so cross-module imports instead go through an `importModule()` helper (see `main.js`, or `admin-firestore.js` importing `admin-auth.js`) that checks the URL for `ngrok` and picks `.js` or `.min.js` at runtime.
+
 ### Localization
 
 All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI text, add keys to both locale files. The language is auto-detected from `navigator.language`.
+
+`global.css` sets `html { visibility: hidden }` to avoid a flash of untranslated content; it's `localization.js` (pulled in by `theme-toggle.js`) that flips it back to visible once translation runs (or immediately, if the page's language already matches the default). Any new page must load `theme-toggle` or it renders permanently blank.
 
 ### Linting
 
@@ -41,14 +45,15 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 
 ## Admin Area
 
-`admin.html` (service health) and `admin-firestore.html` (chat log viewer) sit behind two independent gates:
+`admin.html` and `admin-firestore.html` live at the repo root, not in an `admin/` subdirectory — `minification.yml` globs HTML with `find . -maxdepth 1`, so anything nested there would ship to `live-min` unminified.
 
-1. **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both pages via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths). Same email policy as `onairsign.html`
-2. **Firebase Auth** — Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally: `firestore.rules` grants `read` and `delete` only to the owner's UID, so without it the viewer just gets `PERMISSION_DENIED`
+`admin.html` (service health) and `admin-firestore.html` sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both pages via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths), same email policy as `onairsign.html`.
+
+`admin-firestore.html` (chat log viewer) has a second gate on top: **Firebase Auth** — Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally: `firestore.rules` grants `read` only to the owner's UID, so without it the viewer just gets `PERMISSION_DENIED`. `admin.html` skips this gate — it never calls Firestore, so Zero Trust alone already fully restricts it.
 
 Both pages deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only.
 
-`modules/admin-firestore.js` uses the **full** Firestore SDK rather than the Lite build in `modules/firebase.js`, because it needs `getDocs` queries and `deleteDoc`. It reuses the app instance exported by `admin-auth.js` instead of initializing a second one. Chat text is rendered with `textContent`, never `innerHTML` — those strings are unsanitized input from anonymous visitors.
+`modules/admin-firestore.js` uses the **full** Firestore SDK rather than the Lite build in `modules/firebase.js`, because it needs `getDocs` queries. It reuses the app instance exported by `admin-auth.js` instead of initializing a second one. Chat text is rendered with `textContent`, never `innerHTML` — those strings are unsanitized input from anonymous visitors. The viewer is **read-only by design** — no delete button — each chat row shows its Firestore document ID so a chat can be found and deleted from the Firebase Console instead (`Ctrl+F` the ID there).
 
 ### Chat Log Schema
 
@@ -63,7 +68,9 @@ Both pages deliberately skip `shared-head.js`, since it injects GTM and the cook
 
 ### Firestore Rules
 
-`firestore.rules` is the source of truth, deployed with `firebase deploy --only firestore:rules`. It keeps chat logging working for anonymous visitors (`create` and `update` on the `v1` and `dev` collections) while restricting `read` and `delete` to the owner's UID. Deleting a chat from the viewer is permanent — no undo, no soft-delete flag.
+**The Firebase Console is the source of truth for the rules** — edited and deployed there directly, relying on the Console's own revision history instead of git. `firestore.rules` exists locally only as a gitignored scratch copy for review; it's never committed, never deployed via the CLI, and `firebase.json` has no `firestore` config pointing at it. This repo is public on GitHub, and the rules aren't something to publish.
+
+`create` and `update` are open to anonymous visitors on the `v1`/`dev` collections, but only if the document shape passes `reviewFieldsAreValidTypes()` (field types, string/map size caps) and only touches the expected keys — real validation, not just a collection-name check. `list`/`get` are restricted to the owner's UID, and `delete` is denied outright for everyone, always — deletion only ever happens from the Firebase Console, which bypasses rules entirely, so there's no delete path to secure on the client side at all.
 
 ## Deployment Pipeline
 
