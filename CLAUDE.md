@@ -54,6 +54,14 @@ Both pages deliberately skip `shared-head.js`, since it injects GTM and the cook
 
 `modules/admin-firestore.js` uses the **full** Firestore SDK rather than the Lite build in `modules/firebase.js`, because it needs `getDocs` queries. It reuses the app instance exported by `admin-auth.js` instead of initializing a second one. Chat text is rendered with `textContent`, never `innerHTML` — those strings are unsanitized input from anonymous visitors. The viewer is **read-only by design** — no delete button — each chat row shows its Firestore document ID so a chat can be found and deleted from the Firebase Console instead (`Ctrl+F` the ID there).
 
+### Service Health Dashboard
+
+`modules/admin-status.js` polls each service's health endpoint once on page load (no interval) and paints a status dot + detail line per card. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. On Air sign and Agendadô are placeholder/mock cards for now.
+
+### Firebase Sign-In
+
+`modules/admin-auth.js` uses a separate, more privileged Firebase Web API key than `modules/firebase.js`'s (Identity Toolkit access, not just Firestore) — restricted the same way, by API + HTTP referrer, in Google Cloud Console. Google sign-in itself is backed by its own OAuth 2.0 Client ID, also restricted there.
+
 ### Chat Log Schema
 
 ```
