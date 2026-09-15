@@ -17,6 +17,8 @@ const collectionPicker = document.getElementById("collection-picker");
 const startInput = document.getElementById("start-date");
 const endInput = document.getElementById("end-date");
 const loadButton = document.getElementById("load-chats");
+const presetButtons = document.querySelectorAll(".preset-button");
+const toggleAllButton = document.getElementById("toggle-all");
 const chatList = document.getElementById("chat-list");
 const statusLine = document.getElementById("chat-status");
 
@@ -102,6 +104,24 @@ function buildTurns(turns) {
     return turnsContainer;
 }
 
+// Copy a chat ID, the button confirms
+async function copyChatID(button, chatID) {
+    const originalText = button.textContent;
+
+    try {
+        await navigator.clipboard.writeText(chatID);
+        button.textContent = "Copied";
+
+    } catch {
+        // Denied or insecure context - not worth Sentry
+        button.textContent = "Copy failed";
+    }
+
+    setTimeout(() => {
+        button.textContent = originalText;
+    }, 1200);
+}
+
 // Build one collapsible chat row
 function buildChatRow(chat) {
     // <details> gives expand/collapse and keyboard support for free
@@ -111,26 +131,60 @@ function buildChatRow(chat) {
     const summary = document.createElement("summary");
     summary.className = "chat-summary";
 
-    const label = document.createElement("span");
-    label.className = "chat-label";
-    const startedAt = chat.start?.toDate?.();
-    label.textContent = [
-        startedAt ? startedAt.toLocaleString() : "Unknown start",
-        `${chat.turnCount ?? 0} turn${chat.turnCount === 1 ? "" : "s"}`,
-        formatDuration(chat.duration),
-        chat.origin ?? "unknown origin",
-    ].join(" · ");
-    summary.appendChild(label);
+    // Replaces the native marker, hidden in CSS
+    const chevron = document.createElement("span");
+    chevron.className = "chat-chevron";
+    chevron.setAttribute("aria-hidden", "true");
+    const chevronIcon = document.createElement("iconify-icon");
+    chevronIcon.setAttribute("icon", "ph:caret-right-bold");
+    chevron.appendChild(chevronIcon);
+    summary.appendChild(chevron);
 
-    // No delete here by design - copy this ID and Ctrl+F it in the Firebase Console instead
-    const idBadge = document.createElement("code");
-    idBadge.className = "chat-id";
-    idBadge.textContent = chat.id;
-    summary.appendChild(idBadge);
+    const startedAt = chat.start?.toDate?.();
+    const when = document.createElement("span");
+    when.className = "chat-when";
+    when.textContent = startedAt
+        ? startedAt.toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"})
+        : "Unknown start";
+    summary.appendChild(when);
+
+    const metrics = document.createElement("span");
+    metrics.className = "chat-metrics";
+    metrics.textContent = `${chat.turnCount ?? 0} turn${chat.turnCount === 1 ? "" : "s"} · ${formatDuration(chat.duration)}`;
+    summary.appendChild(metrics);
+
+    const origin = document.createElement("span");
+    origin.className = "chat-origin";
+    origin.textContent = chat.origin ?? "unknown origin";
+    summary.appendChild(origin);
+
+    // Chat ID for easy deletion in Firebase Console
+    const idButton = document.createElement("button");
+    idButton.type = "button";
+    idButton.className = "chat-id";
+    idButton.title = "Copy chat ID";
+    idButton.textContent = chat.id;
+    idButton.addEventListener("click", (event) => {
+        // Otherwise the click toggles the row
+        event.preventDefault();
+        event.stopPropagation();
+        copyChatID(idButton, chat.id);
+    });
+    summary.appendChild(idButton);
 
     row.appendChild(summary);
     row.appendChild(buildTurns(chat.turns));
     return row;
+}
+
+// Flip every row at once
+function toggleAllRows() {
+    const rows = chatList.querySelectorAll(".chat-row");
+    if (!rows.length) return;
+
+    const expanding = toggleAllButton.textContent === "Expand all";
+    for (const row of rows) row.open = expanding;
+    toggleAllButton.textContent = expanding ? "Collapse all" : "Expand all";
 }
 
 // Query and render the current filter selection
@@ -153,6 +207,8 @@ async function refreshChats() {
     loadButton.disabled = true;
     setStatus("Loading...");
     chatList.replaceChildren();
+    toggleAllButton.hidden = true;
+    toggleAllButton.textContent = "Expand all";
 
     try {
         const chats = await loadConversations(collectionName, startDate, endDate);
@@ -163,7 +219,10 @@ async function refreshChats() {
         }
 
         for (const chat of chats) chatList.appendChild(buildChatRow(chat));
-        setStatus(`${chats.length} chat${chats.length === 1 ? "" : "s"} in "${collectionName}"`);
+
+        const turnTotal = chats.reduce((total, chat) => total + (chat.turnCount ?? 0), 0);
+        setStatus(`${chats.length} chat${chats.length === 1 ? "" : "s"} · ${turnTotal} turn${turnTotal === 1 ? "" : "s"} in "${collectionName}"`);
+        toggleAllButton.hidden = false;
 
     } catch (error) {
         setStatus("Query failed, see Sentry for details");
@@ -181,18 +240,47 @@ async function refreshChats() {
     }
 }
 
-// Default to the last 30 days
-function setDefaultRange() {
+// Last N days, and light up the preset
+function setRange(days) {
     const today = new Date();
     const rangeStart = new Date(today);
-    rangeStart.setDate(rangeStart.getDate() - DEFAULT_RANGE_DAYS);
+    rangeStart.setDate(rangeStart.getDate() - days);
 
     startInput.value = toInputValue(rangeStart);
     endInput.value = toInputValue(today);
+
+    for (const button of presetButtons) {
+        button.setAttribute("aria-pressed", String(Number(button.dataset.days) === days));
+    }
+}
+
+// A manual edit no longer matches a preset
+function clearPresets() {
+    for (const button of presetButtons) button.setAttribute("aria-pressed", "false");
 }
 
 // Gate on sign-in, then load the default range
 await initAdminAuth();
-setDefaultRange();
+setRange(DEFAULT_RANGE_DAYS);
+
 loadButton.addEventListener("click", refreshChats);
+toggleAllButton.addEventListener("click", toggleAllRows);
+collectionPicker.addEventListener("change", refreshChats);
+
+// One click - set the range and query
+for (const button of presetButtons) {
+    button.addEventListener("click", async () => {
+        setRange(Number(button.dataset.days));
+        await refreshChats();
+    });
+}
+
+// Enter in a date field loads
+for (const input of [startInput, endInput]) {
+    input.addEventListener("change", clearPresets);
+    input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") refreshChats();
+    });
+}
+
 await refreshChats();

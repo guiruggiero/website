@@ -64,14 +64,21 @@
                     <button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
                 </div>
 
-                <button id="sign-out" class="text-button" type="button" hidden>Sign out</button>
+                <!-- Social links would go here on a public page -->
+                <div class="header-actions">
+                    <a href="https://console.firebase.google.com/u/0/project/guiruggiero/firestore/databases/-default-/data/~2Fv1" target="_blank" class="external-link">
+                        Firebase Console
+                        <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
+                    </a>
+
+                    <button id="sign-out" class="text-button" type="button" hidden>Sign out</button>
+                </div>
             </div>
         </header>
 
         <main>
             <!-- Second gate, on top of Cloudflare Zero Trust -->
             <section id="auth-overlay">
-                <h1>Admin</h1>
                 <button id="sign-in" class="primary-button" type="button">Sign in with Google</button>
                 <p id="auth-error" class="auth-error"></p>
             </section>
@@ -79,27 +86,42 @@
             <section id="admin-content" hidden>
                 <nav class="admin-nav">
                     <a href="admin.html">Service health</a>
-                    <span class="admin-nav-current">Chat logs</span>
-                    <a href="https://console.firebase.google.com/u/0/project/guiruggiero/firestore/databases/-default-/data" target="_blank" class="admin-nav-external">Firebase Console</a>
+                    <a href="admin-firestore.html" class="admin-nav-current" aria-current="page">Chat logs</a>
                 </nav>
 
                 <div class="filters">
-                    <label for="collection-picker">Collection</label>
-                    <select id="collection-picker">
-                        <option value="v1">v1 (production)</option>
-                        <option value="dev">dev (ngrok)</option>
-                    </select>
+                    <div class="filter-field">
+                        <label for="collection-picker">Collection</label>
+                        <select id="collection-picker">
+                            <option value="v1">v1 (production)</option>
+                            <option value="dev">dev (ngrok)</option>
+                        </select>
+                    </div>
 
-                    <label for="start-date">From</label>
-                    <input id="start-date" type="date">
+                    <div class="filter-field">
+                        <label for="start-date">From</label>
+                        <input id="start-date" type="date">
+                    </div>
 
-                    <label for="end-date">To</label>
-                    <input id="end-date" type="date">
+                    <div class="filter-field">
+                        <label for="end-date">To</label>
+                        <input id="end-date" type="date">
+                    </div>
+
+                    <!-- Quick ranges, counted back from today -->
+                    <div class="range-presets" role="group" aria-label="Quick date ranges">
+                        <button type="button" class="preset-button" data-days="7" aria-pressed="false">7d</button>
+                        <button type="button" class="preset-button" data-days="30" aria-pressed="false">30d</button>
+                        <button type="button" class="preset-button" data-days="90" aria-pressed="false">90d</button>
+                    </div>
 
                     <button id="load-chats" class="primary-button" type="button">Load</button>
                 </div>
 
-                <p id="chat-status" class="chat-status"></p>
+                <div class="results-bar">
+                    <p id="chat-status" class="chat-status" aria-live="polite"></p>
+                    <button id="toggle-all" class="text-button" type="button" hidden>Expand all</button>
+                </div>
 
                 <div id="chat-list"></div>
             </section>

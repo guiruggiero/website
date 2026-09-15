@@ -62,6 +62,16 @@
 
                     <button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
                 </div>
+
+                <!-- Social links would go here on a public page -->
+                <div class="header-actions">
+                    <span id="last-refresh" class="page-meta"></span>
+
+                    <button id="refresh" class="ghost-button" type="button">
+                        <iconify-icon icon="ph:arrows-clockwise-bold"></iconify-icon>
+                        Refresh
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -69,29 +79,60 @@
             <!-- No Firebase Auth gate - Zero Trust alone covers this page -->
             <section id="admin-content">
                 <nav class="admin-nav">
-                    <span class="admin-nav-current">Service health</span>
-                    <a href="https://guiruggiero.com/admin-firestore">Chat logs</a>
+                    <a href="admin.html" class="admin-nav-current" aria-current="page">Service health</a>
+                    <a href="admin-firestore.html">Chat logs</a>
                 </nav>
 
                 <div id="service-cards">
-                    <!-- GuiDo - polled live by admin-status.js -->
+                    <!-- GuiDo -->
                     <article class="service-card" id="card-guido">
-                        <header class="card-header">
-                            <span class="status-dot" data-state="unknown"></span>
+                        <!-- Not a <header> - global.css pins those to the top -->
+                        <div class="card-header">
                             <h2>GuiDo</h2>
-                        </header>
 
-                        <p class="card-detail">Not checked yet</p>
-                        <p class="card-note">WhatsApp assistant on runtime-server, under PM2</p>
+                            <span class="status-pill" data-state="unknown">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Unknown</span>
+                            </span>
+
+                            <a href="https://app.pm2.io/bucket/68d5437b519463db832f93b5/backend/overview/servers" target="_blank" class="card-link-icon" title="Open PM2" aria-label="Open PM2">
+                                <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
+                            </a>
+                        </div>
+
+                        <p class="card-detail" aria-live="polite">Not checked yet</p>
+                        <p class="card-note">WhatsApp assistant on runtime-server</p>
                     </article>
 
-                    <!-- On Air sign - reserved space only -->
+                    <!-- Claude Code Gateway -->
+                    <article class="service-card" id="card-gateway">
+                        <div class="card-header">
+                            <h2>Claude Code Gateway</h2>
+
+                            <span class="status-pill" data-state="unknown">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Unknown</span>
+                            </span>
+
+                            <a href="https://app.pm2.io/bucket/68d5437b519463db832f93b5/backend/overview/servers" target="_blank" class="card-link-icon" title="Open PM2" aria-label="Open PM2">
+                                <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
+                            </a>
+                        </div>
+
+                        <p class="card-detail" aria-live="polite">Not checked yet</p>
+                        <p class="card-note">Claude Code as a service on code-server</p>
+                    </article>
+
+                    <!-- On Air sign -->
                     <article class="service-card" id="card-onairsign">
-                        <header class="card-header">
-                            <span class="status-dot" data-state="unknown"></span>
+                        <div class="card-header">
                             <h2>On Air sign</h2>
-                            <span class="mock-badge">Mock</span>
-                        </header>
+
+                            <span class="status-pill" data-state="static">
+                                <span class="status-dot"></span>
+                                <span class="status-text">Mock</span>
+                            </span>
+                        </div>
 
                         <dl class="card-stats">
                             <dt>State</dt>
@@ -108,13 +149,6 @@
                             <button type="button" disabled>RED</button>
                         </div>
 
-                        <p class="card-note">
-                            Placeholder, nothing is fetched yet. The Pico serves plain HTTP on the LAN and this page is
-                            HTTPS, so the browser blocks /stats, /logs and /errors as mixed content - no CORS header on
-                            the Pico can change that. Revisit once the on-air-sign changes land. The links below still
-                            work from home, since a top-level navigation isn't mixed content.
-                        </p>
-
                         <p class="card-links">
                             <a href="http://192.168.0.209" target="_blank">Dashboard</a> ·
                             <a href="http://192.168.0.209/logs" target="_blank">Logs</a> ·
@@ -122,24 +156,7 @@
                             <a href="http://micropython.org/webrepl/?#192.168.0.209:8266" target="_blank">WebREPL</a>
                         </p>
                     </article>
-
-                    <!-- claudeCodeGateway - polled live by admin-status.js -->
-                    <article class="service-card" id="card-gateway">
-                        <header class="card-header">
-                            <span class="status-dot" data-state="unknown"></span>
-                            <h2>claudeCodeGateway</h2>
-                        </header>
-
-                        <p class="card-detail">Not checked yet</p>
-                        <p class="card-note">Claude Code as a service, on code-server</p>
-
-                        <p class="card-links">
-                            <a href="https://app.pm2.io" target="_blank">Open PM2</a>
-                        </p>
-                    </article>
                 </div>
-
-                <p id="last-refresh" class="last-refresh"></p>
             </section>
         </main>
 
