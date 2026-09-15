@@ -2,9 +2,9 @@
 import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
-// Duplicated from firebase.js to avoid pulling in Firestore Lite
+// Same project as firebase.js, but its own API key
 const firebaseConfig = {
-    apiKey: "AIzaSyDOa3qhxiNI_asmIo1In1UF_qNjO1qllBE",
+    apiKey: "AIzaSyCrOg_PuJ2VHCj5h8HLbOjk06QQFYMEF3g",
     authDomain: "guiruggiero.firebaseapp.com",
     projectId: "guiruggiero",
     storageBucket: "guiruggiero.firebasestorage.app",

@@ -70,7 +70,7 @@
             <section id="admin-content">
                 <nav class="admin-nav">
                     <span class="admin-nav-current">Service health</span>
-                    <a href="admin-firestore.html">Chat logs</a>
+                    <a href="https://guiruggiero.com/admin-firestore">Chat logs</a>
                 </nav>
 
                 <div id="service-cards">
@@ -123,15 +123,15 @@
                         </p>
                     </article>
 
-                    <!-- claudeCodeGateway - loopback-only, nothing for a browser to poll -->
+                    <!-- claudeCodeGateway - polled live by admin-status.js -->
                     <article class="service-card" id="card-gateway">
                         <header class="card-header">
-                            <span class="status-dot" data-state="static"></span>
+                            <span class="status-dot" data-state="unknown"></span>
                             <h2>claudeCodeGateway</h2>
                         </header>
 
-                        <p class="card-detail">Monitored via PM2</p>
-                        <p class="card-note">Bound to 127.0.0.1, unreachable from a browser by design</p>
+                        <p class="card-detail">Not checked yet</p>
+                        <p class="card-note">Claude Code as a service, on code-server</p>
 
                         <p class="card-links">
                             <a href="https://app.pm2.io" target="_blank">Open PM2</a>

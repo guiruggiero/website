@@ -9,7 +9,6 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 - `index.html` — Main page; loads the GuiPT AI chat interface
 - `resume.html` — Portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with `noindex` meta tag
-- Internal/personal utility pages (`onairsign.html`) with `noindex` meta tag
 - Admin pages (`admin.html`, `admin-firestore.html`) — see [Admin Area](#admin-area)
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js`
 - `modules/` — ES6 modules:
@@ -47,7 +46,7 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 
 `admin.html` and `admin-firestore.html` live at the repo root, not in an `admin/` subdirectory — `minification.yml` globs HTML with `find . -maxdepth 1`, so anything nested there would ship to `live-min` unminified.
 
-`admin.html` (service health) and `admin-firestore.html` sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both pages via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths), same email policy as `onairsign.html`.
+`admin.html` (service health) and `admin-firestore.html` sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both pages via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths), policy set to allow only the owner's email.
 
 `admin-firestore.html` (chat log viewer) has a second gate on top: **Firebase Auth** — Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally: `firestore.rules` grants `read` only to the owner's UID, so without it the viewer just gets `PERMISSION_DENIED`. `admin.html` skips this gate — it never calls Firestore, so Zero Trust alone already fully restricts it.
 
