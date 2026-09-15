@@ -7,6 +7,39 @@
     --status-unknown-color: #9ca3af;
 }
 
+/* Dashboard controls, where social links sit on public pages */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .page-meta {
+        font-size: 0.8em;
+        color: var(--secondary-text-color);
+        white-space: nowrap;
+    }
+
+    .external-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.85em;
+        color: var(--secondary-text-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        .external-link iconify-icon {
+            font-size: 14px;
+            color: inherit;
+        }
+
+        .external-link:hover,
+        .external-link:hover iconify-icon {
+            color: var(--accent-color);
+        }
+
 /* Shared buttons */
 .primary-button {
     background-color: var(--accent-color);
@@ -43,23 +76,56 @@
         color: var(--accent-color);
     }
 
+/* Secondary action, quieter than .primary-button */
+.ghost-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--secondary-bg-color);
+    border: 1px solid var(--media-border-color);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-family: inherit;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+    /* The global `*` rule colors every element, so icons need it spelled out */
+    .ghost-button iconify-icon {
+        font-size: 15px;
+        color: inherit;
+        transition: color 0.3s ease;
+    }
+
+    .ghost-button:hover:not(:disabled) {
+        color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .ghost-button:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+
+/* Same width as the header and footer */
 main {
+    max-width: 750px;
     padding-bottom: 20px;
 }
 
-    /* Sign-in gate, centered under the fixed header */
+    /* Sign-in gate - starts at 120px, like redirect.css */
     #auth-overlay[hidden] {
         display: none;
     }
 
     #auth-overlay {
         width: 100%;
-        min-height: calc(100dvh - 120px);
+        padding-top: 60px; /* On top of main's own 60px */
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
-        gap: 20px;
+        gap: 16px;
     }
 
         .auth-error {
@@ -68,42 +134,50 @@ main {
             min-height: 1.2em;
         }
 
+    /* No top padding, same as scheduling.html */
     #admin-content {
         width: 100%;
-        padding-top: 20px;
     }
 
+        /* Tabs between the two admin pages */
         .admin-nav {
             display: flex;
-            gap: 16px;
-            font-size: 0.95em;
-            margin-bottom: 20px;
+            gap: 4px;
+            margin: 0 0 20px;
+            border-bottom: 1px solid var(--media-border-color);
         }
 
             .admin-nav a {
+                padding: 8px 12px;
+                font-size: 0.9em;
                 color: var(--secondary-text-color);
                 text-decoration: none;
-                transition: color 0.3s ease;
+                border-bottom: 2px solid transparent;
+                margin-bottom: -1px; /* Sit on top of the nav's own border */
+                transition: color 0.3s ease, border-color 0.3s ease;
             }
 
                 .admin-nav a:hover {
-                    color: var(--accent-color);
+                    color: var(--primary-text-color);
                 }
 
-            .admin-nav-current {
-                font-weight: 600;
-            }
+                .admin-nav a.admin-nav-current {
+                    color: var(--primary-text-color);
+                    font-weight: 600;
+                    border-bottom-color: var(--accent-color);
+                }
 
-            .admin-nav-external {
-                margin-left: auto;
-            }
-
-        /* Service health cards - 2 columns at full width, 1 on narrow screens */
+        /* Live services left, mock card right */
         #service-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+
+            #card-onairsign {
+                grid-column: 2;
+                grid-row: 1 / span 2; /* The left cards split its height */
+            }
 
             .service-card {
                 background-color: var(--secondary-bg-color);
@@ -122,46 +196,76 @@ main {
                     gap: 10px;
                 }
 
-                    .status-dot {
-                        width: 10px;
-                        height: 10px;
-                        border-radius: 50%;
-                        flex-shrink: 0;
-                        background-color: var(--status-unknown-color);
-                    }
-
-                        .status-dot[data-state="up"] {
-                            background-color: var(--status-up-color);
-                        }
-
-                        .status-dot[data-state="down"] {
-                            background-color: var(--status-down-color);
-                        }
-
-                        /* Nothing to poll, so neither up nor down applies */
-                        .status-dot[data-state="static"] {
-                            background-color: var(--secondary-text-color);
-                        }
-
-                        .status-dot[data-state="checking"] {
-                            animation: dot-pulse 1.2s ease-in-out infinite;
-                        }
-
                     .card-header h2 {
                         font-size: 1.05em;
                         font-weight: 600;
                     }
 
-                    .mock-badge {
+                    /* Text label, so status isn't color alone */
+                    .status-pill {
                         margin-left: auto;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
                         font-size: 0.7em;
                         text-transform: uppercase;
                         letter-spacing: 0.05em;
-                        color: var(--secondary-text-color);
+                        white-space: nowrap;
                         border: 1px solid var(--media-border-color);
-                        border-radius: 4px;
-                        padding: 2px 6px;
+                        border-radius: 999px;
+                        padding: 3px 9px;
                     }
+
+                        .status-dot {
+                            width: 8px;
+                            height: 8px;
+                            border-radius: 50%;
+                            flex-shrink: 0;
+                            background-color: var(--status-unknown-color);
+                        }
+
+                        .status-pill .status-text {
+                            color: var(--secondary-text-color);
+                        }
+
+                        .status-pill[data-state="up"] .status-dot {
+                            background-color: var(--status-up-color);
+                        }
+
+                        .status-pill[data-state="up"] .status-text {
+                            color: var(--status-up-color);
+                        }
+
+                        .status-pill[data-state="down"] .status-dot {
+                            background-color: var(--status-down-color);
+                        }
+
+                        .status-pill[data-state="down"] .status-text {
+                            color: var(--status-down-color);
+                        }
+
+                        /* Nothing to poll, so neither up nor down applies */
+                        .status-pill[data-state="static"] .status-dot {
+                            background-color: var(--secondary-text-color);
+                        }
+
+                        .status-pill[data-state="checking"] .status-dot {
+                            animation: dot-pulse 1.2s ease-in-out infinite;
+                        }
+
+                    /* Opens the service's dashboard in a new tab */
+                    .card-link-icon {
+                        display: flex;
+                    }
+
+                        .card-link-icon iconify-icon {
+                            font-size: 16px;
+                            transition: color 0.3s ease;
+                        }
+
+                            .card-link-icon iconify-icon:hover {
+                                color: var(--accent-color);
+                            }
 
                 .card-detail {
                     font-size: 0.95em;
@@ -206,6 +310,7 @@ main {
                         }
 
                 .card-links {
+                    margin-top: auto; /* Pinned to the bottom, so links line up */
                     font-size: 0.85em;
                     color: var(--secondary-text-color);
                 }
@@ -219,42 +324,83 @@ main {
                             text-decoration: underline;
                         }
 
-        .last-refresh {
-            margin-top: 16px;
-            font-size: 0.8em;
-            color: var(--secondary-text-color);
-        }
-
         /* Chat log filters */
         .filters {
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
-            gap: 8px 12px;
+            align-items: flex-end;
+            gap: 12px;
             margin-bottom: 16px;
         }
 
-            .filters label {
-                font-size: 0.85em;
-                color: var(--secondary-text-color);
+            .filter-field {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
             }
 
-            .filters select,
-            .filters input {
-                background-color: var(--secondary-bg-color);
-                border: 1px solid var(--media-border-color);
-                border-radius: 6px;
-                padding: 7px 10px;
-                font-family: inherit;
-                font-size: 0.9em;
+                .filter-field label {
+                    font-size: 0.75em;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: var(--secondary-text-color);
+                }
+
+                .filter-field select,
+                .filter-field input {
+                    background-color: var(--secondary-bg-color);
+                    border: 1px solid var(--media-border-color);
+                    border-radius: 6px;
+                    padding: 7px 10px;
+                    font-family: inherit;
+                    font-size: 0.9em;
+                }
+
+            /* Quick ranges, counted back from today */
+            .range-presets {
+                display: flex;
+                gap: 6px;
             }
 
-        .chat-status {
-            font-size: 0.85em;
-            color: var(--secondary-text-color);
-            min-height: 1.2em;
+                .preset-button {
+                    background-color: var(--secondary-bg-color);
+                    border: 1px solid var(--media-border-color);
+                    border-radius: 6px;
+                    padding: 7px 10px;
+                    font-family: inherit;
+                    font-size: 0.85em;
+                    color: var(--secondary-text-color);
+                    cursor: pointer;
+                    transition: color 0.3s ease, border-color 0.3s ease;
+                }
+
+                    .preset-button:hover {
+                        color: var(--primary-text-color);
+                    }
+
+                    .preset-button[aria-pressed="true"] {
+                        color: var(--accent-color);
+                        border-color: var(--accent-color);
+                    }
+
+            .filters .primary-button {
+                margin-left: auto;
+            }
+
+        /* Count left, expand/collapse right */
+        .results-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
             margin-bottom: 12px;
         }
+
+            .chat-status {
+                font-size: 0.85em;
+                color: var(--secondary-text-color);
+                min-height: 1.2em;
+            }
 
         /* Conversation list */
         #chat-list {
@@ -272,27 +418,78 @@ main {
                 .chat-summary {
                     display: flex;
                     align-items: center;
-                    gap: 10px;
-                    padding: 12px;
+                    gap: 12px;
+                    padding: 11px 12px;
                     cursor: pointer;
                     font-size: 0.9em;
+                    list-style: none; /* The chevron replaces it */
                 }
 
-                    .chat-label {
-                        flex: 1;
+                    .chat-summary::-webkit-details-marker {
+                        display: none;
                     }
 
+                    .chat-chevron {
+                        display: flex;
+                        flex-shrink: 0;
+                        color: var(--secondary-text-color);
+                        transition: transform 0.2s ease;
+                    }
+
+                        .chat-chevron iconify-icon {
+                            font-size: 14px;
+                            color: inherit;
+                        }
+
+                        .chat-row[open] .chat-chevron {
+                            transform: rotate(90deg);
+                        }
+
+                    .chat-when {
+                        min-width: 185px;
+                        font-variant-numeric: tabular-nums;
+                    }
+
+                    .chat-metrics {
+                        min-width: 125px;
+                        font-size: 0.9em;
+                        color: var(--secondary-text-color);
+                        font-variant-numeric: tabular-nums;
+                    }
+
+                    .chat-origin {
+                        flex: 1;
+                        font-size: 0.9em;
+                        color: var(--secondary-text-color);
+                        overflow-wrap: anywhere;
+                    }
+
+                    /* Click to copy, then Ctrl+F it in the Console */
                     .chat-id {
+                        flex-shrink: 0;
+                        background: transparent;
+                        border: 1px solid transparent;
+                        border-radius: 5px;
+                        padding: 3px 6px;
+                        font-family: monospace;
                         font-size: 0.75em;
                         color: var(--secondary-text-color);
-                        flex-shrink: 0;
+                        cursor: pointer;
+                        transition: color 0.3s ease, border-color 0.3s ease;
                     }
+
+                        .chat-id:hover {
+                            color: var(--primary-text-color);
+                            border-color: var(--media-border-color);
+                        }
 
                 .turns {
                     display: flex;
                     flex-direction: column;
                     gap: 14px;
-                    padding: 0 12px 14px;
+                    margin: 0 12px; /* Inset, clears the rounded corners */
+                    padding: 12px 0 14px;
+                    border-top: 1px solid var(--media-border-color);
                 }
 
                     .turn {
@@ -302,7 +499,8 @@ main {
                     }
 
                         .turn-number {
-                            font-size: 0.75em;
+                            align-self: center;
+                            font-size: 0.7em;
                             color: var(--secondary-text-color);
                         }
 
@@ -342,4 +540,40 @@ main {
     50% {
         opacity: 0.3;
     }
+}
+
+/* Stack the toolbars instead of overflowing */
+@media (max-width: 600px) {
+    /* One column, mock card last */
+    #service-cards {
+        grid-template-columns: 1fr;
+    }
+
+        #card-onairsign {
+            grid-column: auto;
+            grid-row: auto;
+        }
+
+    .filter-field {
+        flex: 1;
+    }
+
+    .filters .primary-button {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .chat-summary {
+        flex-wrap: wrap;
+        gap: 6px 10px;
+    }
+
+        .chat-when,
+        .chat-metrics {
+            min-width: 0;
+        }
+
+        .chat-id {
+            margin-left: auto;
+        }
 }
