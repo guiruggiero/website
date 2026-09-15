@@ -1,6 +1,6 @@
 // Imports
 import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 // Same project as firebase.js, but its own API key
 const firebaseConfig = {
@@ -29,7 +29,6 @@ export function initAdminAuth() {
         const authOverlay = document.getElementById("auth-overlay");
         const adminContent = document.getElementById("admin-content");
         const signInButton = document.getElementById("sign-in");
-        const signOutButton = document.getElementById("sign-out");
 
         // Sign in with a Google popup
         signInButton?.addEventListener("click", async () => {
@@ -53,27 +52,11 @@ export function initAdminAuth() {
             }
         });
 
-        // Sign out and fall back to the overlay
-        signOutButton?.addEventListener("click", async () => {
-            try {
-                await signOut(auth);
-                globalThis.location.reload();
-
-            } catch (error) {
-                // Capture error with context
-                Sentry.captureException(error, {contexts: {adminAuth: {
-                    operation: "signOut",
-                    code: error.code,
-                }}});
-            }
-        });
-
         // Fires immediately with any restored session, then on every change
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 authOverlay?.setAttribute("hidden", "");
                 adminContent?.removeAttribute("hidden");
-                signOutButton?.removeAttribute("hidden");
 
                 // No-op after the first sign-in
                 resolve(user);
@@ -81,7 +64,6 @@ export function initAdminAuth() {
             } else {
                 authOverlay?.removeAttribute("hidden");
                 adminContent?.setAttribute("hidden", "");
-                signOutButton?.setAttribute("hidden", "");
             }
         });
     });

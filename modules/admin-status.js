@@ -15,7 +15,7 @@ const STATUS_LABELS = {
 const refreshButton = document.getElementById("refresh");
 const lastRefresh = document.getElementById("last-refresh");
 
-// Paint a card's status pill and detail line
+// Paint a card's status pill and detail line - detail can be text or a node
 function setCardStatus(cardID, state, detail) {
     const card = document.getElementById(cardID);
     if (!card) return;
@@ -29,7 +29,45 @@ function setCardStatus(cardID, state, detail) {
     }
 
     const cardDetail = card.querySelector(".card-detail");
-    if (cardDetail) cardDetail.textContent = detail;
+    if (cardDetail) {
+        cardDetail.replaceChildren();
+        if (typeof detail === "string") cardDetail.textContent = detail;
+        else cardDetail.appendChild(detail);
+    }
+}
+
+// Copy some text, the button confirms
+async function copyText(button, text) {
+    const originalText = button.textContent;
+
+    try {
+        await navigator.clipboard.writeText(text);
+        button.textContent = "Copied";
+
+    } catch {
+        // Denied or insecure context - not worth Sentry
+        button.textContent = "Copy failed";
+    }
+
+    setTimeout(() => {
+        button.textContent = originalText;
+    }, 1200);
+}
+
+// Code-styled and copyable, like a chat ID
+function buildCommitDetail(commit) {
+    const container = document.createDocumentFragment();
+    container.appendChild(document.createTextNode("Commit "));
+
+    const badge = document.createElement("button");
+    badge.type = "button";
+    badge.className = "commit-badge";
+    badge.title = "Copy commit hash";
+    badge.textContent = commit;
+    badge.addEventListener("click", () => copyText(badge, commit));
+    container.appendChild(badge);
+
+    return container;
 }
 
 // Poll one health endpoint and update its card
@@ -45,9 +83,9 @@ async function checkService(cardID, healthURL) {
             return;
         }
 
-        // Just the commit - the pill already says "up"
+        // The pill already says "up" - the commit is the useful part here
         const health = await response.json();
-        setCardStatus(cardID, "up", health.commit ?? "Up");
+        setCardStatus(cardID, "up", health.commit ? buildCommitDetail(health.commit) : "Up");
 
     } catch (error) {
         // Down or unreachable is expected, not an error
