@@ -1,5 +1,6 @@
 // Imports
 import {getFirestore, query, collection, where, Timestamp, orderBy, getDocs} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify/+esm";
 
 // Import module dynamically
 async function importModule(path) {
@@ -87,15 +88,19 @@ function buildTurns(turns) {
         number.textContent = turnNumber;
         turnElement.appendChild(number);
 
-        // textContent, never innerHTML - these are unsanitized strings typed by anonymous visitors
+        // textContent, never innerHTML - unsanitized, typed by anonymous visitors
         const userMessage = document.createElement("p");
         userMessage.className = "turn-user";
         userMessage.textContent = turn?.user ?? "";
         turnElement.appendChild(userMessage);
 
+        // GuiPT's replies carry HTML (links, line breaks) - sanitized to the same allowlist as ui.js
         const modelMessage = document.createElement("p");
         modelMessage.className = "turn-model";
-        modelMessage.textContent = turn?.model ?? "";
+        modelMessage.innerHTML = DOMPurify.sanitize(turn?.model ?? "", {
+            ALLOWED_TAGS: ["a", "b", "strong", "em", "i", "br", "p", "ul", "ol", "li"],
+            ALLOWED_ATTR: ["href", "target"],
+        });
         turnElement.appendChild(modelMessage);
 
         turnsContainer.appendChild(turnElement);
@@ -152,11 +157,6 @@ function buildChatRow(chat) {
     metrics.className = "chat-metrics";
     metrics.textContent = `${chat.turnCount ?? 0} turn${chat.turnCount === 1 ? "" : "s"} · ${formatDuration(chat.duration)}`;
     summary.appendChild(metrics);
-
-    const origin = document.createElement("span");
-    origin.className = "chat-origin";
-    origin.textContent = chat.origin ?? "unknown origin";
-    summary.appendChild(origin);
 
     // Chat ID for easy deletion in Firebase Console
     const idButton = document.createElement("button");

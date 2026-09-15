@@ -24,7 +24,7 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        font-size: 0.85em;
+        font-size: 0.95em;
         color: var(--secondary-text-color);
         text-decoration: none;
         transition: color 0.3s ease;
@@ -253,6 +253,23 @@ main {
                             animation: dot-pulse 1.2s ease-in-out infinite;
                         }
 
+                    .commit-badge {
+                        background: transparent;
+                        border: 1px solid transparent;
+                        border-radius: 5px;
+                        padding: 0 4px;
+                        font-family: monospace;
+                        font-size: 1.05em;
+                        color: var(--secondary-text-color);
+                        cursor: pointer;
+                        transition: color 0.3s ease, border-color 0.3s ease;
+                    }
+
+                        .commit-badge:hover {
+                            color: var(--accent-color);
+                            border-color: var(--media-border-color);
+                        }
+
                     /* Opens the service's dashboard in a new tab */
                     .card-link-icon {
                         display: flex;
@@ -457,29 +474,23 @@ main {
                         font-variant-numeric: tabular-nums;
                     }
 
-                    .chat-origin {
-                        flex: 1;
-                        font-size: 0.9em;
-                        color: var(--secondary-text-color);
-                        overflow-wrap: anywhere;
-                    }
-
                     /* Click to copy, then Ctrl+F it in the Console */
                     .chat-id {
                         flex-shrink: 0;
+                        margin-left: auto; /* Was chat-origin's job to push this right */
                         background: transparent;
                         border: 1px solid transparent;
                         border-radius: 5px;
                         padding: 3px 6px;
                         font-family: monospace;
-                        font-size: 0.75em;
+                        font-size: 0.9em;
                         color: var(--secondary-text-color);
                         cursor: pointer;
                         transition: color 0.3s ease, border-color 0.3s ease;
                     }
 
                         .chat-id:hover {
-                            color: var(--primary-text-color);
+                            color: var(--accent-color);
                             border-color: var(--media-border-color);
                         }
 
