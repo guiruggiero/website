@@ -4,7 +4,18 @@
 
 `index.js` is the entrypoint and holds the whole `guipt` Cloud Function — single function, no re-export layer. Sentry init happens here too. Deploy with `npm run deploy`.
 
-Receives `{message, history}` (stateless — history is passed in from the client), sanitizes and validates input, fetches the system prompt from Langfuse (3-minute cache), calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`), and returns a plain-text response. CORS restricted to `guiruggiero.com` and the ngrok dev URL; also enforces a server-side origin check (returns 403 for unknown origins). Required env vars (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`. Max 5 instances, 8-second timeout. The client (`modules/guipt.js`) enforces a 22-second timeout (race against the axios 6-second retry chain). When changing the API contract (request/response shape, error codes, timeouts), update both `guipt/index.js` and `modules/guipt.js` together.
+Receives `{message, history}` — stateless, history is passed in from the client — then:
+
+1. Sanitizes and validates input
+2. Fetches the system prompt from Langfuse (3-minute cache)
+3. Calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`)
+4. Returns a plain-text response
+
+**Access**: CORS restricted to `guiruggiero.com` and the ngrok dev URL, plus a server-side origin check that returns 403 for unknown origins.
+
+**Limits**: max 5 instances, 8-second function timeout. The client (`modules/guipt.js`) enforces a 22-second timeout, raced against the axios 6-second retry chain. When changing the API contract (request/response shape, error codes, timeouts), update both `guipt/index.js` and `modules/guipt.js` together.
+
+**Required env vars** (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`.
 
 ### Firestore Logging
 
@@ -12,7 +23,9 @@ Chat sessions are logged to Firestore in collection `dev` (ngrok) or `v1` (every
 
 ## Prompt Management
 
-`prompt.md` is the local copy of the GuiPT system prompt (gitignored). The live prompt is on Langfuse; `prompt.md` exists so Claude Code always has the full prompt in context. Use `npm run prompt-pull` / `npm run prompt-push` to sync. Scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored). Always apply changes to the system prompt, let the user know, and offer to push to Langfuse; but never mention it in the commit message.
+`prompt.md` is the local copy of the GuiPT system prompt (gitignored). The live prompt is on Langfuse; `prompt.md` exists so Claude Code always has the full prompt in context. Use `npm run prompt-pull` / `npm run prompt-push` to sync; the scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored). Always apply changes to the system prompt, let the user know, and offer to push to Langfuse; but never mention it in the commit message.
+
+**A push is not a deploy.** `prompt-push` creates the version with `labels: []`, deliberately omitting `"production"`, so the live prompt doesn't change until the version is promoted in the Langfuse UI. And because `prompt-pull` fetches the production-labelled version, pulling before promoting overwrites `prompt.md` with the old live prompt — losing the local edits you just pushed.
 
 ## ESLint
 

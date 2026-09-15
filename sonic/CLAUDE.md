@@ -2,7 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-There are no automated tests or linters configured.
+No automated tests or linters are configured. `scripts/test_ws.py` and `scripts/test_cognito_ws.py` are manual connection checks, run by hand.
+
+`README.md` owns setup: prerequisites, venv and `.env` layout, the four-step deploy-and-test walkthrough, cleanup, and a per-file table. This file covers architecture and the constraints that aren't obvious from the code - don't duplicate the README here.
 
 ## Architecture
 
@@ -35,6 +37,25 @@ The browser and server exchange JSON frames. **The first message from the client
 | server → client | `session_end` | - agent-initiated end of conversation (triggers `endSession()`) |
 | server → client | `system` / `error` | `message` |
 
+The `voice` sent in `config` comes from the `VOICE_ID` constant in `sonic.js`'s init block (`"tiffany"`, with `"carolina"` kept commented as the alternative).
+
+### Tools
+
+`agent.py` registers three tools (`tools=[stop, get_date_and_time, send_email]`):
+
+| Tool | Behavior |
+|---|---|
+| `stop` | Ends the conversation agent-side - this is what emits the `session_end` frame in the table above |
+| `get_date_and_time` | Current date and time, so the agent can reason about "today" |
+| `send_email` | Emails Gui on the user's behalf |
+
+`send_email` specifics worth knowing before touching it:
+
+- Sends via Gmail SMTP over SSL (`smtplib.SMTP_SSL("smtp.gmail.com", 465)`), not SES - so it needs a Gmail app password, not AWS credentials
+- Capped at `MAX_EMAILS_PER_SESSION = 2`, tracked on an `agent._emails_sent` counter attached lazily to the agent instance
+- Sets `Reply-To` only when the caller-supplied address matches `_EMAIL_REGEX`; an invalid address still sends, just with no reply path
+- Reads `EMAIL_GUI` (recipient), `GMAIL_SENDER`, and `GMAIL_APP_PASSWORD` from the container environment
+
 ### Key implementation constraints
 
 - **10 KB WebSocket frame limit**: AgentCore's proxy enforces this. `server.py:split_large_event()` splits large `bidi_audio_stream` payloads into chunks before sending - do not bypass this.
@@ -42,6 +63,8 @@ The browser and server exchange JSON frames. **The first message from the client
 - **Docker image must be `linux/arm64`**: AgentCore runs on ARM. `deploy.py` passes `--platform linux/arm64` to `docker buildx build`. The Dockerfile uses `ARG TARGETPLATFORM` so the base image inherits the platform from buildx.
 - **AgentCore required endpoints**: `/ping` must return `{"status": "Healthy", "time_of_last_update": <unix_ts>}` and `/invocations` must exist (HTTP POST), even though this agent is WebSocket-only.
 - **SigV4 URL signing**: `buildSignedUrl` in `sonic.js` passes `decodeURIComponent(rawPath)` to the Smithy signer, then uses `signed.path` (not `rawPath`) to build the final WebSocket URL. The two must match or AgentCore returns 403. Using `rawPath` in the final URL causes a mismatch because Smithy normalises `%2F` → `/` in the canonical URI.
+- **Browser dependencies load from a CDN at runtime**: `@smithy/signature-v4`, `@aws-crypto/sha256-browser`, `@aws-sdk/client-cognito-identity` and `@aws-sdk/client-sts` are top-level dynamic `import()`s from jsdelivr at the head of `sonic.js` - there's no bundler and no lockfile pinning them, so an upstream or CDN change lands without a deploy on this side.
+- **`?wsUrl=` is sanitized deliberately**: `sanitizeLocalWsUrl` returns a URL only when `isDev` is true (hostname is `localhost` or the hardcoded ngrok host) *and* the value parses as `ws:` on `localhost`/`127.0.0.1`. This exists to prevent connection hijacking via a crafted link - don't loosen it to accept `wss:` or arbitrary hosts for convenience.
 - **Cognito role IAM policy**: The Cognito unauthenticated role needs `bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream` on `arn:aws:bedrock-agentcore:REGION:ACCOUNT:runtime/RUNTIME_ID*` (trailing `*` required - AgentCore evaluates the resource as both the bare ARN and `ARN/runtime-endpoint/DEFAULT` depending on the request phase). To debug the exact resource ARN in a 403, run `scripts/test_cognito_ws.py` with a deliberately wrong policy - the error body prints the full ARN. This does not work from the browser due to CORS.
 
 ### Client audio pipeline
@@ -53,6 +76,7 @@ Received `bidi_audio_stream` audio is decoded from base64 → Int16 → Float32 
 ### Eager pre-loading
 
 On page load (before the user clicks Start), `sonic.js` kicks off non-blocking tasks in the background:
+
 1. **Credentials** - `ensureCredentials()` fetches Cognito temp credentials via `_credentialPromise`.
 2. **Signed URL** - `ensureSignedUrl()` chains off credentials to pre-build the SigV4 WebSocket URL via `_signedUrlPromise`.
 3. **WebSocket** - `ensureWebSocket()` chains off the signed URL (or `localWsUrl` override) to open and hold an idle connection via `_wsPromise`, so the connect round-trip and AgentCore container boot happen before the click instead of during it. The server just waits for `config` - no agent or model work happens on this pre-warmed connection until the user actually starts a session. `startSession()` reuses it if still `OPEN`, otherwise opens a fresh one as a fallback.
@@ -62,7 +86,11 @@ When `startSession()` is called, mic setup and the WebSocket connection (pre-war
 
 ### System prompt
 
-The agent's system prompt is fetched from Langfuse (prompt name `GuiPT-Sonic`) rather than hardcoded. `init_langfuse()` is called during server startup to warm the cache. Each new session calls `get_prompt()` with a 600s cache TTL. The container requires `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` env vars - `deploy.py` reads these from `sonic/.env` and passes them as `environmentVariables` to the AgentCore runtime.
+The agent's system prompt is fetched from Langfuse (prompt name `GuiPT-Sonic`) rather than hardcoded. `init_langfuse()` is called during server startup to warm the cache. Each new session calls `get_prompt()` with a 600s cache TTL.
+
+`deploy.py` reads `sonic/.env` and passes its contents as `environmentVariables` to the AgentCore runtime, so the container needs `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` for the prompt, plus `EMAIL_GUI`, `GMAIL_SENDER` and `GMAIL_APP_PASSWORD` for `send_email`.
+
+**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored, exists so Claude Code has the full prompt in context). `pull` prints a diff against the local copy before overwriting it. **`push` does not go live** - it calls `create_prompt` with `labels=[]`, deliberately omitting `"production"`, so the new version sits in Langfuse until it's promoted there by hand. And since `pull` calls `get_prompt(PROMPT_NAME)` with no label, it fetches the production version - so pulling before promoting overwrites `prompt.md` with the old live prompt, losing the edits you just pushed. Same convention as `guipt`, `guimail` and `guido`, which all omit the label too - a push is never a deploy.
 
 ### Agent speaks first
 
@@ -76,10 +104,14 @@ Strands doesn't surface Nova Sonic's own session ID publicly, so `agent.py`'s `_
 
 `sonic.js` records `performance.now()` at session start and logs the elapsed time (as a "Session start TTFA" system message) when the first `bidi_audio_stream` frame arrives. This measures the time from clicking Start to the first audio byte arriving over the WebSocket - not full playback, and distinct from any future per-turn TTFA metric.
 
-### Deploy artifacts
+### Deploy artifacts and redeployment
 
-`scripts/setup_config.json` is written by `deploy.py` and read by `cleanup.py`. It is not committed. The two values that must be manually pasted into `sonic.js` after deploy are `COGNITO_IDENTITY_POOL_ID` and `RUNTIME_WSS_BASE`.
+`scripts/setup_config.json` is written by `deploy.py` and read by `cleanup.py`. It is not committed. The two values that must be manually pasted into `sonic.js` after deploy are `COGNITO_IDENTITY_POOL_ID` and `RUNTIME_WSS_BASE` - the only two `deploy.py` prints for that purpose.
 
-### Redeployment
+`sonic.js` also hardcodes a third constant, `COGNITO_ROLE_ARN`, which `deploy.py` creates and logs but does *not* include in the paste list. If that role is ever deleted and recreated, the constant needs updating by hand.
 
-`deploy.py` handles re-deploys gracefully: if the runtime already exists, it calls `update_agent_runtime` with the new image URI and env vars instead of failing. This means pushing a new Docker image + running `deploy.py` again is sufficient to update the running agent. Environment variables (Langfuse keys) are loaded from `sonic/.env` (not committed).
+`deploy.py` handles re-deploys gracefully: if the runtime already exists, it calls `update_agent_runtime` with the new image URI and env vars instead of failing. This means pushing a new Docker image + running `deploy.py` again is sufficient to update the running agent. Environment variables are loaded from `sonic/.env` (not committed).
+
+### Planned refactor
+
+`README.md`'s TODOs define the intended seams before this grows: `sonic.js` splits into `auth.js` (credentials + SigV4), `audio.js` (mic, playback, AudioContext pre-warm) and `tools.js`, with session orchestration folding into the main site's `main.js` as a second mode alongside text GuiPT. Domain modules land in `modules/sonic/` and the CSS in `styles/sonic.css`. Worth reading before adding code here, so it goes where the split expects it.
