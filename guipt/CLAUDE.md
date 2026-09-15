@@ -8,7 +8,7 @@ Receives `{message, history}` (stateless — history is passed in from the clien
 
 ### Firestore Logging
 
-Chat sessions are logged to Firestore in collection `dev` (localhost/ngrok) or `v1` (production). Environment is detected by hostname. `createLog()` fires on the first chat turn; `logTurn()` appends on subsequent turns.
+Chat sessions are logged to Firestore in collection `dev` (ngrok) or `v1` (everything else, production included). The environment comes from the same URL check as module loading — `location.href.includes("ngrok")` in `modules/firebase.js`, not the hostname — so a plain `localhost` page writes to `v1`, not `dev`. `createLog()` fires on the first chat turn; `logTurn()` appends on subsequent turns.
 
 ## Prompt Management
 
