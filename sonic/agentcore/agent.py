@@ -18,7 +18,7 @@ from strands_tools import stop
 
 # Initializations
 logger = logging.getLogger(__name__)
-MODEL_ID = "amazon.nova-2-sonic-v1:0"
+MODEL_ID = "amazon.nova-2-5-sonic"
 REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 16000

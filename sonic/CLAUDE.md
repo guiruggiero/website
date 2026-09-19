@@ -17,7 +17,7 @@ sonic.js        ──get creds──▶   → temp AWS credentials
                 ══WebSocket══▶  AgentCore Runtime
                                   agentcore/server.py (FastAPI)
                                   agentcore/agent.py  (BidiAgent)
-                                    → Nova Sonic (amazon.nova-2-sonic-v1:0)
+                                    → Nova Sonic (amazon.nova-2-5-sonic)
                                     → Langfuse (system prompt)
 ```
 
@@ -90,7 +90,7 @@ The agent's system prompt is fetched from Langfuse (prompt name `GuiPT-Sonic`) r
 
 `deploy.py` reads `sonic/.env` and passes its contents as `environmentVariables` to the AgentCore runtime, so the container needs `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` for the prompt, plus `EMAIL_GUI`, `GMAIL_SENDER` and `GMAIL_APP_PASSWORD` for `send_email`.
 
-**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored, exists so Claude Code has the full prompt in context). `pull` prints a diff against the local copy before overwriting it. **`push` does not go live** - it calls `create_prompt` with `labels=[]`, deliberately omitting `"production"`, so the new version sits in Langfuse until it's promoted there by hand. And since `pull` calls `get_prompt(PROMPT_NAME)` with no label, it fetches the production version - so pulling before promoting overwrites `prompt.md` with the old live prompt, losing the edits you just pushed. Same convention as `guipt`, `guimail` and `guido`, which all omit the label too - a push is never a deploy.
+**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored, exists so Claude Code has the full prompt in context; the ignore rule is `prompt*.md`, so draft variants sitting next to it stay out of this public repo as well). `pull` prints a diff against the local copy before overwriting it. **`push` does not go live** - it calls `create_prompt` with `labels=[]`, deliberately omitting `"production"`, so the new version sits in Langfuse until it's promoted there by hand. And since `pull` calls `get_prompt(PROMPT_NAME)` with no label, it fetches the production version - so pulling before promoting overwrites `prompt.md` with the old live prompt, losing the edits you just pushed. Same convention as `guipt`, `guimail` and `guido`, which all omit the label too - a push is never a deploy.
 
 ### Agent speaks first
 
