@@ -377,6 +377,9 @@ main {
             .range-presets {
                 display: flex;
                 gap: 6px;
+                margin: 0;
+                padding: 0;
+                border: none;
             }
 
                 .preset-button {
