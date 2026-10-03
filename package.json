@@ -19,15 +19,15 @@
     "@sentry/browser": ""
   },
   "devDependencies": {
-    "@eslint/css": "^1.4.0",
+    "@eslint/css": "^2.0.0",
     "@eslint/js": "^10.0.1",
-    "@html-eslint/eslint-plugin": "^0.65.0",
-    "@html-eslint/parser": "^0.65.0",
+    "@html-eslint/eslint-plugin": "^0.66.1",
+    "@html-eslint/parser": "^0.66.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "eslint": "^10.9.1",
     "eslint-plugin-yml": "^3.8.1",
     "globals": "^17.11.0",
-    "html-minifier-next": "^8.3.1",
+    "html-minifier-next": "^8.6.0",
     "http-server": "^14.1.1",
     "lightningcss-cli": "^1.33.0",
     "terser": "^5.51.2"
