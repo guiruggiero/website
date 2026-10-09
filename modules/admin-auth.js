@@ -1,6 +1,6 @@
 // Imports
-import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import {getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import {getApps, initializeApp, getApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import {getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
 
 // Same project as firebase.js, but its own API key
 const firebaseConfig = {
