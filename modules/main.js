@@ -231,7 +231,7 @@ function start() {
     // Input submission
     UI.elements.submit?.addEventListener("pointerup", handleGuiPT);
     UI.elements.input?.addEventListener("keyup", debounce((event) => {
-        if (event.key === "Enter") handleGuiPT();
+        if (event.key === "Enter") void handleGuiPT();
     }, 150));
 
     setTimeout(() => UI.displayPromptPills(), 1000);

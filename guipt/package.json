@@ -10,10 +10,10 @@
   "dependencies": {
     "@google/genai": "^2.11.0",
     "@langfuse/client": "^5.9.1",
-    "@sentry/node": "^10.65.0",
+    "@sentry/node": "^11.0.0",
     "axios": "^1.18.0",
     "firebase-functions": "^7.2.5",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^10.0.11",
     "sanitize-html": "^2.17.6"
   },
   "devDependencies": {
@@ -27,7 +27,7 @@
   "overrides": {
     "uuid": ">=11.1.1",
     "qs": ">=6.16.0",
-    "csv-parse": ">=7.0.2"
+    "proxy-addr": ">=2.0.8"
   },
   "scripts": {
     "lint": "eslint .",
@@ -36,5 +36,12 @@
     "deploy-guipt": "npx firebase deploy --only functions:guipt",
     "prompt-pull": "node --env-file=.env scripts/promptSync.js pull",
     "prompt-push": "node --env-file=.env scripts/promptSync.js push"
+  },
+  "allowScripts": {
+    "@firebase/util": false,
+    "@google/genai": false,
+    "fsevents": false,
+    "protobufjs": false,
+    "re2": true
   }
 }

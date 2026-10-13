@@ -10,8 +10,7 @@ const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
 const VOICE_ID = "tiffany"; // "carolina"
-const INPUT_SAMPLE_RATE = 16000;
-const OUTPUT_SAMPLE_RATE = 16000;
+const OUTPUT_SAMPLE_RATE = 24000; // Must match OUTPUT_SAMPLE_RATE in agentcore/agent.py, the playback context is created at click time (mobile), before any audio frame can report its rate
 
 // DOM elements
 const elements = {
@@ -32,6 +31,8 @@ let nextPlayTime = 0;
 let audioCarryover = null;
 let isRunning = false;
 let pendingAgentTranscript = null; // Agent text and audio sync
+const activeSources = new Set(); // Scheduled playback chunks, so a barge-in can silence them
+const transcriptTimers = new Set(); // Agent text waiting for its audio to start, cleared on barge-in
 let sessionStartTime = null;
 
 // Local-dev override, bypass Cognito
@@ -101,7 +102,7 @@ function ensureWebSocket() {
 let _preAudioCtx = null;
 let _workletReady = false;
 
-(async () => {
+void (async () => {
     try {
         _preAudioCtx = new AudioContext();
         await _preAudioCtx.audioWorklet.addModule("mic-processor.js");
@@ -234,21 +235,44 @@ async function playAudio(base64) {
         const transcript = pendingAgentTranscript;
         pendingAgentTranscript = null;
         const delayMs = Math.max(0, (nextPlayTime - audioPlaybackContext.currentTime) * 1000);
-        setTimeout(() => addMessage(`Agent: ${transcript}`, "assistant"), delayMs);
+        const timer = setTimeout(() => {
+            transcriptTimers.delete(timer);
+            addMessage(`Agent: ${transcript}`, "assistant");
+        }, delayMs);
+        transcriptTimers.add(timer);
     }
 
+    activeSources.add(src);
+    src.onended = () => activeSources.delete(src);
     src.start(nextPlayTime);
     nextPlayTime += buf.duration;
 }
 
+// Silence everything queued but keep the playback context alive, so the reply after a barge-in still plays
+function interruptPlayback() {
+    for (const src of activeSources) {
+        try {
+            src.stop();
+        } catch {
+            // Already ended
+        }
+    }
+    activeSources.clear();
+    for (const timer of transcriptTimers) clearTimeout(timer);
+    transcriptTimers.clear();
+    pendingAgentTranscript = null;
+    nextPlayTime = audioPlaybackContext?.currentTime ?? 0;
+    audioCarryover = null;
+}
+
 // Stop and reset the audio playback context
 function stopPlayback() {
+    interruptPlayback();
     if (audioPlaybackContext) {
         audioPlaybackContext.close();
         audioPlaybackContext = null;
         nextPlayTime = 0;
     }
-    audioCarryover = null;
 }
 
 // Capture microphone input and stream it as bidi_audio_input frames
@@ -281,8 +305,6 @@ async function startMic(stream) {
             type: "bidi_audio_input",
             audio: btoa(bin),
             format: "pcm",
-            sample_rate: INPUT_SAMPLE_RATE,
-            channels: 1,
         }));
     };
 
@@ -368,7 +390,7 @@ async function startSession() {
             const data = JSON.parse(event.data);
 
             switch (data.type) {
-                case "bidi_audio_stream":
+                case "bidi_audio_delta":
                     if (sessionStartTime) {
                         const elapsed = ((performance.now() - sessionStartTime) / 1000).toFixed(3);
                         addMessage(`Session start TTFA: ${elapsed}s`, "system");
@@ -378,24 +400,21 @@ async function startSession() {
                     await playAudio(data.audio);
                     break;
 
-                case "bidi_transcript_stream": {
-                    const isUser = data.role === "user";
-
-                    // Agent text and audio sync
-                    if (isUser) {
-                        if (data.is_final) addMessage(`You: ${data.text}`, "user");
-                    } else if (!data.is_final) {
-                        pendingAgentTranscript = data.text;
-                    }
+                case "bidi_transcript_delta":
+                    // Agent text arrives per sentence, ahead of its audio (the final block only lands after playback has been queued)
+                    if (data.role === "assistant") pendingAgentTranscript = (pendingAgentTranscript ?? "") + data.delta;
                     break;
-                }
 
-                case "bidi_interruption":
-                    stopPlayback();
+                case "bidi_transcript_block":
+                    if (data.role === "user") addMessage(`You: ${data.transcript}`, "user");
+                    break;
+
+                case "bidi_barge_in":
+                    interruptPlayback();
                     setStatus("Active");
                     break;
 
-                case "bidi_response_complete":
+                case "bidi_response_stop":
                     setStatus("Active");
                     break;
 

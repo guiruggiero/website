@@ -1,6 +1,6 @@
 # Imports
 import asyncio
-import functools
+import base64
 import logging
 import os
 import re
@@ -11,17 +11,17 @@ from email.message import EmailMessage
 from zoneinfo import ZoneInfo
 from fastapi import WebSocket, WebSocketDisconnect
 from langfuse import Langfuse
-from strands import tool
-from strands.experimental.bidi.agent import BidiAgent
-from strands.experimental.bidi.models import BidiNovaSonicModel
-from strands_tools import stop
+from strands import ToolContext, tool
+from strands.bidi.agent import BidiAgent
+from strands.bidi.models import BedrockNovaSonicModel
+from strands.bidi.types.media import AudioDelta
 
 # Initializations
 logger = logging.getLogger(__name__)
-MODEL_ID = "amazon.nova-2-sonic-v1:0"
+MODEL_ID = "amazon.nova-2-5-sonic"
 REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
-OUTPUT_SAMPLE_RATE = 16000
+OUTPUT_SAMPLE_RATE = 24000
 LANGFUSE_PROMPT_NAME = "GuiPT-Sonic"
 _langfuse: Langfuse | None = None
 PST = ZoneInfo("America/Los_Angeles")
@@ -29,6 +29,13 @@ _EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 MAX_EMAILS_PER_SESSION = 2
 
 # Tool registrations via  Strands with docstrings as tool descriptions
+@tool(context=True)
+def stop(tool_context: ToolContext[BidiAgent]) -> str:
+    """End the conversation. Use when the user says or types "stop", says goodbye, or asks to end the conversation."""
+    # BidiAgent has no stop_event_loop flag, cancel() is what ends run() - once this tool group completes
+    tool_context.agent.cancel()
+    return "Ending the conversation."
+
 @tool
 def get_date_and_time() -> dict:
     """Get the current date and time in PST timezone. Use when the user asks what day, date, or time it is."""
@@ -43,8 +50,8 @@ def get_date_and_time() -> dict:
         "timezone": "PST",
     }
 
-@tool
-def send_email(first_name: str, last_name: str, sender_email: str, message: str, agent: BidiAgent) -> str:
+@tool(context=True)
+def send_email(first_name: str, last_name: str, sender_email: str, message: str, tool_context: ToolContext[BidiAgent]) -> str:
     """Send an email to Gui on behalf of the user. Use when someone wants to send Gui a message.
 
     Args:
@@ -53,10 +60,9 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
         sender_email: The sender's email address.
         message: The message body to send.
     """
-    # Per-session rate limit
-    if not hasattr(agent, "_emails_sent"):
-        agent._emails_sent = 0
-    if agent._emails_sent >= MAX_EMAILS_PER_SESSION:
+    # Per-session rate limit, counted in the invocation state shared across the whole run
+    state = tool_context.invocation_state
+    if state.get("emails_sent", 0) >= MAX_EMAILS_PER_SESSION:
         return "Email limit reached for this session."
 
     # Gmail SMTP credentials from environment
@@ -85,7 +91,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(gmail_sender, gmail_password)
             server.send_message(email)
-        agent._emails_sent += 1
+        state["emails_sent"] = state.get("emails_sent", 0) + 1
         return f"Email sent successfully to Gui from {full_name}."
     except Exception as e:
         logger.exception("Failed to send email: %s", e)
@@ -102,9 +108,18 @@ def init_langfuse():
     prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
     logger.info("Langfuse initialized, prompt cached (v%s)", prompt.version)
 
+# Strands events the browser consumes; everything else (deltas, usage, tool blocks, etc.) stays server-side
+CLIENT_EVENT_TYPES = frozenset({
+    "bidi_connection_start",
+    "bidi_audio_delta",
+    "bidi_transcript_delta",
+    "bidi_transcript_block",
+    "bidi_barge_in",
+    "bidi_response_stop",
+})
+
 # Read incoming messages and forward non-config events to the agent
-async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyncio.Event):
-    agent_ready.set()  # first call means agent.run() is initialized and ready
+async def _handle_websocket_input(websocket: WebSocket, agent):
     while True:
         message = await websocket.receive_json()
 
@@ -122,11 +137,36 @@ async def _handle_websocket_input(websocket: WebSocket, agent, agent_ready: asyn
             await agent.send(text)
             continue
 
-        # Non-config, non-text messages (e.g. bidi_audio_input) return to agent.run()
-        return message
+        # Mic audio returns to agent.run() as an AudioDelta; sample rate comes from the model's audio config
+        if message.get("type") == "bidi_audio_input":
+            return AudioDelta(format="pcm", source={"bytes": base64.b64decode(message["audio"])})
+
+        logger.warning("Ignoring unknown message type: %s", message.get("type"))
+
+# Input stream for agent.run(); start() fires once the connection is live, so the opening greeting goes out from there
+class _WebSocketInput:
+    def __init__(self, websocket: WebSocket):
+        self._websocket = websocket
+        self._agent = None
+
+    async def start(self, agent):
+        self._agent = agent
+        await agent.send("Hello")
+
+    async def stop(self):
+        # Intentionally empty: required by the input stream interface, but nothing to clean up
+        pass
+
+    def __call__(self):
+        return _handle_websocket_input(self._websocket, self._agent)
 
 async def handle_websocket_session(websocket: WebSocket, send_output=None):
-    output_fn = send_output or websocket.send_json
+    send_fn = send_output or websocket.send_json
+
+    # Only allowlisted Strands events reach the browser; our own frames go straight through send_fn
+    async def output_fn(event):
+        if event.get("type") in CLIENT_EVENT_TYPES:
+            await send_fn(event)
 
     logger.info("New WebSocket connection - waiting for config event")
 
@@ -142,27 +182,20 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
         agent = _create_agent(config)
 
-        agent_ready = asyncio.Event()
-        ws_input = functools.partial(_handle_websocket_input, websocket, agent, agent_ready)
+        ws_input = _WebSocketInput(websocket)
 
         # Relay Nova Sonic's session ID to the client once the model captures it
         async def _send_session_id():
             await agent.model.session_id_ready.wait()
-            await output_fn({"type": "system", "message": f"Session ID: {agent.model.session_id}"})
+            await send_fn({"type": "system", "message": f"Session ID: {agent.model.session_id}"})
 
         # agent.run() manages start/stop internally, stop on exit even an exception
+        session_id_task = asyncio.create_task(_send_session_id())
         try:
-            run_task = asyncio.create_task(
-                agent.run(inputs=[ws_input], outputs=[output_fn])
-            )
-            session_id_task = asyncio.create_task(_send_session_id())
-            await agent_ready.wait()
-            await agent.send("Hello")
-            await run_task
-            await output_fn({"type": "session_end"}) # signal clean stop before close
+            await agent.run(inputs=[ws_input], outputs=[output_fn], invocation_state={"emails_sent": 0})
+            await send_fn({"type": "session_end"}) # signal clean stop before close
         finally:
             session_id_task.cancel()
-            await agent.stop()
 
     except WebSocketDisconnect:
         logger.info("Client disconnected")
@@ -174,7 +207,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
             logger.exception("Session error: %s", type(e).__name__)
             traceback.print_exc()
             try:
-                await output_fn({"type": "error", "message": str(e)})
+                await send_fn({"type": "error", "message": str(e)})
             except Exception:
                 pass
     finally:
@@ -195,19 +228,19 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
         await websocket.send_json({"type": "system", "message": "Please send config event first"})
 
 # Nova Sonic model subclass that captures its own session ID; Strands doesn't surface it publicly
-class _SessionIdCapturingNovaSonicModel(BidiNovaSonicModel):
+class _SessionIdCapturingNovaSonicModel(BedrockNovaSonicModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.session_id = None
         self.session_id_ready = asyncio.Event()
 
-    def _convert_nova_event(self, nova_event):
+    def _convert_nova_event(self, nova_event, *args, **kwargs):
         if self.session_id is None:
             session_id = (nova_event.get("completionStart") or nova_event.get("usageEvent") or {}).get("sessionId")
             if session_id:
                 self.session_id = session_id
                 self.session_id_ready.set()
-        return super()._convert_nova_event(nova_event)
+        return super()._convert_nova_event(nova_event, *args, **kwargs)
 
 # Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
@@ -218,12 +251,12 @@ def _create_agent(config: dict) -> BidiAgent:
 
     model = _SessionIdCapturingNovaSonicModel(
         model_id=MODEL_ID,
-        provider_config={"audio": {
-            "input_rate": INPUT_SAMPLE_RATE,
-            "output_rate": OUTPUT_SAMPLE_RATE,
-            "voice": config["voice"],
-        }},
-        client_config={"region": REGION},
+        region=REGION,
+        voice=config["voice"],
+        audio={
+            "input": {"sample_rate": INPUT_SAMPLE_RATE},
+            "output": {"sample_rate": OUTPUT_SAMPLE_RATE},
+        },
     )
 
     return BidiAgent(
