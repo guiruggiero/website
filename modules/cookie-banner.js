@@ -1,4 +1,4 @@
-(async () => {
+void (async () => {
     // Import wrapped in async IIFE to avoid Safari TLA race condition
     const langData = await (await import(globalThis.location?.href.includes("ngrok") ? "./localization.js" : "./localization.min.js")).getLangData();
 

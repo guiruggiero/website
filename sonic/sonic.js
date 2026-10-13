@@ -100,7 +100,7 @@ function ensureWebSocket() {
 let _preAudioCtx = null;
 let _workletReady = false;
 
-(async () => {
+void (async () => {
     try {
         _preAudioCtx = new AudioContext();
         await _preAudioCtx.audioWorklet.addModule("mic-processor.js");

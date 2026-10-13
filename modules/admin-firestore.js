@@ -168,7 +168,7 @@ function buildChatRow(chat) {
         // Otherwise the click toggles the row
         event.preventDefault();
         event.stopPropagation();
-        copyChatID(idButton, chat.id);
+        void copyChatID(idButton, chat.id);
     });
     summary.appendChild(idButton);
 
@@ -279,7 +279,7 @@ for (const button of presetButtons) {
 for (const input of [startInput, endInput]) {
     input.addEventListener("change", clearPresets);
     input.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") refreshChats();
+        if (event.key === "Enter") void refreshChats();
     });
 }
 

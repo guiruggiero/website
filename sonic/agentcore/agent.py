@@ -154,6 +154,7 @@ class _WebSocketInput:
         await agent.send("Hello")
 
     async def stop(self):
+        # Intentionally empty: required by the input stream interface, but nothing to clean up
         pass
 
     def __call__(self):
