@@ -10,8 +10,7 @@ const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
 const VOICE_ID = "tiffany"; // "carolina"
-const INPUT_SAMPLE_RATE = 16000;
-const OUTPUT_SAMPLE_RATE = 16000;
+const OUTPUT_SAMPLE_RATE = 24000; // Must match OUTPUT_SAMPLE_RATE in agentcore/agent.py, the playback context is created at click time (mobile), before any audio frame can report its rate
 
 // DOM elements
 const elements = {
@@ -281,8 +280,6 @@ async function startMic(stream) {
             type: "bidi_audio_input",
             audio: btoa(bin),
             format: "pcm",
-            sample_rate: INPUT_SAMPLE_RATE,
-            channels: 1,
         }));
     };
 
@@ -368,7 +365,7 @@ async function startSession() {
             const data = JSON.parse(event.data);
 
             switch (data.type) {
-                case "bidi_audio_stream":
+                case "bidi_audio_delta":
                     if (sessionStartTime) {
                         const elapsed = ((performance.now() - sessionStartTime) / 1000).toFixed(3);
                         addMessage(`Session start TTFA: ${elapsed}s`, "system");
@@ -378,24 +375,21 @@ async function startSession() {
                     await playAudio(data.audio);
                     break;
 
-                case "bidi_transcript_stream": {
-                    const isUser = data.role === "user";
-
-                    // Agent text and audio sync
-                    if (isUser) {
-                        if (data.is_final) addMessage(`You: ${data.text}`, "user");
-                    } else if (!data.is_final) {
-                        pendingAgentTranscript = data.text;
-                    }
+                case "bidi_transcript_delta":
+                    // Agent text arrives per sentence, ahead of its audio (the final block only lands after playback has been queued)
+                    if (data.role === "assistant") pendingAgentTranscript = (pendingAgentTranscript ?? "") + data.delta;
                     break;
-                }
 
-                case "bidi_interruption":
+                case "bidi_transcript_block":
+                    if (data.role === "user") addMessage(`You: ${data.transcript}`, "user");
+                    break;
+
+                case "bidi_barge_in":
                     stopPlayback();
                     setStatus("Active");
                     break;
 
-                case "bidi_response_complete":
+                case "bidi_response_stop":
                     setStatus("Active");
                     break;
 

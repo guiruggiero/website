@@ -69,16 +69,14 @@ async def recv_loop(ws):
         msg_type = data.get("type")
         if msg_type == "system":
             print(f"System: {data.get('message')}")
-        elif msg_type == "bidi_audio_stream":
+        elif msg_type == "bidi_audio_delta":
             print(f"Audio chunk ({len(data.get('audio', ''))} base64 chars)")
-        elif msg_type == "bidi_transcript_stream":
-            role = data.get("role", "?")
-            suffix = "*" if data.get("is_final") else ""
-            print(f"Transcript [{role}{suffix}]: {data.get('text', '')[:80]}")
+        elif msg_type == "bidi_transcript_block":
+            print(f"Transcript [{data.get('role', '?')}]: {data.get('transcript', '')[:80]}")
         elif msg_type == "bidi_connection_start":
             print("Bidi session established - connection verified")
             return
-        elif msg_type == "bidi_response_complete":
+        elif msg_type == "bidi_response_stop":
             print("Response complete - session verified")
             return
         elif msg_type == "session_end":

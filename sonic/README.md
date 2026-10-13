@@ -36,23 +36,21 @@ index.html                     AgentCore Runtime
 
 - AWS account with Nova Sonic enabled in `us-west-2` (Bedrock Console → Model access → Amazon Nova → Enable)
 - Docker with `docker buildx` support - install Docker Engine (`curl -fsSL https://get.docker.com | sh`)
-- Python 3.11+
+- Python 3.12+ (required by the Strands Nova Sonic model)
 
 Run all commands from the `sonic/` directory.
 
-In WSL, set up the virtualenv and install dependencies for both the agent and deploy scripts:
+Install dependencies for both the agent and deploy scripts:
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-python3 -m pip install -r agentcore/requirements.txt -r scripts/requirements.txt
+python3 -m pip install --user --break-system-packages -r agentcore/requirements.txt -r scripts/requirements.txt
 ```
 
-Add the following `export` lines to the end of `sonic/.venv/bin/activate` so they're set automatically every time you activate the venv:
+Set the AWS and Langfuse credentials in your shell (add them to `~/.zshrc` / `~/.bashrc` to make them permanent):
 
 ```bash
 export AWS_ACCESS_KEY_ID=...
 export AWS_SECRET_ACCESS_KEY=...
-export AWS_DEFAULT_REGION="us-west-2"
 export LANGFUSE_SECRET_KEY=...
 export LANGFUSE_PUBLIC_KEY=...
 ```
@@ -81,7 +79,7 @@ In a second terminal, serve the client from `sonic/`:
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://127.0.0.1:8001?wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing. Click **Start Session** and speak.
+Open `http://localhost:8001?wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing. Use `localhost`, not `127.0.0.1` - the page only honors `?wsUrl=` on a `localhost` hostname, and otherwise silently falls back to the deployed runtime. Click **Start Session** and speak.
 
 > **Windows note:** Port 8000 can conflict with other processes. Using `--bind 0.0.0.0` avoids an IPv6-only binding that some browsers can't reach.
 
@@ -147,7 +145,7 @@ This generates a SigV4-presigned URL using your local AWS credentials and attemp
 python3 scripts/test_cognito_ws.py
 ```
 
-This replicates the exact browser flow: Cognito unauthenticated identity → OpenID token → STS role assumption → SigV4-signed WebSocket URL. It then runs a real session - sends `config`, waits for the agent's opening greeting, and exits after `bidi_response_complete`. Use this to confirm the end-to-end path works before testing in the browser.
+This replicates the exact browser flow: Cognito unauthenticated identity → OpenID token → STS role assumption → SigV4-signed WebSocket URL. It then runs a real session - sends `config`, waits for the agent's opening greeting, and exits after `bidi_response_stop`. Use this to confirm the end-to-end path works before testing in the browser.
 
 **End-to-end test - browser with localhost**
 
@@ -157,7 +155,7 @@ In the second terminal, serve the client from `sonic/`:
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://127.0.0.1:8001`, click **Start Session**, and speak.
+Open `http://localhost:8001`, click **Start Session**, and speak.
 
 ## Cleanup
 
@@ -172,7 +170,7 @@ Deletes the AgentCore Runtime, Cognito pool, and IAM roles. Asks before deleting
 | File | Purpose |
 |------|---------|
 | `agentcore/server.py` | FastAPI server - `/ping`, `/invocations`, `/ws` |
-| `agentcore/agent.py` | `BidiAgent` + `BidiNovaSonicModel` session handler |
+| `agentcore/agent.py` | `BidiAgent` + `BedrockNovaSonicModel` session handler |
 | `agentcore/Dockerfile` | `linux/arm64` image for AgentCore |
 | `index.html` | HTML shell - head structure, header/footer, loads `sonic.js` via `loadScript` |
 | `sonic.css` | All UI styles |

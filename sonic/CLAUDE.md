@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 No automated tests or linters are configured. `scripts/test_ws.py` and `scripts/test_cognito_ws.py` are manual connection checks, run by hand.
 
-`README.md` owns setup: prerequisites, venv and `.env` layout, the four-step deploy-and-test walkthrough, cleanup, and a per-file table. This file covers architecture and the constraints that aren't obvious from the code - don't duplicate the README here.
+`README.md` owns setup: prerequisites, install and `.env` layout, the four-step deploy-and-test walkthrough, cleanup, and a per-file table. This file covers architecture and the constraints that aren't obvious from the code - don't duplicate the README here.
 
 ## Architecture
 
@@ -28,12 +28,14 @@ The browser and server exchange JSON frames. **The first message from the client
 | Direction | type | Key fields |
 |-----------|------|------------|
 | client → server | `config` | `voice` |
-| client → server | `bidi_audio_input` | `audio` (base64 PCM), `format`, `sample_rate`, `channels` |
+| client → server | `bidi_audio_input` | `audio` (base64 PCM), `format` |
 | client → server | `text_input` | `text` |
-| server → client | `bidi_audio_stream` | `audio` (base64 PCM) |
-| server → client | `bidi_transcript_stream` | `text`, `role`, `is_final` |
-| server → client | `bidi_interruption` | - stops playback |
-| server → client | `bidi_response_complete` | - |
+| server → client | `bidi_connection_start` | `connection_id`, `model` |
+| server → client | `bidi_audio_delta` | `audio` (base64 PCM) |
+| server → client | `bidi_transcript_delta` | `delta`, `role` - agent text, one sentence at a time, ahead of its audio |
+| server → client | `bidi_transcript_block` | `transcript`, `role` - the complete turn; the browser only uses the user's |
+| server → client | `bidi_barge_in` | - stops playback |
+| server → client | `bidi_response_stop` | - |
 | server → client | `session_end` | - agent-initiated end of conversation (triggers `endSession()`) |
 | server → client | `system` / `error` | `message` |
 
@@ -41,37 +43,37 @@ The `voice` sent in `config` comes from the `VOICE_ID` constant in `sonic.js`'s 
 
 ### Tools
 
-`agent.py` registers three tools (`tools=[stop, get_date_and_time, send_email]`):
+`agent.py` registers three tools (`tools=[stop, get_date_and_time, send_email]`), all local `@tool`s (`stop` and `send_email` use `context=True` / `ToolContext`):
 
 | Tool | Behavior |
 |---|---|
-| `stop` | Ends the conversation agent-side - this is what emits the `session_end` frame in the table above |
+| `stop` | Calls `agent.cancel()` (`BidiAgent` has no `stop_event_loop` flag, so `cancel()` is what ends `run()`) - this is what leads to the `session_end` frame in the table above |
 | `get_date_and_time` | Current date and time, so the agent can reason about "today" |
 | `send_email` | Emails Gui on the user's behalf |
 
 `send_email` specifics worth knowing before touching it:
 
 - Sends via Gmail SMTP over SSL (`smtplib.SMTP_SSL("smtp.gmail.com", 465)`), not SES - so it needs a Gmail app password, not AWS credentials
-- Capped at `MAX_EMAILS_PER_SESSION = 2`, tracked on an `agent._emails_sent` counter attached lazily to the agent instance
+- Capped at `MAX_EMAILS_PER_SESSION = 2`, tracked as `emails_sent` in the `invocation_state` dict passed to `agent.run()`, which tools read through `ToolContext.invocation_state`
 - Sets `Reply-To` only when the caller-supplied address matches `_EMAIL_REGEX`; an invalid address still sends, just with no reply path
 - Reads `EMAIL_GUI` (recipient), `GMAIL_SENDER`, and `GMAIL_APP_PASSWORD` from the container environment
 
 ### Key implementation constraints
 
-- **10 KB WebSocket frame limit**: AgentCore's proxy enforces this. `server.py:split_large_event()` splits large `bidi_audio_stream` payloads into chunks before sending - do not bypass this.
+- **10 KB WebSocket frame limit**: AgentCore's proxy enforces this. `server.py:split_large_event()` splits large `bidi_audio_delta` payloads into chunks before sending - do not bypass this.
 - **IMDS credential refresh**: On AgentCore the container gets credentials from EC2 IMDS. `server.py` polls IMDS on startup and refreshes before expiry. Locally, env vars take precedence (`AWS_ACCESS_KEY_ID` etc.).
 - **Docker image must be `linux/arm64`**: AgentCore runs on ARM. `deploy.py` passes `--platform linux/arm64` to `docker buildx build`. The Dockerfile uses `ARG TARGETPLATFORM` so the base image inherits the platform from buildx.
 - **AgentCore required endpoints**: `/ping` must return `{"status": "Healthy", "time_of_last_update": <unix_ts>}` and `/invocations` must exist (HTTP POST), even though this agent is WebSocket-only.
 - **SigV4 URL signing**: `buildSignedUrl` in `sonic.js` passes `decodeURIComponent(rawPath)` to the Smithy signer, then uses `signed.path` (not `rawPath`) to build the final WebSocket URL. The two must match or AgentCore returns 403. Using `rawPath` in the final URL causes a mismatch because Smithy normalises `%2F` → `/` in the canonical URI.
 - **Browser dependencies load from a CDN at runtime**: `@smithy/signature-v4`, `@aws-crypto/sha256-browser`, `@aws-sdk/client-cognito-identity` and `@aws-sdk/client-sts` are top-level dynamic `import()`s from jsdelivr at the head of `sonic.js` - there's no bundler and no lockfile pinning them, so an upstream or CDN change lands without a deploy on this side.
-- **`?wsUrl=` is sanitized deliberately**: `sanitizeLocalWsUrl` returns a URL only when `isDev` is true (hostname is `localhost` or the hardcoded ngrok host) *and* the value parses as `ws:` on `localhost`/`127.0.0.1`. This exists to prevent connection hijacking via a crafted link - don't loosen it to accept `wss:` or arbitrary hosts for convenience.
+- **`?wsUrl=` is sanitized deliberately**: `sanitizeLocalWsUrl` returns a URL only when `isDev` is true (hostname is exactly `localhost` or the hardcoded ngrok host - `127.0.0.1` fails the check, and the page then silently connects to the deployed runtime instead of the local server) *and* the value parses as `ws:` on `localhost`/`127.0.0.1`. This exists to prevent connection hijacking via a crafted link - don't loosen it to accept `wss:` or arbitrary hosts for convenience.
 - **Cognito role IAM policy**: The Cognito unauthenticated role needs `bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream` on `arn:aws:bedrock-agentcore:REGION:ACCOUNT:runtime/RUNTIME_ID*` (trailing `*` required - AgentCore evaluates the resource as both the bare ARN and `ARN/runtime-endpoint/DEFAULT` depending on the request phase). To debug the exact resource ARN in a 403, run `scripts/test_cognito_ws.py` with a deliberately wrong policy - the error body prints the full ARN. This does not work from the browser due to CORS.
 
 ### Client audio pipeline
 
 Mic → `AudioWorkletNode` (`mic-processor.js`, 4096-sample buffer) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
 
-Received `bidi_audio_stream` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_interruption`, playback is stopped (with a short drain window of up to 300 ms if audio is already buffered).
+Received `bidi_audio_delta` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_barge_in`, playback is stopped (with a short drain window of up to 300 ms if audio is already buffered).
 
 ### Eager pre-loading
 
@@ -94,15 +96,19 @@ The agent's system prompt is fetched from Langfuse (prompt name `GuiPT-Sonic`) r
 
 ### Agent speaks first
 
-After the server sends `"Configuration applied. Agent ready."`, `agent.py` waits for `agent.run()` to initialize (signalled by `agent_ready` event), then immediately calls `await agent.send("Hello")` so the agent speaks an opening greeting without waiting for user input.
+`_WebSocketInput` (the input stream handed to `agent.run()`) sends `"Hello"` from its `start()` hook, which GA calls once the model connection is live, so the agent speaks an opening greeting without waiting for user input. The prompt has to account for that synthetic first turn.
+
+### Strands GA events
+
+The agent uses the GA `strands.bidi` API (`strands.experimental.bidi` is only a deprecated alias), and the browser speaks GA's event names directly - server `bidi_*` frames are Strands events forwarded as-is. `CLIENT_EVENT_TYPES` in `agent.py` is the allowlist of what gets forwarded (the rest, e.g. deltas and usage, stays server-side); add a type there when the browser needs a new one. Inbound `bidi_audio_input` frames are base64-decoded into an `AudioDelta`, with the sample rate coming from the model's `audio` config. Model config is `region`/`voice`/`audio={...}` kwargs.
 
 ### Nova Sonic session ID
 
-Strands doesn't surface Nova Sonic's own session ID publicly, so `agent.py`'s `_SessionIdCapturingNovaSonicModel` overrides `_convert_nova_event` (a sync method) to peek at the raw `completionStart`/`usageEvent` payloads for `sessionId` and capture it once via `self.session_id` + an `asyncio.Event`. `handle_websocket_session` awaits that event in a background task and relays the ID to the client as a `system` message, so it shows up in the transcript like any other system message - no dedicated protocol type or `sonic.js` change needed. This is Nova Sonic's model-level session ID, unrelated to AgentCore's own `runtimeSessionId` header (which the browser can't set or read on a WebSocket handshake anyway).
+Strands doesn't surface Nova Sonic's own session ID publicly, so `agent.py`'s `_SessionIdCapturingNovaSonicModel` overrides the private `_convert_nova_event` (a sync method; takes `*args` since its signature changed in GA) to peek at the raw `completionStart`/`usageEvent` payloads for `sessionId` and capture it once via `self.session_id` + an `asyncio.Event`. `handle_websocket_session` awaits that event in a background task and relays the ID to the client as a `system` message, so it shows up in the transcript like any other system message - no dedicated protocol type or `sonic.js` change needed. This is Nova Sonic's model-level session ID, unrelated to AgentCore's own `runtimeSessionId` header (which the browser can't set or read on a WebSocket handshake anyway).
 
 ### Session start TTFA measurement
 
-`sonic.js` records `performance.now()` at session start and logs the elapsed time (as a "Session start TTFA" system message) when the first `bidi_audio_stream` frame arrives. This measures the time from clicking Start to the first audio byte arriving over the WebSocket - not full playback, and distinct from any future per-turn TTFA metric.
+`sonic.js` records `performance.now()` at session start and logs the elapsed time (as a "Session start TTFA" system message) when the first `bidi_audio_delta` frame arrives. This measures the time from clicking Start to the first audio byte arriving over the WebSocket - not full playback, and distinct from any future per-turn TTFA metric.
 
 ### Deploy artifacts and redeployment
 

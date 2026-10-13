@@ -1,3 +1,3 @@
-boto3==1.43.103
-botocore==1.43.103
-langfuse==4.15.6
+boto3==1.43.111
+botocore==1.43.111
+langfuse==4.17.0
