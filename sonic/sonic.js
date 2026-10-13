@@ -31,6 +31,8 @@ let nextPlayTime = 0;
 let audioCarryover = null;
 let isRunning = false;
 let pendingAgentTranscript = null; // Agent text and audio sync
+const activeSources = new Set(); // Scheduled playback chunks, so a barge-in can silence them
+const transcriptTimers = new Set(); // Agent text waiting for its audio to start, cleared on barge-in
 let sessionStartTime = null;
 
 // Local-dev override, bypass Cognito
@@ -233,21 +235,44 @@ async function playAudio(base64) {
         const transcript = pendingAgentTranscript;
         pendingAgentTranscript = null;
         const delayMs = Math.max(0, (nextPlayTime - audioPlaybackContext.currentTime) * 1000);
-        setTimeout(() => addMessage(`Agent: ${transcript}`, "assistant"), delayMs);
+        const timer = setTimeout(() => {
+            transcriptTimers.delete(timer);
+            addMessage(`Agent: ${transcript}`, "assistant");
+        }, delayMs);
+        transcriptTimers.add(timer);
     }
 
+    activeSources.add(src);
+    src.onended = () => activeSources.delete(src);
     src.start(nextPlayTime);
     nextPlayTime += buf.duration;
 }
 
+// Silence everything queued but keep the playback context alive, so the reply after a barge-in still plays
+function interruptPlayback() {
+    for (const src of activeSources) {
+        try {
+            src.stop();
+        } catch {
+            // Already ended
+        }
+    }
+    activeSources.clear();
+    for (const timer of transcriptTimers) clearTimeout(timer);
+    transcriptTimers.clear();
+    pendingAgentTranscript = null;
+    nextPlayTime = audioPlaybackContext?.currentTime ?? 0;
+    audioCarryover = null;
+}
+
 // Stop and reset the audio playback context
 function stopPlayback() {
+    interruptPlayback();
     if (audioPlaybackContext) {
         audioPlaybackContext.close();
         audioPlaybackContext = null;
         nextPlayTime = 0;
     }
-    audioCarryover = null;
 }
 
 // Capture microphone input and stream it as bidi_audio_input frames
@@ -385,7 +410,7 @@ async function startSession() {
                     break;
 
                 case "bidi_barge_in":
-                    stopPlayback();
+                    interruptPlayback();
                     setStatus("Active");
                     break;
 

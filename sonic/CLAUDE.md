@@ -73,7 +73,7 @@ The `voice` sent in `config` comes from the `VOICE_ID` constant in `sonic.js`'s 
 
 Mic → `AudioWorkletNode` (`mic-processor.js`, 4096-sample buffer) → downsample to 16 kHz → Int16 PCM → base64 → `bidi_audio_input` frames.
 
-Received `bidi_audio_delta` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_barge_in`, playback is stopped (with a short drain window of up to 300 ms if audio is already buffered).
+Received `bidi_audio_delta` audio is decoded from base64 → Int16 → Float32 and queued into a `AudioContext` buffer chain (`nextPlayTime`) to play gaplessly. On `bidi_barge_in`, `interruptPlayback()` stops every scheduled chunk and drops the agent text still waiting for its audio, but keeps the `AudioContext` alive - closing it would make `playAudio` drop the reply that follows, since it only creates the context at session start (for mobile) and returns early without one.
 
 ### Eager pre-loading
 
