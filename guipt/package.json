@@ -37,5 +37,12 @@
     "deploy-guipt": "npx firebase deploy --only functions:guipt",
     "prompt-pull": "node --env-file=.env scripts/promptSync.js pull",
     "prompt-push": "node --env-file=.env scripts/promptSync.js push"
+  },
+  "allowScripts": {
+    "@firebase/util": false,
+    "@google/genai": false,
+    "fsevents": false,
+    "protobufjs": false,
+    "re2": true
   }
 }

@@ -38,5 +38,8 @@
     "lint-fix": "eslint . --fix",
     "server": "http-server ./ --port 8082",
     "tunnel": "ngrok start website"
+  },
+  "allowScripts": {
+    "lightningcss-cli": true
   }
 }
