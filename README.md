@@ -13,6 +13,10 @@ Star of the show? Meet GuiPT, my AI alter-ego. Think ChatGPT, but with a PhD in 
 
 The rest of the site is my professional highlight reel (a.k.a. résumé) and a collection of utilities I built because it's fun and, well... why not make life easier?
 
+## 📝 TODOs
+
+- `resume.html` ("Search engine tags" block in `<head>`, ~line 42): revisit the search engine meta tags
+
 ## ✨ Features
 
 ### AI assistant

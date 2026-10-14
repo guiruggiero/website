@@ -85,7 +85,7 @@ function buildTurns(turns) {
 
         const number = document.createElement("span");
         number.className = "turn-number";
-        number.textContent = turnNumber;
+        number.textContent = turn?.input ? `${turnNumber} · ${turn.input}` : turnNumber; // Sonic voice turns are "spoken" or "typed"
         turnElement.appendChild(number);
 
         // textContent, never innerHTML - unsanitized, typed by anonymous visitors
