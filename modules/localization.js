@@ -79,8 +79,10 @@ export function getLangData() {
                 document.documentElement.style.visibility = "visible";
             }
 
-            return { // Only what's needed for index's JS-based interface
+            return { // Only what's needed for index's and sonic's JS-based interfaces
                 ...rawLangData.index,
+                lang: displayLang,
+                sonic: rawLangData.sonic,
                 themeDark: rawLangData.website.themeDark,
                 themeLight: rawLangData.website.themeLight,
                 cookieConsent: rawLangData.website.cookieConsent,

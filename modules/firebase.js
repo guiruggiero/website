@@ -15,16 +15,19 @@ const firebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 const db = getFirestore(firebaseApp);
 
 // Separate dev and prod in different collections
-const env = globalThis.location?.href.includes("ngrok") ? "dev" : "v1";
+const isDev = globalThis.location?.href.includes("ngrok");
+const env = isDev ? "dev" : "v1";
+export const voiceCollection = isDev ? "voice-dev" : "voice"; // Sonic voice chats
 
-// Create the chat log with the first turn
-export async function createLog(chatStart, turnHistory) {
+// Create the chat log with the first turn(s); options default to text chat
+export async function createLog(chatStart, turnHistory, {collectionName = env, turnCount = 1, extraFields = {}} = {}) {
     try {
-        const chatRef = await addDoc(collection(db, env), {
+        const chatRef = await addDoc(collection(db, collectionName), {
             origin: "guiruggiero.com",
             start: Timestamp.fromMillis(chatStart),
-            turnCount: 1,
+            turnCount,
             turns: turnHistory,
+            ...extraFields,
         });
         return chatRef.id;
 
@@ -33,6 +36,9 @@ export async function createLog(chatStart, turnHistory) {
         Sentry.captureException(error, {contexts: {
             logDetails: {
                 operation: "create",
+                collectionName,
+                turnCount,
+                extraFields,
             },
             turnHistory,
         }});
@@ -42,21 +48,24 @@ export async function createLog(chatStart, turnHistory) {
     }
 }
 
-// Log subsequent turns
-export async function logTurn(chatID, turnCount, duration, turnHistory) {
+// Log subsequent turns; duration is skipped when undefined, since Firestore rejects undefined values
+export async function logTurn(chatID, turnCount, duration, turnHistory, {collectionName = env, extraFields = {}} = {}) {
     try {
-        const chatRef = doc(db, env, chatID);
-        await updateDoc(chatRef, {
+        const chatRef = doc(db, collectionName, chatID);
+        const update = {
             turnCount: turnCount,
-            duration: duration,
             turns: turnHistory,
-        });
+            ...extraFields,
+        };
+        if (duration !== undefined) update.duration = duration;
+        await updateDoc(chatRef, update);
 
     } catch (error) {
         // Capture error with context
         Sentry.captureException(error, {contexts: {
             logDetails: {
                 operation: "update",
+                collectionName,
                 chatID,
                 turnNumber: turnCount,
             },

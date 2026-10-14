@@ -2,34 +2,155 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>GuiPT powered by Nova Sonic 2.5</title>
-        
+        <!-- Preconnects and preloads -->
+        <link rel="preload" href="/images/gr-logo-light.webp" as="image">
+        <link rel="preload" href="/images/gr-logo-dark.webp" as="image">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://www.gstatic.com">
         <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@smithy/signature-v4/+esm">
         <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@aws-crypto/sha256-browser/+esm">
         <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@aws-sdk/client-cognito-identity/+esm">
         <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/@aws-sdk/client-sts/+esm">
-        <link rel="stylesheet" href="sonic.css">
+
+        <!-- Browser tags -->
+        <title data-i18n="sonic.title">GuiPT Voice - powered by Amazon Nova Sonic</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="color-scheme" content="dark light">
+
+        <!-- Critical scripts -->
+        <script>
+            // Import scripts dynamically
+            function loadScript(baseName, {type = "module", crossorigin, target = "head"} = {}) {
+                const script = document.createElement("script");
+                const isDev = globalThis.location.href.includes("ngrok");
+                script.src = isDev ? `/modules/${baseName}.js` : `/modules/${baseName}.min.js`;
+                script.type = type;
+                script.async = false; // Restore execution order (default is async)
+                if (crossorigin) script.crossorigin = crossorigin;
+                (target === "body" ? document.body : document.head).appendChild(script);
+            }
+            loadScript("sentry", {type: "text/javascript"});
+            loadScript("theme-toggle");
+            loadScript("shared-head", {type: "text/javascript"});
+
+            // Start fetching the Sonic module now rather than at the end of body, it kicks off the session pre-warm
+            const sonicPreload = document.createElement("link");
+            sonicPreload.rel = "modulepreload";
+            sonicPreload.href = globalThis.location.href.includes("ngrok") ? "/modules/sonic.js" : "/modules/sonic.min.js";
+            document.head.appendChild(sonicPreload);
+        </script>
+        <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="/styles/sonic.css">
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
+
+        <!-- Search engine tags -->
+        <meta name="description" content="Talk to GuiPT, Gui's real-time voice AI assistant powered by Amazon Nova Sonic, to learn about his expertise in product management, AI, and human-computer interaction">
+        <meta http-equiv="content-language" content="en">
+        <meta name="author" content="Gui Ruggiero">
+        <link rel="canonical" href="https://guiruggiero.com/sonic/">
+        <meta name="robots" content="noindex, nofollow">
     </head>
 
     <body>
-        <h1>GuiPT powered by Nova Sonic 2.5</h1>
-        <br>
+        <!-- Google Tag Manager (noscript) -->
+        <noscript>
+            <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PX5VBDT7" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+        </noscript>
 
-        <div id="localBar"></div>
+        <header>
+            <div class="header-container">
+                <div class="logo-theme-toggle">
+                    <a href="/" aria-label="Gui Ruggiero homepage">
+                        <picture>
+                            <source srcset="/images/gr-logo-light.webp" type="image/webp">
+                            <img src="/images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+                        </picture>
+                    </a>
 
-        <div id="status">Idle</div>
+                    <button id="theme-toggle" aria-label="Switch to light theme" data-i18n="website.themeDark"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                </div>
 
-        <button id="toggleBtn">Start Session</button>
+                <div id="social-links">
+                    <a href="https://linkedin.com/in/guiruggiero" target="_blank" aria-label="LinkedIn profile">
+                        <iconify-icon icon="cib:linkedin-in"></iconify-icon>
+                    </a>
 
-        <div id="textInputRow">
-            <input type="text" id="textInput" placeholder="Type a message…" autocomplete="off" disabled aria-label="Type a message">
-            <button id="sendBtn" disabled>Send</button>
-        </div>
+                    <a href="https://github.com/guiruggiero" target="_blank" aria-label="GitHub profile">
+                        <iconify-icon icon="cib:github"></iconify-icon>
+                    </a>
+                </div>
+            </div>
+        </header>
 
-        <div id="transcript"></div>
+        <main id="sonic" data-state="idle">
+            <!-- Idle hero: voice is the primary call to action -->
+            <div id="hero">
+                <button id="orb" aria-label="Start a voice conversation with GuiPT" data-i18n="sonic.orb">
+                    <iconify-icon icon="ph:microphone-fill"></iconify-icon>
+                </button>
 
-        <script type="module" src="sonic.js"></script>
+                <div id="hero-title" data-i18n="sonic.heroTitle">Talk to GuiPT</div>
+                <div id="hero-subtitle" data-i18n="sonic.heroSubtitle">Real-time voice AI about Gui, powered by Amazon Nova Sonic 2.5</div>
+            </div>
+
+            <div id="chat-container">
+                <div id="chat-window">
+                    <div class="messages-container" role="log" aria-label="Chat conversation with GuiPT" aria-live="polite"></div>
+                </div>
+
+                <!-- Call-style controls, only shown once a conversation starts: the mic is the live visualizer, flanked by speaker and end call -->
+                <div id="call-controls">
+                    <div class="call-row">
+                        <button id="speaker-toggle" class="icon-button" aria-label="Mute GuiPT" data-i18n="sonic.speakerOn">
+                            <iconify-icon icon="ph:speaker-high-bold"></iconify-icon>
+                        </button>
+
+                        <button id="mic-toggle" class="on" aria-label="Start a voice conversation with GuiPT" data-i18n="sonic.orb">
+                            <iconify-icon icon="ph:microphone-bold"></iconify-icon>
+                        </button>
+
+                        <button id="end-call" class="icon-button" aria-label="End conversation" data-i18n="sonic.endCall">
+                            <iconify-icon icon="ph:phone-disconnect-bold"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <div id="status-text" role="status" aria-live="polite"></div>
+
+                    <button id="type-toggle">
+                        <iconify-icon icon="ph:keyboard-bold"></iconify-icon>
+                        <span data-i18n="sonic.typeInstead">Type instead</span>
+                    </button>
+                </div>
+
+                <div id="input-container">
+                    <input id="prompt" type="text" autocomplete="off" maxlength="200" aria-label="Type a message for GuiPT" data-i18n="sonic.input">
+
+                    <button id="submit" aria-label="Send message" data-i18n="sonic.submit">
+                        <iconify-icon icon="majesticons:send"></iconify-icon>
+                    </button>
+                </div>
+            </div>
+
+            <div id="prompt-pills-container"></div>
+
+            <div id="local-bar"></div>
+        </main>
+
+        <footer data-i18n="website.footer">
+            Built with lots of ☕ by Gui Ruggiero himself
+        </footer>
+
+        <!-- Other scripts -->
+        <script>
+            loadScript("sonic", {crossorigin: "anonymous", target: "body"});
+            loadScript("cookie-banner", {target: "body"});
+        </script>
     </body>
 </html>

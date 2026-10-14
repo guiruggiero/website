@@ -27,6 +27,8 @@ _langfuse: Langfuse | None = None
 PST = ZoneInfo("America/Los_Angeles")
 _EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 MAX_EMAILS_PER_SESSION = 2
+DEFAULT_FIRST_MESSAGE = "Hello"
+MAX_FIRST_MESSAGE_LENGTH = 1000
 
 # Tool registrations via  Strands with docstrings as tool descriptions
 @tool(context=True)
@@ -143,15 +145,16 @@ async def _handle_websocket_input(websocket: WebSocket, agent):
 
         logger.warning("Ignoring unknown message type: %s", message.get("type"))
 
-# Input stream for agent.run(); start() fires once the connection is live, so the opening greeting goes out from there
+# Input stream for agent.run(); start() fires once the connection is live, so the first turn goes out from there
 class _WebSocketInput:
-    def __init__(self, websocket: WebSocket):
+    def __init__(self, websocket: WebSocket, first_message: str):
         self._websocket = websocket
         self._agent = None
+        self._first_message = first_message
 
     async def start(self, agent):
         self._agent = agent
-        await agent.send("Hello")
+        await agent.send(self._first_message)
 
     async def stop(self):
         # Intentionally empty: required by the input stream interface, but nothing to clean up
@@ -182,7 +185,7 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
         agent = _create_agent(config)
 
-        ws_input = _WebSocketInput(websocket)
+        ws_input = _WebSocketInput(websocket, config["first_message"])
 
         # Relay Nova Sonic's session ID to the client once the model captures it
         async def _send_session_id():
@@ -219,13 +222,22 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
         message = await websocket.receive_json()
 
         if message.get("type") == "config":
-            config = {"voice": message.get("voice", "tiffany")}
-            logger.info("Config received: voice=%s", config["voice"])
+            config = {
+                "voice": message.get("voice", "tiffany"),
+                "first_message": _clean_first_message(message.get("firstMessage")),
+            }
+            logger.info("Config received: voice=%s, custom first message=%s", config["voice"], config["first_message"] != DEFAULT_FIRST_MESSAGE)
             return config
 
         # Reject any other message type and keep waiting
         logger.warning("Expected config event first, got: %s", message.get("type"))
         await websocket.send_json({"type": "system", "message": "Please send config event first"})
+
+# First turn the agent answers: the visitor's question (pill or typed) or a greeting in the page's language, from the client
+def _clean_first_message(raw) -> str:
+    if not isinstance(raw, str) or not raw.strip():
+        return DEFAULT_FIRST_MESSAGE
+    return raw.strip()[:MAX_FIRST_MESSAGE_LENGTH]
 
 # Nova Sonic model subclass that captures its own session ID; Strands doesn't surface it publicly
 class _SessionIdCapturingNovaSonicModel(BedrockNovaSonicModel):

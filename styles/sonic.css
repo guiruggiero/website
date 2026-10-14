@@ -1,0 +1,433 @@
+@import "global.css";
+
+main {
+    margin: 80px auto 0;
+    gap: 20px;
+}
+
+    /* Hero */
+    #hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+        #orb {
+            width: 140px;
+            height: 140px;
+            margin: 36px 0 32px;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+            #orb iconify-icon {
+                font-size: 56px;
+                color: #ffffffd9;
+            }
+
+            /* Breathing rings, inviting a tap */
+            #orb::before,
+            #orb::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 2px solid var(--accent-color);
+                animation: ripple 2.4s ease-out infinite;
+                pointer-events: none;
+            }
+
+                #orb::after {
+                    animation-delay: 1.2s;
+                }
+
+                @keyframes ripple {
+                    from {transform: scale(1); opacity: 0.6;}
+                    to {transform: scale(1.6); opacity: 0;}
+                }
+
+            #orb:hover {
+                opacity: 0.85;
+                transform: scale(1.03);
+            }
+
+        #hero-title {
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        #hero-subtitle {
+            color: var(--secondary-text-color);
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+    /* Chat container */
+    #chat-container {
+        width: 100%;
+        max-width: 600px;
+        background-color: var(--secondary-bg-color);
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: max-width 0.4s ease, height 0.4s ease, color 0s, background-color 0s;
+    }
+
+        #chat-window {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 10px 9px 0 15px;
+            /* eslint-disable-next-line css/use-baseline */
+            scrollbar-gutter: stable;
+            scroll-behavior: smooth;
+        }
+
+            #chat-window::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #chat-window::-webkit-scrollbar-thumb {
+                background-color: var(--secondary-text-color);
+                border-radius: 3px;
+            }
+
+                #chat-window:hover::-webkit-scrollbar-thumb {
+                    background-color: var(--accent-color);
+                }
+
+            .messages-container {
+                margin-top: auto;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+                .message {
+                    margin: 8px;
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    width: fit-content;
+                    max-width: 80%;
+                    font-size: 0.95em;
+                    line-height: 1.4;
+                    animation: message-in 0.5s ease;
+                }
+
+                    @keyframes message-in {
+                        from {opacity: 0; transform: translateY(10px);}
+                        to {opacity: 1; transform: translateY(0);}
+                    }
+
+                    .user-message {
+                        background-color: var(--secondary-accent-color);
+                        align-self: flex-end;
+                    }
+
+                    .bot-message {
+                        background-color: var(--tertiary-bg-color);
+                        align-self: flex-start;
+                    }
+
+                    .error-message {
+                        background-color: var(--error-message-bg-color);
+                        align-self: center;
+                    }
+
+                .system-message {
+                    align-self: center;
+                    margin: 6px 8px;
+                    color: var(--secondary-text-color);
+                    font-size: 0.7em;
+                    text-align: center;
+                    overflow-wrap: anywhere;
+                }
+
+        #input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--primary-bg-color);
+            transition: padding 0.4s ease, color 0s, background-color 0s;
+        }
+
+            #prompt {
+                flex-grow: 1;
+                min-width: 0;
+                padding: 8px 12px;
+                font-size: 1em;
+                font-family: inherit;
+                border: none;
+                border-radius: 8px;
+                background-color: var(--tertiary-bg-color);
+                caret-color: var(--primary-text-color);
+                height: 40px;
+            }
+
+                #prompt::placeholder {
+                    color: var(--secondary-text-color);
+                }
+
+                #prompt:focus {
+                    outline: none;
+                }
+
+            #submit {
+                background-color: var(--accent-color);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                height: 40px;
+                width: 40px;
+                padding: 8px;
+                flex-shrink: 0;
+                opacity: 0.4;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+
+                #submit iconify-icon {
+                    display: inline-block;
+                    width: 1em;
+                    height: 1em;
+                    font-size: 1.5em;
+                    color: #ffffffd9;
+                }
+
+                #submit.active {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+
+                    #submit.active:hover {
+                        opacity: 0.7;
+                    }
+
+        /* Call-style controls: speaker, mic, end call in one centered row, status and "Type instead" below */
+        #call-controls {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 10px 10px;
+        }
+
+            .call-row {
+                display: flex;
+                align-items: center;
+                gap: 28px;
+            }
+
+                .icon-button {
+                    height: 44px;
+                    width: 44px;
+                    border: none;
+                    border-radius: 50%;
+                    background-color: var(--tertiary-bg-color);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity 0.3s ease, background-color 0.3s ease;
+                }
+
+                    .icon-button iconify-icon {
+                        font-size: 1.3em;
+                    }
+
+                    .icon-button:hover {
+                        opacity: 0.7;
+                    }
+
+                #end-call {
+                    background-color: #dc2626;
+                }
+
+                    #end-call iconify-icon {
+                        color: #ffffffd9;
+                    }
+
+                /* Speaker and end call only exist during a conversation - hidden, not removed, so the mic stays centered */
+                main:not([data-state="connecting"], [data-state="listening"], [data-state="speaking"], [data-state="muted"]) :is(#speaker-toggle, #end-call) {
+                    visibility: hidden;
+                }
+
+                /* The mic is a smaller orb, and the live visualizer: its ring follows --level */
+                #mic-toggle {
+                    --level: 0; /* Live audio level (0-1), set per frame by sonic.js on this element only */
+                    height: 64px;
+                    width: 64px;
+                    border: none;
+                    border-radius: 50%;
+                    background-color: var(--tertiary-bg-color);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity 0.3s ease, background-color 0.3s ease; /* No box-shadow transition, the level is already smoothed in JS */
+                }
+
+                    #mic-toggle iconify-icon {
+                        font-size: 1.8em;
+                    }
+
+                    #mic-toggle:hover {
+                        opacity: 0.85;
+                    }
+
+                    #mic-toggle:disabled {
+                        opacity: 0.4;
+                        cursor: not-allowed;
+                    }
+
+                    #mic-toggle.on {
+                        background-color: var(--accent-color);
+                    }
+
+                        #mic-toggle.on iconify-icon {
+                            color: #ffffffd9;
+                        }
+
+                    main[data-state="listening"] #mic-toggle {
+                        box-shadow: 0 0 0 calc(4px + var(--level) * 14px) var(--secondary-accent-color);
+                    }
+
+                    main[data-state="speaking"] #mic-toggle {
+                        box-shadow: 0 0 0 calc(4px + var(--level) * 14px) var(--tertiary-bg-color);
+                    }
+
+                    main[data-state="connecting"] #mic-toggle {
+                        animation: mic-wait 1.2s ease-in-out infinite;
+                    }
+
+                        @keyframes mic-wait {
+                            0%, 100% {box-shadow: 0 0 0 0 var(--secondary-accent-color);}
+                            50% {box-shadow: 0 0 0 10px var(--secondary-accent-color);}
+                        }
+
+            #status-text {
+                margin-top: 10px;
+                min-height: 1.4em;
+                font-size: 0.85em;
+                color: var(--secondary-text-color);
+                text-align: center;
+            }
+
+            #type-toggle {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 0.8em;
+                color: var(--secondary-text-color);
+                transition: color 0.3s ease;
+            }
+
+                #type-toggle iconify-icon,
+                #type-toggle span {
+                    color: inherit;
+                }
+
+                #type-toggle:hover {
+                    color: var(--accent-color);
+                }
+
+    #prompt-pills-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .prompt-pill {
+            background-color: var(--tertiary-bg-color);
+            border-radius: 16px;
+            padding: 8px 16px;
+            margin: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+            .prompt-pill.hidden {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            .prompt-pill:hover {
+                opacity: 0.7;
+            }
+
+    /* Local-dev override bar, hidden by default */
+    #local-bar {
+        display: none;
+        background-color: var(--error-message-bg-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+
+/* Conversation layout, the chat window takes over like the homepage's */
+main:not([data-state="idle"]) {
+    margin-top: 60px;
+    gap: 10px;
+}
+
+    main:not([data-state="idle"]) #hero,
+    main:not([data-state="idle"]) #prompt-pills-container {
+        display: none;
+    }
+
+    main:not([data-state="idle"]) #chat-container {
+        max-width: 900px;
+        height: calc(100dvh - 120px);
+        min-height: 265px;
+        max-height: 800px;
+    }
+
+        main:not([data-state="idle"]) #call-controls {
+            display: flex;
+        }
+
+            main.typing #type-toggle {
+                display: none;
+            }
+
+        main:not([data-state="idle"]) #chat-window {
+            display: flex;
+        }
+
+        /* Typing is opt-in during a conversation, open from the start if it began from text */
+        main:not([data-state="idle"]) #input-container {
+            display: none;
+            background-color: var(--secondary-bg-color);
+            padding: 0 10px 10px;
+        }
+
+            main.typing:not([data-state="idle"]) #input-container {
+                display: flex;
+            }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    #orb::before,
+    #orb::after,
+    main[data-state="connecting"] #mic-toggle,
+    .message {
+        animation: none;
+    }
+}

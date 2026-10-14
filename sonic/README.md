@@ -11,9 +11,8 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
   - `audio.js` - startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
   - `tools.js` - tool definitions and handlers
   - `sonic.js` - session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
-- Integrate into main site: domain modules move to `modules/sonic/` (auth.js, audio.js, tools.js, mic-processor.js), CSS to `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
-- Sentry error capture and logging
-- Minimization and deployment
+- Integrate into main site: domain modules (auth.js, audio.js, tools.js) split out in `modules/`, next to `sonic.js` and `mic-processor.js`; CSS already lives in `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
+- Send Nova Sonic's session ID as a structured field (e.g. `{"type": "system", "message": "...", "sessionId": "..."}` from `_send_session_id` in `agent.py`) and read `data.sessionId` in `sonic.js`, instead of regex-parsing the `Session ID: ...` message text - today any rewording silently drops the `sonicSessionId` Sentry tag and Firestore field. Keep the old text in `message` so an un-updated client still works, and redeploy the agent before the client
 
 ## Architecture
 
@@ -28,7 +27,7 @@ index.html                     AgentCore Runtime
                                      Langfuse (us.cloud.langfuse.com)
 ```
 
-- `index.html`, `sonic.css`, `sonic.js` - pure static HTML/CSS/JS, deploy to GitHub Pages
+- `index.html`, `../modules/sonic.js` + `../modules/mic-processor.js`, `../styles/sonic.css` - pure static HTML/CSS/JS, deploy to GitHub Pages
 - `agentcore/` - Docker image, runs on AgentCore
 - `scripts/` - run once locally to create all AWS resources
 
@@ -73,13 +72,13 @@ In one terminal in WSL, run the server:
 python3 agentcore/server.py # starts on port 8080
 ```
 
-In a second terminal, serve the client from `sonic/`:
+In a second terminal, serve the client from the repo root (the page loads the site's shared `/modules`, `/styles` and `/images`):
 
 ```bash
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://localhost:8001?wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing. Use `localhost`, not `127.0.0.1` - the page only honors `?wsUrl=` on a `localhost` hostname, and otherwise silently falls back to the deployed runtime. Click **Start Session** and speak.
+Open `http://localhost:8001/sonic/?ngrok&wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing, and `ngrok` makes the page load the shared modules' plain `.js` instead of the CI-only `.min.js`. Use `localhost`, not `127.0.0.1` - the page only honors `?wsUrl=` on a `localhost` hostname, and otherwise silently falls back to the deployed runtime. Tap the mic and speak, or type.
 
 > **Windows note:** Port 8000 can conflict with other processes. Using `--bind 0.0.0.0` avoids an IPv6-only binding that some browsers can't reach.
 
@@ -97,7 +96,7 @@ This takes 10–15 minutes on first run (re-deploys are faster - it updates the 
 3. Create the AgentCore Runtime and wait until it's `READY`
 4. Create a Cognito Identity Pool so the browser can get temporary AWS credentials
 
-When done, it prints two constants to paste into `sonic.js`:
+When done, it prints two constants to paste into `../modules/sonic.js`:
 
 ```
 const COGNITO_IDENTITY_POOL_ID = "us-west-2:xxxx...";
@@ -123,7 +122,7 @@ The trailing `*` on the resource is required - AgentCore evaluates the ARN with 
 
 ## Step 3 - Configure and deploy client
 
-Paste the two constants into the `CONFIG` block at the top of `sonic.js`, then deploy `index.html`, `sonic.css`, and `sonic.js` to the website.
+Paste the two constants into the `CONFIG` block at the top of `../modules/sonic.js`, then deploy `index.html`, `../modules/sonic.js`, `../modules/mic-processor.js`, and `../styles/sonic.css` to the website.
 
 You can also change `VOICE_ID` in the same block to customise the agent's personality.
 
@@ -149,13 +148,13 @@ This replicates the exact browser flow: Cognito unauthenticated identity → Ope
 
 **End-to-end test - browser with localhost**
 
-In the second terminal, serve the client from `sonic/`:
+In the second terminal, serve the client from the repo root:
 
 ```bash
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://localhost:8001`, click **Start Session**, and speak.
+Open `http://localhost:8001/sonic/?ngrok`, tap the mic, and speak.
 
 ## Cleanup
 
@@ -172,10 +171,10 @@ Deletes the AgentCore Runtime, Cognito pool, and IAM roles. Asks before deleting
 | `agentcore/server.py` | FastAPI server - `/ping`, `/invocations`, `/ws` |
 | `agentcore/agent.py` | `BidiAgent` + `BedrockNovaSonicModel` session handler |
 | `agentcore/Dockerfile` | `linux/arm64` image for AgentCore |
-| `index.html` | HTML shell - head structure, header/footer, loads `sonic.js` via `loadScript` |
-| `sonic.css` | All UI styles |
-| `sonic.js` | Voice agent logic (config, WebSocket, audio) |
-| `mic-processor.js` | `AudioWorkletProcessor` - downsamples mic input to 16 kHz Int16 PCM |
+| `index.html` | Page markup - site header/footer, mic orb hero, chat window with call bar and input |
+| `../styles/sonic.css` | UI styles, built on the site's `global.css` design tokens |
+| `../modules/sonic.js` | Voice agent logic (auth, WebSocket, audio), UI state, and Firestore turn logging |
+| `../modules/mic-processor.js` | `AudioWorkletProcessor` - downsamples mic input to 16 kHz Int16 PCM |
 | `scripts/deploy.py` | Creates all AWS resources |
 | `scripts/cleanup.py` | Tears all resources down |
 | `scripts/test_ws.py` | Generates a SigV4-presigned URL and tests the WebSocket connection |
