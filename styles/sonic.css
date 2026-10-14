@@ -317,6 +317,7 @@ main {
                         }
 
             #status-text {
+                display: block; /* <output> is inline by default */
                 margin-top: 10px;
                 min-height: 1.4em;
                 font-size: 0.85em;

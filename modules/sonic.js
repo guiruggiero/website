@@ -293,7 +293,9 @@ function renderMicToggle() {
     const on = micEnabled || !isRunning;
     elements.micToggle.classList.toggle("on", on);
     elements.micToggle.innerHTML = `<iconify-icon icon="ph:${on ? "microphone-bold" : "microphone-slash-bold"}"></iconify-icon>`;
-    elements.micToggle.setAttribute("aria-label", isRunning ? (micEnabled ? t.micOn : t.micOff) : t.orb);
+    let micLabel = t.orb;
+    if (isRunning) micLabel = micEnabled ? t.micOn : t.micOff;
+    elements.micToggle.setAttribute("aria-label", micLabel);
     if (isRunning) elements.micToggle.setAttribute("aria-pressed", String(micEnabled));
     else elements.micToggle.removeAttribute("aria-pressed");
 }
@@ -320,7 +322,7 @@ function readLevel(analyser) {
     if (!analyser) return 0;
     analyser.getFloatTimeDomainData(levelBuffer);
     let sum = 0;
-    for (let i = 0; i < levelBuffer.length; i++) sum += levelBuffer[i] * levelBuffer[i];
+    for (const sample of levelBuffer) sum += sample * sample;
     return Math.min(1, Math.sqrt(sum / levelBuffer.length) * 5);
 }
 
@@ -337,7 +339,9 @@ function renderLoop() {
     }
 
     // Smooth the level so the ring doesn't jitter, and skip the style write when nothing changed
-    const level = speaking ? readLevel(outputAnalyser) : (micEnabled ? readLevel(micAnalyser) : 0);
+    let level = 0;
+    if (speaking) level = readLevel(outputAnalyser);
+    else if (micEnabled) level = readLevel(micAnalyser);
     smoothedLevel += (level - smoothedLevel) * 0.3;
     const levelText = smoothedLevel.toFixed(3);
     if (levelText !== lastLevelText) {
@@ -622,17 +626,46 @@ function handleSpeakerToggle() {
     renderSpeakerToggle();
 }
 
+// Record time to first audio the first time audio arrives
+function recordTtfa() {
+    if (!sessionStartTime) return;
+    chatLog.ttfa = Number(((performance.now() - sessionStartTime) / 1000).toFixed(3)); // Seconds
+    sessionStartTime = null;
+    reportSessionStart();
+}
+
+// A finished user transcript block: show it and start a turn, unless it only echoes typed text
+function handleUserTranscript(rawTranscript) {
+    const transcript = rawTranscript?.trim();
+    if (!transcript) return;
+
+    // Skip the echo of typed text, the first turn included
+    if (transcript.toLowerCase() === lastSentText) {
+        lastSentText = null;
+        return;
+    }
+
+    addUserMessage(transcript);
+    startTurn(transcript, "spoken");
+}
+
+// Not shown to visitors, only the session ID is kept, for Sentry
+function handleSystemMessage(message) {
+    const sessionIdMatch = message?.match(/^Session ID: (.+)$/);
+    if (!sessionIdMatch) return;
+
+    chatLog.sonicSessionId = sessionIdMatch[1];
+    if (typeof Sentry !== "undefined") Sentry.setTag("sonicSessionId", chatLog.sonicSessionId);
+    reportSessionStart();
+}
+
 // Route server frames
 async function handleServerMessage(event) {
     const data = JSON.parse(event.data);
 
     switch (data.type) {
         case "bidi_audio_delta":
-            if (sessionStartTime) {
-                chatLog.ttfa = Number(((performance.now() - sessionStartTime) / 1000).toFixed(3)); // Seconds
-                sessionStartTime = null;
-                reportSessionStart();
-            }
+            recordTtfa();
             await playAudio(data.audio);
             break;
 
@@ -642,19 +675,7 @@ async function handleServerMessage(event) {
             break;
 
         case "bidi_transcript_block":
-            if (data.role === "user") {
-                const transcript = data.transcript?.trim();
-                if (!transcript) break;
-
-                // Skip the echo of typed text, the first turn included
-                if (transcript.toLowerCase() === lastSentText) {
-                    lastSentText = null;
-                    break;
-                }
-
-                addUserMessage(transcript);
-                startTurn(transcript, "spoken");
-            }
+            if (data.role === "user") handleUserTranscript(data.transcript);
             break;
 
         case "bidi_barge_in":
@@ -662,16 +683,9 @@ async function handleServerMessage(event) {
             currentBotMessage = null;
             break;
 
-        case "system": {
-            // Not shown to visitors, only the session ID is kept, for Sentry
-            const sessionIdMatch = data.message?.match(/^Session ID: (.+)$/);
-            if (sessionIdMatch) {
-                chatLog.sonicSessionId = sessionIdMatch[1];
-                if (typeof Sentry !== "undefined") Sentry.setTag("sonicSessionId", chatLog.sonicSessionId);
-                reportSessionStart();
-            }
+        case "system":
+            handleSystemMessage(data.message);
             break;
-        }
 
         case "session_end":
             endSession();
