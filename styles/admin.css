@@ -344,7 +344,7 @@ main {
         /* Chat log filters */
         .filters {
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap; /* One line on desktop, stacked in the mobile query below */
             align-items: flex-end;
             gap: 12px;
             margin-bottom: 16px;
@@ -354,12 +354,20 @@ main {
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
+                min-width: 0; /* Lets the collection picker shrink instead of wrapping the row */
             }
 
+                /* The collection picker absorbs the slack, the dates stay their natural width */
+                .filter-field:first-child {
+                    flex: 1;
+                }
+
+                    .filter-field:first-child select {
+                        width: 100%;
+                    }
+
                 .filter-field label {
-                    font-size: 0.75em;
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
+                    font-size: 0.8em;
                     color: var(--secondary-text-color);
                 }
 
@@ -506,6 +514,35 @@ main {
                     border-top: 1px solid var(--media-border-color);
                 }
 
+                    /* Sonic only: label + click-to-copy session ID above the turns */
+                    .session-line {
+                        display: flex;
+                        flex-wrap: wrap;
+                        align-items: center;
+                        gap: 4px 8px;
+                        font-size: 0.8em;
+                        color: var(--secondary-text-color);
+                    }
+
+                        .session-id {
+                            background: transparent;
+                            border: 1px solid transparent;
+                            border-radius: 5px;
+                            padding: 3px 6px;
+                            font-family: monospace;
+                            font-size: 1.1em;
+                            color: var(--secondary-text-color);
+                            cursor: pointer;
+                            overflow-wrap: anywhere;
+                            text-align: left;
+                            transition: color 0.3s ease, border-color 0.3s ease;
+                        }
+
+                            .session-id:hover {
+                                color: var(--accent-color);
+                                border-color: var(--media-border-color);
+                            }
+
                     .turn {
                         display: flex;
                         flex-direction: column;
@@ -568,7 +605,12 @@ main {
             grid-row: auto;
         }
 
-    .filter-field {
+    .filters {
+        flex-wrap: wrap;
+    }
+
+    .filter-field,
+    .filter-field:first-child {
         flex: 1;
     }
 

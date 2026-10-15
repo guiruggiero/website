@@ -105,7 +105,7 @@ Sonic voice chats go to `voice` (`voice-dev` on ngrok) with the same shape, plus
   turns: {"1": {user, model, input}, ...}   // input is "spoken" (user text is Nova's ASR transcript) or "typed"
 ```
 
-The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number.
+The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number, `ttfa` beside the turn count and duration, and `sonicSessionId` as a click-to-copy line at the top of the expanded row.
 
 ### Firestore Rules
 
