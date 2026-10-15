@@ -156,6 +156,8 @@ function buildChatRow(chat) {
     const metrics = document.createElement("span");
     metrics.className = "chat-metrics";
     metrics.textContent = `${chat.turnCount ?? 0} turn${chat.turnCount === 1 ? "" : "s"} · ${formatDuration(chat.duration)}`;
+    // Sonic voice chats only: seconds from starting the conversation to the first audio byte
+    if (typeof chat.ttfa === "number") metrics.textContent += ` · ${chat.ttfa.toFixed(2)}s TTFA`;
     summary.appendChild(metrics);
 
     // Chat ID for easy deletion in Firebase Console
@@ -173,7 +175,30 @@ function buildChatRow(chat) {
     summary.appendChild(idButton);
 
     row.appendChild(summary);
-    row.appendChild(buildTurns(chat.turns));
+
+    const turnsContainer = buildTurns(chat.turns);
+
+    // Sonic voice chats only: Nova Sonic's session ID, for cross-referencing Sentry and AgentCore logs
+    if (chat.sonicSessionId) {
+        const sessionLine = document.createElement("div");
+        sessionLine.className = "session-line";
+
+        const sessionLabel = document.createElement("span");
+        sessionLabel.textContent = "Session ID";
+        sessionLine.appendChild(sessionLabel);
+
+        const sessionButton = document.createElement("button");
+        sessionButton.type = "button";
+        sessionButton.className = "session-id";
+        sessionButton.title = "Copy session ID";
+        sessionButton.textContent = chat.sonicSessionId;
+        sessionButton.addEventListener("click", () => void copyChatID(sessionButton, chat.sonicSessionId));
+        sessionLine.appendChild(sessionButton);
+
+        turnsContainer.prepend(sessionLine);
+    }
+
+    row.appendChild(turnsContainer);
     return row;
 }
 
