@@ -9,7 +9,7 @@ No automated tests or linters are configured. `scripts/test_ws.py` and `scripts/
 ```
 Browser (GitHub Pages)          AWS us-west-2
 ──────────────────────          ──────────────────────────────────
-sonic/index.html                Cognito Identity Pool (unauthenticated)
+sonic.html                      Cognito Identity Pool (unauthenticated)
 modules/sonic.js ─get creds──▶   → temp AWS credentials
                 ──sign URL───▶  bedrock-agentcore SigV4
                 ══WebSocket══▶  AgentCore Runtime
@@ -75,7 +75,7 @@ Received `bidi_audio_delta` audio is decoded from base64 → Int16 → Float32 a
 
 ### Client UI
 
-The client is `sonic/index.html` (markup only) + `styles/sonic.css` (on the site's `global.css` tokens) + `modules/sonic.js` and `modules/mic-processor.js`, living with the rest of the site's JS/CSS so CI minifies them and uploads sourcemaps to Sentry. Unqualified `sonic.js` in this file means `modules/sonic.js`.
+The client is `sonic.html` (markup only, at the repo root with the other pages) + `styles/sonic.css` (on the site's `global.css` tokens) + `modules/sonic.js` and `modules/mic-processor.js`, living with the rest of the site's JS/CSS so CI minifies them and uploads sourcemaps to Sentry. Unqualified `sonic.js` in this file means `modules/sonic.js`.
 
 Voice-first, with text as a first-class fallback in the same session: the mic orb starts a voice session, while typing or a prompt pill starts one without asking for the mic. `main#sonic[data-state]` (`idle`, `ready`, `connecting`, `listening`, `speaking`, `muted`, `ended`, `error`) drives the whole layout in CSS, and `setState()` is its only writer. Once expanded the layout is call-style: the conversation fills the box, with one centered cluster at the bottom - speaker / mic / end call, the status line, and a "Type instead" toggle that opens the input (`main.typing`; opened automatically when the conversation started from text or the mic was denied). The mic doubles as the visualizer: `renderLoop()` (rAF, only while a session runs) picks `speaking`/`listening`/`muted` and writes `--level` on the mic element alone, which drives its ring. Between conversations the mic reads as "start talking", and speaker/end are `visibility: hidden` so it stays centered.
 
@@ -98,7 +98,7 @@ On page load, before any conversation starts, `sonic.js` kicks off non-blocking 
 3. **WebSocket** - `ensureWebSocket()` chains off the signed URL (or `localWsUrl`) to open and hold an idle connection via `_wsPromise`, so the connect round-trip and AgentCore container boot happen before the click. The server just waits for `config` - no model work happens until a session actually starts. `startSession()` reuses it if still `OPEN`, otherwise opens a fresh one
 4. **AudioWorklet** - an IIFE creates a silent `AudioContext`, calls `audioWorklet.addModule(MIC_PROCESSOR_URL)` (resolved against `import.meta.url`, `.min.js` outside ngrok) and only then keeps it as `_preAudioCtx`, so the worklet is compiled when `startAudioInput()` runs
 
-**Ordering is load-bearing**: the pre-warm kick-off sits *above* the module's only top-level `await` (the locale strings), and every other UI dependency (Typed, validation, Firebase) is a lazy promise awaited where it's used. An `await` above the kick-off, or a CDN import awaited before `start()` wires the controls, delays pre-warm and lets early taps land before the handlers exist - measured at roughly +0.6s TTFA, plus occasional dead taps, for a tap ~1s after load. `sonic/index.html` also `modulepreload`s the module from `<head>`.
+**Ordering is load-bearing**: the pre-warm kick-off sits *above* the module's only top-level `await` (the locale strings), and every other UI dependency (Typed, validation, Firebase) is a lazy promise awaited where it's used. An `await` above the kick-off, or a CDN import awaited before `start()` wires the controls, delays pre-warm and lets early taps land before the handlers exist - measured at roughly +0.6s TTFA, plus occasional dead taps, for a tap ~1s after load. `sonic.html` also `modulepreload`s the module from `<head>`.
 
 `startSession()` then races mic setup and the WebSocket (pre-warmed or fresh) in parallel (`Promise.all([inputPromise, openPromise])`) and sends config once both are ready.
 
