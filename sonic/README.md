@@ -19,7 +19,7 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 ```
 GitHub Pages                   AWS (us-west-2)
 ──────────────                 ──────────────────────────────
-index.html                     AgentCore Runtime
+../sonic.html                  AgentCore Runtime
   │  gets temp creds ──────→ Cognito Identity Pool (unauthenticated)
   │  signs WebSocket URL ──→ bedrock-agentcore SigV4
   └──────────────────────────→ /ws → BidiAgent → Nova Sonic
@@ -27,7 +27,7 @@ index.html                     AgentCore Runtime
                                      Langfuse (us.cloud.langfuse.com)
 ```
 
-- `index.html`, `../modules/sonic.js` + `../modules/mic-processor.js`, `../styles/sonic.css` - pure static HTML/CSS/JS, deploy to GitHub Pages
+- `../sonic.html`, `../modules/sonic.js` + `../modules/mic-processor.js`, `../styles/sonic.css` - pure static HTML/CSS/JS, deploy to GitHub Pages
 - `agentcore/` - Docker image, runs on AgentCore
 - `scripts/` - run once locally to create all AWS resources
 
@@ -78,7 +78,7 @@ In a second terminal, serve the client from the repo root (the page loads the si
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://localhost:8001/sonic/?ngrok&wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing, and `ngrok` makes the page load the shared modules' plain `.js` instead of the CI-only `.min.js`. Use `localhost`, not `127.0.0.1` - the page only honors `?wsUrl=` on a `localhost` hostname, and otherwise silently falls back to the deployed runtime. Tap the mic and speak, or type.
+Open `http://localhost:8001/sonic.html?ngrok&wsUrl=ws://localhost:8080/ws` - the `?wsUrl=` parameter bypasses Cognito for local testing, and `ngrok` makes the page load the shared modules' plain `.js` instead of the CI-only `.min.js`. Use `localhost`, not `127.0.0.1` - the page only honors `?wsUrl=` on a `localhost` hostname, and otherwise silently falls back to the deployed runtime. Tap the mic and speak, or type.
 
 > **Windows note:** Port 8000 can conflict with other processes. Using `--bind 0.0.0.0` avoids an IPv6-only binding that some browsers can't reach.
 
@@ -122,7 +122,7 @@ The trailing `*` on the resource is required - AgentCore evaluates the ARN with 
 
 ## Step 3 - Configure and deploy client
 
-Paste the two constants into the `CONFIG` block at the top of `../modules/sonic.js`, then deploy `index.html`, `../modules/sonic.js`, `../modules/mic-processor.js`, and `../styles/sonic.css` to the website.
+Paste the two constants into the `CONFIG` block at the top of `../modules/sonic.js`, then deploy `../sonic.html`, `../modules/sonic.js`, `../modules/mic-processor.js`, and `../styles/sonic.css` to the website.
 
 You can also change `VOICE_ID` in the same block to customise the agent's personality.
 
@@ -154,7 +154,7 @@ In the second terminal, serve the client from the repo root:
 python3 -m http.server 8001 --bind 0.0.0.0
 ```
 
-Open `http://localhost:8001/sonic/?ngrok`, tap the mic, and speak.
+Open `http://localhost:8001/sonic.html?ngrok`, tap the mic, and speak.
 
 ## Cleanup
 
@@ -171,7 +171,7 @@ Deletes the AgentCore Runtime, Cognito pool, and IAM roles. Asks before deleting
 | `agentcore/server.py` | FastAPI server - `/ping`, `/invocations`, `/ws` |
 | `agentcore/agent.py` | `BidiAgent` + `BedrockNovaSonicModel` session handler |
 | `agentcore/Dockerfile` | `linux/arm64` image for AgentCore |
-| `index.html` | Page markup - site header/footer, mic orb hero, chat window with call bar and input |
+| `../sonic.html` | Page markup - site header/footer, mic orb hero, chat window with call bar and input |
 | `../styles/sonic.css` | UI styles, built on the site's `global.css` design tokens |
 | `../modules/sonic.js` | Voice agent logic (auth, WebSocket, audio), UI state, and Firestore turn logging |
 | `../modules/mic-processor.js` | `AudioWorkletProcessor` - downsamples mic input to 16 kHz Int16 PCM |
