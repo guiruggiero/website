@@ -13,6 +13,8 @@ Receives `{message, history}` — stateless, history is passed in from the clien
 
 **Access**: CORS restricted to `guiruggiero.com` and the ngrok dev URL, plus a server-side origin check that returns 403 for unknown origins.
 
+**Known gap**: that origin/referer check is client-spoofable, so there is no real auth, and Cloudflare Access can't cover this function (it lives on `*.cloudfunctions.net`/`*.run.app`, not `guiruggiero.com`). No fix is planned or scaffolded; if this comes up, raise whether GuiPT should get a Cloudflare Worker proxy or some other real auth.
+
 **Limits**: max 5 instances, 8-second function timeout. The client (`modules/guipt.js`) enforces a 22-second timeout, raced against the axios 6-second retry chain. When changing the API contract (request/response shape, error codes, timeouts), update both `guipt/index.js` and `modules/guipt.js` together.
 
 **Required env vars** (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`.

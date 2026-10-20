@@ -38,6 +38,10 @@ The same split applies one level down, when one module imports another: a static
 
 `theme-toggle.js` and `shared-head.js` reference images and styles by root-absolute paths (`/images/...`, `/styles/...`) so they work whatever the page's URL; keep new asset paths in shared modules absolute too.
 
+`loadScript()` (inlined in all 15 pages) sets `script.async = false`: script-inserted elements default to async, so `defer` is a no-op and the scripts race (this caused WEBSITE-40, `getLangData is not a function`). Don't revert it.
+
+Cloudflare Rocket Loader is disabled zone-wide (since 2026-10-09, for WEBSITE-45). Don't suggest re-enabling it. If `rocket-loader` frames reappear in Sentry, purge the Cloudflare cache, because cached HTML may still have rewritten script tags.
+
 ### Localization
 
 All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI text, add keys to both locale files. The language is auto-detected from `navigator.language`.
@@ -126,7 +130,7 @@ Pushing to the `live` branch triggers the minification workflow:
 7. Minified output force-pushed to `live-min` branch
 8. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
 
-The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com.
+The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com. To tell whether a fix is live in production, don't use commit dates on `main` — check `git merge-base --is-ancestor <sha> origin/live` (or `origin/live-min`) and the `createdAt` of the latest `gh run list --branch live` minification run, which is when browser caches really start counting.
 
 ### Syncing `main` into `live`
 
@@ -134,9 +138,9 @@ The `main` branch is for development; `live` is the pre-minification source; `li
 
 Name the sync PR for its actual content, not the mechanical action — e.g. `Weekly update`, `Bump dependencies`, or (for a large mixed batch) `Too many changes/updates accumulated to list`, not a generic title like "Sync main into live".
 
-The SonarCloud check on these PRs can fail on pre-existing findings unrelated to the sync itself (e.g. Dockerfile or Python findings in `sonic/agentcore/`) — it isn't a required check, so a failure there doesn't block merging; confirm via `sonarqube-code-scanning` that the findings predate the sync before merging anyway.
+The SonarCloud check on these PRs can fail on pre-existing findings unrelated to the sync itself (e.g. Dockerfile or Python findings in `sonic/agentcore/`) — it isn't a required check, so a failure there doesn't block merging; confirm via `~/.claude/sonarqube.sh` that the findings predate the sync before merging anyway.
 
-`guipt/` is deployed independently and separately from this pipeline (`npm run deploy` from within `guipt/`, using whatever is on local disk — not tied to git state). Never let `guipt/index.js` reference files that aren't committed to git (e.g. an in-progress `tools/`/`utils/` addition) — it'll deploy fine from local disk, but leaves `main` broken for a fresh clone and creates drift between what's committed and what's actually running in production.
+`guipt/` is deployed independently and separately from this pipeline (`npm run deploy` from within `guipt/`, using whatever is on local disk — not tied to git state). Never let `guipt/index.js` reference files that aren't committed to git (e.g. an in-progress `tools/`/`utils/` addition) — it'll deploy fine from local disk, but leaves `main` broken for a fresh clone and creates drift between what's committed and what's actually running in production. Currently untracked in git: `guipt/index.wip.js` (the committed `index.js` plus a tool-calling loop) and the files only it uses — `guipt/tools/` (`bookMeeting.js`, `getAvailableSlots.js`, `getCurrentDateTime.js`, `sendEmail.js`), `guipt/utils/calCom.js` and `guipt/scripts/testCalCom.js`. This is unfinished work, not in the committed `index.js`; commit it or discard it so it isn't lost with the working tree (and delete this note).
 
 ## Sentry
 
