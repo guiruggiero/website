@@ -25,10 +25,4 @@ Chat sessions are logged to Firestore in collection `dev` (ngrok) or `v1` (every
 
 ## Prompt Management
 
-`prompt.md` is the local copy of the GuiPT system prompt (gitignored). The live prompt is on Langfuse; `prompt.md` exists so Claude Code always has the full prompt in context. Use `npm run prompt-pull` / `npm run prompt-push` to sync; the scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored). Always apply changes to the system prompt, let the user know, and offer to push to Langfuse; but never mention it in the commit message.
-
-**A push is not a deploy.** `prompt-push` creates the version with `labels: []`, deliberately omitting `"production"`, so the live prompt doesn't change until the version is promoted in the Langfuse UI. And because `prompt-pull` fetches the production-labelled version, pulling before promoting overwrites `prompt.md` with the old live prompt — losing the local edits you just pushed.
-
-## ESLint
-
-Uses the Google style config, which enforces a max line length of 80 characters.
+`prompt.md` is the local copy of the GuiPT system prompt. `prompt-pull` / `prompt-push` need `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored).

@@ -58,14 +58,14 @@ The browser and server exchange JSON frames. **The first message from the client
 
 ### Key implementation constraints
 
-- **10 KB WebSocket frame limit**: AgentCore's proxy enforces this. `server.py:split_large_event()` splits large `bidi_audio_delta` payloads into chunks before sending - do not bypass this.
-- **IMDS credential refresh**: On AgentCore the container gets credentials from EC2 IMDS. `server.py` polls IMDS on startup and refreshes before expiry. Locally, env vars take precedence (`AWS_ACCESS_KEY_ID` etc.).
-- **Docker image must be `linux/arm64`**: AgentCore runs on ARM. `deploy.py` passes `--platform linux/arm64` to `docker buildx build`. The Dockerfile uses `ARG TARGETPLATFORM` so the base image inherits the platform from buildx.
-- **AgentCore required endpoints**: `/ping` must return `{"status": "Healthy", "time_of_last_update": <unix_ts>}` and `/invocations` must exist (HTTP POST), even though this agent is WebSocket-only.
-- **SigV4 URL signing**: `buildSignedUrl` in `sonic.js` passes `decodeURIComponent(rawPath)` to the Smithy signer, then uses `signed.path` (not `rawPath`) to build the final WebSocket URL. The two must match or AgentCore returns 403 - Smithy normalises `%2F` → `/` in the canonical URI.
-- **Browser dependencies load from a CDN at runtime**: `@smithy/signature-v4`, `@aws-crypto/sha256-browser`, `@aws-sdk/client-cognito-identity` and `@aws-sdk/client-sts` are top-level dynamic `import()`s from jsdelivr at the head of `sonic.js` - no bundler and no lockfile pinning them, so an upstream or CDN change lands without a deploy on this side.
-- **`?wsUrl=` is sanitized deliberately**: `sanitizeLocalWsUrl` returns a URL only when `isDev` is true (hostname is exactly `localhost` or the hardcoded ngrok host - `127.0.0.1` fails the check, and the page then silently connects to the deployed runtime instead) *and* the value parses as `ws:` on `localhost`/`127.0.0.1`. This prevents connection hijacking via a crafted link - don't loosen it to accept `wss:` or arbitrary hosts.
-- **Cognito role IAM policy**: The Cognito unauthenticated role needs `bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream` on `arn:aws:bedrock-agentcore:REGION:ACCOUNT:runtime/RUNTIME_ID*` (trailing `*` required - AgentCore evaluates the resource as both the bare ARN and `ARN/runtime-endpoint/DEFAULT` depending on the request phase). To debug the exact resource ARN in a 403, run `scripts/test_cognito_ws.py` with a deliberately wrong policy - the error body prints the full ARN. This does not work from the browser due to CORS.
+- **10 KB WebSocket frame limit**: AgentCore's proxy enforces this. `server.py:split_large_event()` splits large `bidi_audio_delta` payloads into chunks before sending - do not bypass this
+- **IMDS credential refresh**: On AgentCore the container gets credentials from EC2 IMDS. `server.py` polls IMDS on startup and refreshes before expiry. Locally, env vars take precedence (`AWS_ACCESS_KEY_ID` etc.)
+- **Docker image must be `linux/arm64`**: AgentCore runs on ARM. `deploy.py` passes `--platform linux/arm64` to `docker buildx build`. The Dockerfile uses `ARG TARGETPLATFORM` so the base image inherits the platform from buildx
+- **AgentCore required endpoints**: `/ping` must return `{"status": "Healthy", "time_of_last_update": <unix_ts>}` and `/invocations` must exist (HTTP POST), even though this agent is WebSocket-only
+- **SigV4 URL signing**: `buildSignedUrl` in `sonic.js` passes `decodeURIComponent(rawPath)` to the Smithy signer, then uses `signed.path` (not `rawPath`) to build the final WebSocket URL. The two must match or AgentCore returns 403 - Smithy normalises `%2F` → `/` in the canonical URI
+- **Browser dependencies load from a CDN at runtime**: `@smithy/signature-v4`, `@aws-crypto/sha256-browser`, `@aws-sdk/client-cognito-identity` and `@aws-sdk/client-sts` are top-level dynamic `import()`s from jsdelivr at the head of `sonic.js` - no bundler and no lockfile pinning them, so an upstream or CDN change lands without a deploy on this side
+- **`?wsUrl=` is sanitized deliberately**: `sanitizeLocalWsUrl` returns a URL only when `isDev` is true (hostname is exactly `localhost` or the hardcoded ngrok host - `127.0.0.1` fails the check, and the page then silently connects to the deployed runtime instead) *and* the value parses as `ws:` on `localhost`/`127.0.0.1`. This prevents connection hijacking via a crafted link - don't loosen it to accept `wss:` or arbitrary hosts
+- **Cognito role IAM policy**: The Cognito unauthenticated role needs `bedrock-agentcore:InvokeAgentRuntimeWithWebSocketStream` on `arn:aws:bedrock-agentcore:REGION:ACCOUNT:runtime/RUNTIME_ID*` (trailing `*` required - AgentCore evaluates the resource as both the bare ARN and `ARN/runtime-endpoint/DEFAULT` depending on the request phase). To debug the exact resource ARN in a 403, run `scripts/test_cognito_ws.py` with a deliberately wrong policy - the error body prints the full ARN. This does not work from the browser due to CORS
 
 ### Client audio pipeline
 
@@ -106,7 +106,7 @@ On page load, before any conversation starts, `sonic.js` kicks off non-blocking 
 
 The system prompt is fetched from Langfuse (prompt `GuiPT-Sonic`), not hardcoded. `init_langfuse()` warms the cache at server startup, and each session calls `get_prompt()` with a 600s cache TTL.
 
-**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored by the `prompt*.md` rule, so draft variants next to it stay out of this public repo too). `pull` prints a diff before overwriting. **`push` does not go live** - it calls `create_prompt` with `labels=[]`, deliberately omitting `"production"`, so the version waits in Langfuse until promoted by hand. Since `pull` fetches the production version, pulling before promoting overwrites `prompt.md` with the old live prompt, losing what you just pushed. Same convention as `guipt`, `guimail` and `guido` - a push is never a deploy.
+**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored by the `prompt*.md` rule, so draft variants next to it stay out of this public repo too). `pull` prints a diff before overwriting.
 
 ### Agent speaks first
 

@@ -50,7 +50,7 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 
 ### Linting
 
-ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline does not run lint automatically — it only minifies and deploys.
+The CI pipeline doesn't run lint — it only minifies and deploys.
 
 ## Admin Area
 
