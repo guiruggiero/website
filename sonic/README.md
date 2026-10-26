@@ -12,6 +12,7 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
   - `tools.js` - tool definitions and handlers
   - `sonic.js` - session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
 - Integrate into main site: domain modules (auth.js, audio.js, tools.js) split out in `modules/`, next to `sonic.js` and `mic-processor.js`; CSS already lives in `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
+  - Rename the Firestore collections `voice`/`voice-dev` to `v2` (and a dev counterpart) at the same time, not before - nobody uses Sonic while it lives at `/sonic`. Touches the Firebase Console rules (decide whether text and voice chats share `v2`; if so, the rules' key allowlists must cover both shapes), the collection pick in `sonic.js`, the `admin-firestore.html` picker, and the schema docs in the root `CLAUDE.md`
 - Send Nova Sonic's session ID as a structured field (e.g. `{"type": "system", "message": "...", "sessionId": "..."}` from `_send_session_id` in `agent.py`) and read `data.sessionId` in `sonic.js`, instead of regex-parsing the `Session ID: ...` message text - today any rewording silently drops the `sonicSessionId` Sentry tag and Firestore field. Keep the old text in `message` so an un-updated client still works, and redeploy the agent before the client
 
 ## Architecture
