@@ -106,7 +106,9 @@ On page load, before any conversation starts, `sonic.js` kicks off non-blocking 
 
 The system prompt is fetched from Langfuse (prompt `GuiPT-Sonic`), not hardcoded. `init_langfuse()` warms the cache at server startup, and each session calls `get_prompt()` with a 600s cache TTL.
 
-**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored by the `prompt*.md` rule, so draft variants next to it stay out of this public repo too). `pull` prints a diff before overwriting.
+**Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored by the `prompt*.md` rule, so draft variants next to it stay out of this public repo too). `pull` prints a diff before overwriting. `push` creates a version without the `production` label; to try it before promoting it in Langfuse, run the local server with `LANGFUSE_PROMPT_LABEL=latest` (`agent.py` defaults to `production`).
+
+**Name spelling**: the prompt writes Gui as "Ghee" (and GuiPT as "GheePT", the spoken email as "ghee ruggiero") so speech generation pronounces it right, except in Portuguese, which already says "Gui" correctly. `_respell_name()` in `agent.py` maps it back on both roles' `bidi_transcript_delta`/`bidi_transcript_block` (on a copy, so the agent's history is untouched) and in `send_email`'s message, so what's displayed, logged to Firestore and emailed always reads Gui. The `send_email` docstring and result use "Ghee" too, since the model reads them. Keep the prompt and the regexes in step if either changes.
 
 ### Agent speaks first
 

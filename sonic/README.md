@@ -72,6 +72,8 @@ In one terminal in WSL, run the server:
 python3 agentcore/server.py # starts on port 8080
 ```
 
+The server serves the Langfuse prompt labeled `production`. To test an unpromoted version from `scripts/prompt_sync.py push`, start it with `LANGFUSE_PROMPT_LABEL=latest` instead.
+
 In a second terminal, serve the client from the repo root (the page loads the site's shared `/modules`, `/styles` and `/images`):
 
 ```bash

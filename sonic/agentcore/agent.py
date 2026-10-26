@@ -23,12 +23,20 @@ REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 24000
 LANGFUSE_PROMPT_NAME = "GuiPT-Sonic"
+LANGFUSE_PROMPT_LABEL = os.environ.get("LANGFUSE_PROMPT_LABEL", "production") # "latest" locally, to test an unpromoted version
 _langfuse: Langfuse | None = None
 PST = ZoneInfo("America/Los_Angeles")
 _EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 MAX_EMAILS_PER_SESSION = 2
 DEFAULT_FIRST_MESSAGE = "Hello"
 MAX_FIRST_MESSAGE_LENGTH = 1000
+
+# Prompt spells Gui as "Ghee" for speech generation, these map it back for display
+_HANDLE_REGEX = re.compile(r"\bghee ?ruggiero(?= dot com\b)|(?<=\bat )ghee ?ruggiero\b", re.IGNORECASE) # "hello at ghee ruggiero dot com", "at ghee ruggiero"
+_NAME_REGEX = re.compile(r"\bghee ?(?=PT\b)|\bghee\b", re.IGNORECASE) # "GheePT" and "Ghee PT" (both to GuiPT), "Ghee", "Ghee's"
+
+def _respell_name(text: str) -> str:
+    return _NAME_REGEX.sub("Gui", _HANDLE_REGEX.sub("guiruggiero", text))
 
 # Tool registrations via  Strands with docstrings as tool descriptions
 @tool(context=True)
@@ -54,7 +62,7 @@ def get_date_and_time() -> dict:
 
 @tool(context=True)
 def send_email(first_name: str, last_name: str, sender_email: str, message: str, tool_context: ToolContext[BidiAgent]) -> str:
-    """Send an email to Gui on behalf of the user. Use when someone wants to send Gui a message.
+    """Send an email to Ghee on behalf of the user. Use when someone wants to send Ghee a message.
 
     Args:
         first_name: The sender's first name.
@@ -76,6 +84,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
 
     # Build the email
     full_name = f"{first_name} {last_name}"
+    message = _respell_name(message)  # the model writes Gui as "Ghee"
     email = EmailMessage()
     email["From"] = f"GuiPT Sonic <{gmail_sender}>"
     email["To"] = recipient
@@ -94,7 +103,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
             server.login(gmail_sender, gmail_password)
             server.send_message(email)
         state["emails_sent"] = state.get("emails_sent", 0) + 1
-        return f"Email sent successfully to Gui from {full_name}."
+        return f"Email sent successfully to Ghee from {full_name}."
     except Exception as e:
         logger.exception("Failed to send email: %s", e)
         return "Sorry, there was an error sending the email. Please try again."
@@ -107,7 +116,7 @@ def init_langfuse():
         public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
         base_url="https://us.cloud.langfuse.com",
     )
-    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, label=LANGFUSE_PROMPT_LABEL, cache_ttl_seconds=600)
     logger.info("Langfuse initialized, prompt cached (v%s)", prompt.version)
 
 # Strands events the browser consumes; everything else (deltas, usage, tool blocks, etc.) stays server-side
@@ -168,8 +177,17 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
 
     # Only allowlisted Strands events reach the browser; our own frames go straight through send_fn
     async def output_fn(event):
-        if event.get("type") in CLIENT_EVENT_TYPES:
-            await send_fn(event)
+        event_type = event.get("type")
+        if event_type not in CLIENT_EVENT_TYPES:
+            return
+
+        # Transcripts (both roles) get the name respelled on a copy - agent's history is untouched
+        if event_type == "bidi_transcript_delta":
+            event = {**event, "delta": _respell_name(event["delta"])}
+        elif event_type == "bidi_transcript_block":
+            event = {**event, "transcript": _respell_name(event["transcript"])}
+
+        await send_fn(event)
 
     logger.info("New WebSocket connection - waiting for config event")
 
@@ -257,7 +275,7 @@ class _SessionIdCapturingNovaSonicModel(BedrockNovaSonicModel):
 # Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
     # Langfuse serves from local cache or fetches again
-    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, label=LANGFUSE_PROMPT_LABEL, cache_ttl_seconds=600)
     system_prompt = prompt.compile()
     logger.info("System prompt fetched (Langfuse v%s)", prompt.version)
 
