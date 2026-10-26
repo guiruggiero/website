@@ -64,7 +64,7 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 **Shared layout conventions** for both pages:
 
 - They deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only
-- Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; a Firebase Console link on `admin-firestore.html`), and the tabs between the two pages are the first thing under it
+- Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; the same on `admin-firestore.html`, where `Refresh` re-runs the current query), and the centered tabs between the two pages are the first thing under it
 - `admin.css` overrides `main` to the site's standard 750px so both pages line up with the header and footer
 - Card headers are plain `<div class="card-header">`, never `<header>`: `global.css` styles the bare `header` selector as `position: fixed; height: 60px`, so a nested `<header>` is pulled out of flow and stacks on top of the site header
 
@@ -74,12 +74,13 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 
 - User turns are rendered with `textContent`, never `innerHTML` — unsanitized input from anonymous visitors
 - Model turns are rendered with `innerHTML` through DOMPurify, using the same tag/attribute allowlist as `ui.js`'s chat window — GuiPT's replies carry HTML (links, line breaks) that needs to render, not display as raw markup
-- **Read-only by design** — no delete button. Each chat row shows its Firestore document ID so a chat can be found and deleted from the Firebase Console instead (`Ctrl+F` the ID there; the badge is click-to-copy)
-- Filters are the collection, a date range with 7d/30d/90d presets that query on click, and an expand/collapse-all toggle over the result list
+- **Read-only by design** — no delete button. A chat is deleted from the Firebase Console instead, which the ↗ next to its Firestore ID opens straight to the document (`~2F<collection>~2F<id>`)
+- Each row's header has labeled copy buttons, with the IDs only as hover tooltips: `Firestore ID` (the document ID), `Sonic ID` (Sonic only, `sonicSessionId`; its ↗ opens Ellmo Inspector at `?requestId=<id>`) and `Transcript` — the turns in order plus `micUsed`, as JSON, for pasting elsewhere
+- Filters are the collection, a date range with 7d/30d/90d presets, and an expand/collapse-all toggle over the result list. There's no Load button: every filter queries on its own (date edits debounced, since typing fires `change` per segment), and only the newest query renders
 
 ### Service Health Dashboard
 
-`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a copyable code badge, same pattern as the chat-ID badge above. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. Both cards link out to the same PM2 bucket via an icon in the card header.
+`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a click-to-copy code badge. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. Both cards link out to the same PM2 bucket via an icon in the card header.
 
 On Air sign is a placeholder/mock card, and can't be a live one from here: the Pico serves plain HTTP on the LAN while this page is HTTPS, so the browser blocks its `/stats`, `/logs` and `/errors` as mixed content — no CORS header on the Pico can change that. Its links still work from home, since a top-level navigation isn't mixed content. The firmware side of this is tracked in `on-air-sign/pico-push/CLAUDE.md` — keep the two in sync if the approach changes.
 
@@ -109,7 +110,7 @@ Sonic voice chats go to `voice` (`voice-dev` on ngrok) with the same shape, plus
   turns: {"1": {user, model, input}, ...}   // input is "spoken" (user text is Nova's ASR transcript) or "typed"
 ```
 
-The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number, `ttfa` beside the turn count and duration, and `sonicSessionId` as a click-to-copy line at the top of the expanded row.
+The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number and `ttfa` beside the turn count and duration, and copies `sonicSessionId` from the row header's `Sonic ID` button.
 
 ### Firestore Rules
 

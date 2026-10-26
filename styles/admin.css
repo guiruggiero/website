@@ -142,6 +142,7 @@ main {
         /* Tabs between the two admin pages */
         .admin-nav {
             display: flex;
+            justify-content: center;
             gap: 4px;
             margin: 0 0 20px;
             border-bottom: 1px solid var(--media-border-color);
@@ -366,7 +367,8 @@ main {
                         width: 100%;
                     }
 
-                .filter-field label {
+                .filter-field label,
+                .range-presets legend {
                     font-size: 0.8em;
                     color: var(--secondary-text-color);
                 }
@@ -390,6 +392,12 @@ main {
                 border: none;
             }
 
+                /* Same spacing as the fields' label-to-input gap */
+                .range-presets legend {
+                    padding: 0;
+                    margin-bottom: 5px;
+                }
+
                 .preset-button {
                     background-color: var(--secondary-bg-color);
                     border: 1px solid var(--media-border-color);
@@ -410,10 +418,6 @@ main {
                         color: var(--accent-color);
                         border-color: var(--accent-color);
                     }
-
-            .filters .primary-button {
-                margin-left: auto;
-            }
 
         /* Count left, expand/collapse right */
         .results-bar {
@@ -474,36 +478,59 @@ main {
                         }
 
                     .chat-when {
-                        min-width: 185px;
+                        min-width: 160px;
                         font-variant-numeric: tabular-nums;
                     }
 
                     .chat-metrics {
                         min-width: 125px;
+                        white-space: nowrap;
                         font-size: 0.9em;
                         color: var(--secondary-text-color);
                         font-variant-numeric: tabular-nums;
                     }
 
-                    /* Click to copy, then Ctrl+F it in the Console */
-                    .chat-id {
+                    /* Chat ID, session ID and transcript, pushed right */
+                    .copy-chips {
+                        display: flex;
                         flex-shrink: 0;
-                        margin-left: auto; /* Was chat-origin's job to push this right */
-                        background: transparent;
-                        border: 1px solid transparent;
-                        border-radius: 5px;
-                        padding: 3px 6px;
-                        font-family: monospace;
-                        font-size: 0.9em;
-                        color: var(--secondary-text-color);
-                        cursor: pointer;
-                        transition: color 0.3s ease, border-color 0.3s ease;
+                        gap: 4px;
+                        margin-left: auto;
                     }
 
-                        .chat-id:hover {
-                            color: var(--accent-color);
-                            border-color: var(--media-border-color);
+                        .copy-chip {
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            background: transparent;
+                            border: 1px solid transparent;
+                            border-radius: 5px;
+                            padding: 3px 6px;
+                            font-family: inherit;
+                            font-size: 0.9em;
+                            color: var(--secondary-text-color);
+                            cursor: pointer;
+                            white-space: nowrap;
+                            transition: color 0.3s ease, border-color 0.3s ease;
                         }
+
+                            .copy-chip:hover {
+                                color: var(--accent-color);
+                                border-color: var(--media-border-color);
+                            }
+
+                        /* Opens the ID before it in Firebase Console or Ellmo Inspector */
+                        .open-link {
+                            display: flex;
+                            align-items: center;
+                            margin: 0 6px 0 -2px; /* Hugs its chip, spaces the next pair */
+                            color: var(--secondary-text-color);
+                            transition: color 0.3s ease;
+                        }
+
+                            .open-link:hover {
+                                color: var(--accent-color);
+                            }
 
                 .turns {
                     display: flex;
@@ -513,35 +540,6 @@ main {
                     padding: 12px 0 14px;
                     border-top: 1px solid var(--media-border-color);
                 }
-
-                    /* Sonic only: label + click-to-copy session ID above the turns */
-                    .session-line {
-                        display: flex;
-                        flex-wrap: wrap;
-                        align-items: center;
-                        gap: 4px 8px;
-                        font-size: 0.8em;
-                        color: var(--secondary-text-color);
-                    }
-
-                        .session-id {
-                            background: transparent;
-                            border: 1px solid transparent;
-                            border-radius: 5px;
-                            padding: 3px 6px;
-                            font-family: monospace;
-                            font-size: 1.1em;
-                            color: var(--secondary-text-color);
-                            cursor: pointer;
-                            overflow-wrap: anywhere;
-                            text-align: left;
-                            transition: color 0.3s ease, border-color 0.3s ease;
-                        }
-
-                            .session-id:hover {
-                                color: var(--accent-color);
-                                border-color: var(--media-border-color);
-                            }
 
                     .turn {
                         display: flex;
@@ -605,18 +603,27 @@ main {
             grid-row: auto;
         }
 
+    /* Two rows: collection + presets, then the two dates side by side */
     .filters {
         flex-wrap: wrap;
     }
 
-    .filter-field,
-    .filter-field:first-child {
-        flex: 1;
+    .filter-field {
+        order: 2; /* Dates after the presets */
+        flex: 1 1 calc(50% - 6px); /* A real basis, unlike flex: 1, so the row actually wraps */
     }
 
-    .filters .primary-button {
-        margin-left: 0;
-        width: 100%;
+        .filter-field:first-child {
+            order: 0;
+            flex: 1 1 45%; /* Wide enough that a date can't join it, still leaves room for the presets */
+        }
+
+        .filter-field input {
+            width: 100%;
+        }
+
+    .range-presets {
+        order: 1;
     }
 
     .chat-summary {
@@ -629,7 +636,7 @@ main {
             min-width: 0;
         }
 
-        .chat-id {
+        .copy-chips {
             margin-left: auto;
         }
 }

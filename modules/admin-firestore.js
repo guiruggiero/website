@@ -12,16 +12,22 @@ const {initAdminAuth, firebaseApp} = await importModule("./admin-auth.min.js");
 // Initializations
 const db = getFirestore(firebaseApp);
 const DEFAULT_RANGE_DAYS = 30;
+const DATE_DEBOUNCE = 500; // Typing a date fires change per segment, e.g. each digit of the year
+const CONSOLE_DATA_URL = "https://console.firebase.google.com/u/0/project/guiruggiero/firestore/databases/-default-/data/"; // + ~2F<collection>[~2F<id>]
+const INSPECTOR_URL = "https://event-report-visualizer.harmony.a2z.com/"; // + ?requestId=<Nova Sonic session ID>
 
 // DOM elements
 const collectionPicker = document.getElementById("collection-picker");
 const startInput = document.getElementById("start-date");
 const endInput = document.getElementById("end-date");
-const loadButton = document.getElementById("load-chats");
 const presetButtons = document.querySelectorAll(".preset-button");
 const toggleAllButton = document.getElementById("toggle-all");
 const chatList = document.getElementById("chat-list");
 const statusLine = document.getElementById("chat-status");
+const refreshButton = document.getElementById("refresh");
+const lastRefresh = document.getElementById("last-refresh");
+let latestQuery = 0; // Only the newest query renders, so a slow earlier one can't overwrite it
+let dateTimer = null;
 
 // Show a message above the list
 function setStatus(message) {
@@ -58,16 +64,20 @@ export async function loadConversations(collectionName, startDate, endDate) {
     return snapshot.docs.map((snapshotDoc) => ({id: snapshotDoc.id, ...snapshotDoc.data()}));
 }
 
+// Turn numbers in order - keys are stringified numbers, so they need a numeric sort
+function sortedTurnNumbers(turns) {
+    return Object.keys(turns ?? {})
+        .map(Number)
+        .filter(Number.isFinite)
+        .sort((a, b) => a - b);
+}
+
 // Build the numbered turn list for one chat
 function buildTurns(turns) {
     const turnsContainer = document.createElement("div");
     turnsContainer.className = "turns";
 
-    // Keys are stringified numbers, so they need a numeric sort
-    const turnNumbers = Object.keys(turns ?? {})
-        .map(Number)
-        .filter(Number.isFinite)
-        .sort((a, b) => a - b);
+    const turnNumbers = sortedTurnNumbers(turns);
 
     if (!turnNumbers.length) {
         const empty = document.createElement("p");
@@ -109,26 +119,72 @@ function buildTurns(turns) {
     return turnsContainer;
 }
 
-// Copy a chat ID, the button confirms
-async function copyChatID(button, chatID) {
-    const originalText = button.textContent;
+// Copy text, the button's icon confirms
+async function copyText(button, text) {
+    const icon = button.querySelector("iconify-icon");
+    const originalIcon = icon.getAttribute("icon");
 
     try {
-        await navigator.clipboard.writeText(chatID);
-        button.textContent = "Copied";
+        await navigator.clipboard.writeText(text);
+        icon.setAttribute("icon", "ph:check-bold");
 
     } catch {
         // Denied or insecure context - not worth Sentry
-        button.textContent = "Copy failed";
+        icon.setAttribute("icon", "ph:x-bold");
     }
 
     setTimeout(() => {
-        button.textContent = originalText;
+        icon.setAttribute("icon", originalIcon);
     }, 1200);
 }
 
+// Just what's needed to discuss a chat elsewhere: the turns in order, plus micUsed on Sonic voice chats
+function chatToJSON(chat) {
+    const turns = sortedTurnNumbers(chat.turns).map((turnNumber) => chat.turns[turnNumber]);
+    return JSON.stringify({micUsed: chat.micUsed, turns}, null, 2); // An undefined micUsed is dropped
+}
+
+// Labeled copy chip for the row header, optionally with the value as a hover tooltip
+function buildCopyChip(label, text, {showValue = false} = {}) {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "copy-chip";
+    if (showValue) chip.title = text;
+    chip.setAttribute("aria-label", `Copy ${label}`);
+
+    const icon = document.createElement("iconify-icon");
+    icon.setAttribute("icon", "ph:copy-bold");
+    chip.appendChild(icon);
+    chip.append(label);
+
+    chip.addEventListener("click", (event) => {
+        // Otherwise the click toggles the row
+        event.preventDefault();
+        event.stopPropagation();
+        void copyText(chip, text);
+    });
+
+    return chip;
+}
+
+// Icon-only link that opens one chat's record in another tool
+function buildOpenLink(href, title) {
+    const link = document.createElement("a");
+    link.className = "open-link";
+    link.href = href;
+    link.target = "_blank";
+    link.title = title;
+    link.setAttribute("aria-label", title);
+    link.addEventListener("click", (event) => event.stopPropagation()); // Keep the row from toggling
+
+    const icon = document.createElement("iconify-icon");
+    icon.setAttribute("icon", "ph:arrow-square-out-bold");
+    link.appendChild(icon);
+    return link;
+}
+
 // Build one collapsible chat row
-function buildChatRow(chat) {
+function buildChatRow(chat, collectionName) {
     // <details> gives expand/collapse and keyboard support for free
     const row = document.createElement("details");
     row.className = "chat-row";
@@ -160,44 +216,21 @@ function buildChatRow(chat) {
     if (typeof chat.ttfa === "number") metrics.textContent += ` · ${chat.ttfa.toFixed(2)}s TTFA`;
     summary.appendChild(metrics);
 
-    // Chat ID for easy deletion in Firebase Console
-    const idButton = document.createElement("button");
-    idButton.type = "button";
-    idButton.className = "chat-id";
-    idButton.title = "Copy chat ID";
-    idButton.textContent = chat.id;
-    idButton.addEventListener("click", (event) => {
-        // Otherwise the click toggles the row
-        event.preventDefault();
-        event.stopPropagation();
-        void copyChatID(idButton, chat.id);
-    });
-    summary.appendChild(idButton);
+    // Everything copyable, in one place
+    const copies = document.createElement("span");
+    copies.className = "copy-chips";
+    copies.appendChild(buildCopyChip("Firestore ID", chat.id, {showValue: true})); // Document ID
+    copies.appendChild(buildOpenLink(`${CONSOLE_DATA_URL}~2F${collectionName}~2F${chat.id}`, "Open in Firebase Console")); // Straight to the document, to delete it there
+    if (chat.sonicSessionId) { // Sonic only: Nova Sonic's session ID, for Sentry and AgentCore logs
+        copies.appendChild(buildCopyChip("Sonic ID", chat.sonicSessionId, {showValue: true}));
+        copies.appendChild(buildOpenLink(`${INSPECTOR_URL}?requestId=${encodeURIComponent(chat.sonicSessionId)}`, "Open in Ellmo Inspector"));
+    }
+    copies.appendChild(buildCopyChip("Transcript", chatToJSON(chat)));
+    summary.appendChild(copies);
 
     row.appendChild(summary);
 
     const turnsContainer = buildTurns(chat.turns);
-
-    // Sonic voice chats only: Nova Sonic's session ID, for cross-referencing Sentry and AgentCore logs
-    if (chat.sonicSessionId) {
-        const sessionLine = document.createElement("div");
-        sessionLine.className = "session-line";
-
-        const sessionLabel = document.createElement("span");
-        sessionLabel.textContent = "Session ID";
-        sessionLine.appendChild(sessionLabel);
-
-        const sessionButton = document.createElement("button");
-        sessionButton.type = "button";
-        sessionButton.className = "session-id";
-        sessionButton.title = "Copy session ID";
-        sessionButton.textContent = chat.sonicSessionId;
-        sessionButton.addEventListener("click", () => void copyChatID(sessionButton, chat.sonicSessionId));
-        sessionLine.appendChild(sessionButton);
-
-        turnsContainer.prepend(sessionLine);
-    }
-
     row.appendChild(turnsContainer);
     return row;
 }
@@ -229,7 +262,8 @@ async function refreshChats() {
         return;
     }
 
-    loadButton.disabled = true;
+    const queryNumber = ++latestQuery;
+    refreshButton.disabled = true;
     setStatus("Loading...");
     chatList.replaceChildren();
     toggleAllButton.hidden = true;
@@ -237,19 +271,22 @@ async function refreshChats() {
 
     try {
         const chats = await loadConversations(collectionName, startDate, endDate);
+        if (queryNumber !== latestQuery) return;
 
+        lastRefresh.textContent = `Loaded at ${new Date().toLocaleTimeString()}`;
         if (!chats.length) {
             setStatus(`No chats in "${collectionName}" for this range`);
             return;
         }
 
-        for (const chat of chats) chatList.appendChild(buildChatRow(chat));
+        for (const chat of chats) chatList.appendChild(buildChatRow(chat, collectionName));
 
         const turnTotal = chats.reduce((total, chat) => total + (chat.turnCount ?? 0), 0);
         setStatus(`${chats.length} chat${chats.length === 1 ? "" : "s"} · ${turnTotal} turn${turnTotal === 1 ? "" : "s"} in "${collectionName}"`);
         toggleAllButton.hidden = false;
 
     } catch (error) {
+        if (queryNumber !== latestQuery) return;
         setStatus("Query failed, see Sentry for details");
 
         // Capture error with context
@@ -261,7 +298,7 @@ async function refreshChats() {
         }}});
 
     } finally {
-        loadButton.disabled = false;
+        if (queryNumber === latestQuery) refreshButton.disabled = false;
     }
 }
 
@@ -288,7 +325,7 @@ function clearPresets() {
 await initAdminAuth();
 setRange(DEFAULT_RANGE_DAYS);
 
-loadButton.addEventListener("click", refreshChats);
+refreshButton.addEventListener("click", refreshChats);
 toggleAllButton.addEventListener("click", toggleAllRows);
 collectionPicker.addEventListener("change", refreshChats);
 
@@ -300,11 +337,12 @@ for (const button of presetButtons) {
     });
 }
 
-// Enter in a date field loads
+// A date edit loads on its own, once it settles
 for (const input of [startInput, endInput]) {
-    input.addEventListener("change", clearPresets);
-    input.addEventListener("keydown", (event) => {
-        if (event.key === "Enter") void refreshChats();
+    input.addEventListener("change", () => {
+        clearPresets();
+        clearTimeout(dateTimer);
+        dateTimer = setTimeout(refreshChats, DATE_DEBOUNCE);
     });
 }
 
