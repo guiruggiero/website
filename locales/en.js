@@ -62,4 +62,8 @@ export default {
         "errorConnection": "⚠️ Oops! Couldn't connect to GuiPT, can you please try again?",
         "errorDisconnected": "⚠️ Connection lost, tap the mic or type to start again",
     },
+    "voice": {
+        "board": "Highlights from the conversation",
+        "boardEmpty": "Key details will show up here as you talk",
+    },
 };

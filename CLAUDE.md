@@ -7,6 +7,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 ### Pages and Modules
 
 - `index.html` — main page; loads the GuiPT AI chat interface
+- `voice.html` — voice-first homepage candidate (Sonic with takeaway cards instead of a transcript), WIP; see `sonic/CLAUDE.md`
 - `resume.html` — portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with a `noindex` meta tag
 - Admin pages (`admin.html`, `admin-firestore.html`) — see [Admin Area](#admin-area)
@@ -17,6 +18,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `guipt.js` — API call to the GuiPT Cloud Function with axios + retry
   - `firebase.js` — Firestore Lite logging (`createLog`, `logTurn`), shared by GuiPT and Sonic via optional collection/extra-field options
   - `sonic.js` — the Sonic voice client loaded by `sonic.html`, with `mic-processor.js` as its AudioWorklet; see `sonic/CLAUDE.md`
+  - `voice.js` — fork of `sonic.js` for `voice.html`, rendering cards instead of a transcript
   - `validation.js` — input sanitization, length check, rate limiting (5 msg/min)
   - `localization.js` — i18n, auto-detects browser locale; exposes an async `getLangData()` (not a top-level-await default export — that pattern caused an intermittent WebKit TDZ error, see WEBSITE-23) that callers `await`
   - `theme-toggle.js` — dark/light mode, persisted in localStorage

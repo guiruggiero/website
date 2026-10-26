@@ -15,6 +15,7 @@ from strands import ToolContext, tool
 from strands.bidi.agent import BidiAgent
 from strands.bidi.models import BedrockNovaSonicModel
 from strands.bidi.types.media import AudioDelta
+from cards import CardBoard
 
 # Initializations
 logger = logging.getLogger(__name__)
@@ -31,12 +32,15 @@ MAX_EMAILS_PER_SESSION = 2
 DEFAULT_FIRST_MESSAGE = "Hello"
 MAX_FIRST_MESSAGE_LENGTH = 1000
 
-# Prompt spells Gui as "Ghee" for speech generation, these map it back for display
-_HANDLE_REGEX = re.compile(r"\bghee ?ruggiero(?= dot com\b)|(?<=\bat )ghee ?ruggiero\b", re.IGNORECASE) # "hello at ghee ruggiero dot com", "at ghee ruggiero"
+# Prompt spells Gui as "Ghee" for speech generation, and the email and handle as separate words, these map it back for display
+_EMAIL_REGEX_SPOKEN = re.compile(r"\bhello (?:at|arroba) (?:ghee|gui) ?ruggiero (?:dot|ponto) com\b", re.IGNORECASE) # "hello at ghee ruggiero dot com", "hello arroba gui ruggiero ponto com"
+_HANDLE_REGEX = re.compile(r"\b(?:ghee|gui) ruggiero\b") # Case-sensitive: the prompt writes the handle lowercase, his name capitalized
 _NAME_REGEX = re.compile(r"\bghee ?(?=PT\b)|\bghee\b", re.IGNORECASE) # "GheePT" and "Ghee PT" (both to GuiPT), "Ghee", "Ghee's"
 
 def _respell_name(text: str) -> str:
-    return _NAME_REGEX.sub("Gui", _HANDLE_REGEX.sub("guiruggiero", text))
+    text = _EMAIL_REGEX_SPOKEN.sub("hello@guiruggiero.com", text)
+    text = _HANDLE_REGEX.sub("guiruggiero", text)
+    return _NAME_REGEX.sub("Gui", text)
 
 # Tool registrations via  Strands with docstrings as tool descriptions
 @tool(context=True)
@@ -130,7 +134,7 @@ CLIENT_EVENT_TYPES = frozenset({
 })
 
 # Read incoming messages and forward non-config events to the agent
-async def _handle_websocket_input(websocket: WebSocket, agent):
+async def _handle_websocket_input(websocket: WebSocket, agent, card_board=None):
     while True:
         message = await websocket.receive_json()
 
@@ -145,6 +149,8 @@ async def _handle_websocket_input(websocket: WebSocket, agent):
         if message.get("type") == "text_input":
             text = message.get("text", "")
             logger.info("Text input received")
+            if card_board:
+                card_board.on_visitor_text(text) # Typed text never comes back as a transcript
             await agent.send(text)
             continue
 
@@ -156,13 +162,16 @@ async def _handle_websocket_input(websocket: WebSocket, agent):
 
 # Input stream for agent.run(); start() fires once the connection is live, so the first turn goes out from there
 class _WebSocketInput:
-    def __init__(self, websocket: WebSocket, first_message: str):
+    def __init__(self, websocket: WebSocket, first_message: str, card_board=None):
         self._websocket = websocket
         self._agent = None
         self._first_message = first_message
+        self._card_board = card_board
 
     async def start(self, agent):
         self._agent = agent
+        if self._card_board:
+            self._card_board.on_visitor_text(self._first_message) # A pill's question, or the greeting - harmless context either way
         await agent.send(self._first_message)
 
     async def stop(self):
@@ -170,16 +179,15 @@ class _WebSocketInput:
         pass
 
     def __call__(self):
-        return _handle_websocket_input(self._websocket, self._agent)
+        return _handle_websocket_input(self._websocket, self._agent, self._card_board)
 
 async def handle_websocket_session(websocket: WebSocket, send_output=None):
     send_fn = send_output or websocket.send_json
+    card_board = None # Only for clients that asked for cards in their config
 
     # Only allowlisted Strands events reach the browser; our own frames go straight through send_fn
     async def output_fn(event):
         event_type = event.get("type")
-        if event_type not in CLIENT_EVENT_TYPES:
-            return
 
         # Transcripts (both roles) get the name respelled on a copy - agent's history is untouched
         if event_type == "bidi_transcript_delta":
@@ -187,7 +195,12 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
         elif event_type == "bidi_transcript_block":
             event = {**event, "transcript": _respell_name(event["transcript"])}
 
-        await send_fn(event)
+        # Cards see every event, response starts included, before the browser allowlist
+        if card_board:
+            card_board.on_event(event)
+
+        if event_type in CLIENT_EVENT_TYPES:
+            await send_fn(event)
 
     logger.info("New WebSocket connection - waiting for config event")
 
@@ -202,8 +215,10 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
         await websocket.send_json({"type": "system", "message": "Configuration applied, agent ready"})
 
         agent = _create_agent(config)
+        if config["cards"]:
+            card_board = CardBoard(send_fn, config["lang"])
 
-        ws_input = _WebSocketInput(websocket, config["first_message"])
+        ws_input = _WebSocketInput(websocket, config["first_message"], card_board)
 
         # Relay Nova Sonic's session ID to the client once the model captures it
         async def _send_session_id():
@@ -217,6 +232,8 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
             await send_fn({"type": "session_end"}) # signal clean stop before close
         finally:
             session_id_task.cancel()
+            if card_board:
+                card_board.close()
 
     except WebSocketDisconnect:
         logger.info("Client disconnected")
@@ -243,8 +260,10 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
             config = {
                 "voice": message.get("voice", "tiffany"),
                 "first_message": _clean_first_message(message.get("firstMessage")),
+                "cards": message.get("cards") is True, # Voice-first page's takeaway board, see cards.py
+                "lang": message.get("lang", "en"),
             }
-            logger.info("Config received: voice=%s, custom first message=%s", config["voice"], config["first_message"] != DEFAULT_FIRST_MESSAGE)
+            logger.info("Config received: voice=%s, custom first message=%s, cards=%s", config["voice"], config["first_message"] != DEFAULT_FIRST_MESSAGE, config["cards"])
             return config
 
         # Reject any other message type and keep waiting

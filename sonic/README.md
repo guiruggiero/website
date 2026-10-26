@@ -6,14 +6,26 @@ A minimal Nova Sonic voice agent with a single-page HTML client that deploys to 
 
 ## TODOs
 
+- Portuguese sessions still say the email in English ("hello at ...") - first retest once the prompt with the Portuguese email wording is promoted, since earlier tests may have run on production v9, which has no Portuguese wording at all. If it persists despite the prompt giving "hello arroba gui ruggiero ponto com" for Portuguese. Find what pulls it back to English (likely the English example quoted next to it, or the KB's written `hello@guiruggiero.com`), then retest both languages - `_EMAIL_REGEX_SPOKEN` in `agent.py` already maps both spoken forms back to the written address
+- Release the pending changes, in this order:
+  - Deploy the agent to AgentCore (`colima start`, `python3 scripts/deploy.py`, `colima stop`) - it carries the Portuguese email and lowercase handle regexes, and the cards backend `voice.html` needs
+  - Promote `GuiPT-Sonic` v12 to `production` in Langfuse - only after the deploy, or the Portuguese email shows in its spoken form on screen. `GuiPT` (text) v11 has no dependency and can be promoted anytime
+  - Sync the website from `main` to `live` (PR with base `live`, merged with a merge commit - see the root `CLAUDE.md`), for the admin chat log changes
+- Send Nova Sonic's session ID as a structured field (e.g. `{"type": "system", "message": "...", "sessionId": "..."}` from `_send_session_id` in `agent.py`) and read `data.sessionId` in `sonic.js`, instead of regex-parsing the `Session ID: ...` message text - today any rewording silently drops the `sonicSessionId` Sentry tag and Firestore field. Keep the old text in `message` so an un-updated client still works, and redeploy the agent before the client
+- Voice-first page (`voice.html`, cards from `agentcore/cards.py`):
+  - Links: an item's text should be just the linked thing - "guiruggiero", "Nova Sonic" - not "LinkedIn: guiruggiero" or "Product manager for Nova Sonic"
+  - More deterministic cards: review the `KINDS` categories so the same fact always lands on the same card
+  - Card layout: the grid aligns rows, so a short card next to a long one leaves blank space (try a masonry/columns layout)
+  - Controls: the mic animates while GuiPT talks, but a mic should only show activity while capturing the visitor - move the speaking state elsewhere
+  - Speed: run the per-sentence extractions in parallel instead of one after another, each card update now waits on the previous call (~1s)
+
+- Integrate into main site: domain modules (auth.js, audio.js, tools.js) split out in `modules/`, next to `sonic.js` and `mic-processor.js`; CSS already lives in `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
+  - Rename the Firestore collections `voice`/`voice-dev` to `v2` (and a dev counterpart) at the same time, not before - nobody uses Sonic while it lives at `/sonic`. Touches the Firebase Console rules (decide whether text and voice chats share `v2`; if so, the rules' key allowlists must cover both shapes), the collection pick in `sonic.js`, the `admin-firestore.html` picker, and the schema docs in the root `CLAUDE.md`
 - Split sonic.js when adding tools. Seams:
   - `auth.js` - getCredentials, buildSignedUrl, ensureCredentials, ensureSignedUrl
   - `audio.js` - startMic, stopMic, playAudio, stopPlayback, AudioContext pre-warm
   - `tools.js` - tool definitions and handlers
   - `sonic.js` - session orchestration, WS message routing, UI (absorbs into `main.js` at integration time)
-- Integrate into main site: domain modules (auth.js, audio.js, tools.js) split out in `modules/`, next to `sonic.js` and `mic-processor.js`; CSS already lives in `styles/sonic.css`. Session orchestration (`sonic.js`) merges into `main.js` as a second mode alongside text GuiPT with conversation history.
-  - Rename the Firestore collections `voice`/`voice-dev` to `v2` (and a dev counterpart) at the same time, not before - nobody uses Sonic while it lives at `/sonic`. Touches the Firebase Console rules (decide whether text and voice chats share `v2`; if so, the rules' key allowlists must cover both shapes), the collection pick in `sonic.js`, the `admin-firestore.html` picker, and the schema docs in the root `CLAUDE.md`
-- Send Nova Sonic's session ID as a structured field (e.g. `{"type": "system", "message": "...", "sessionId": "..."}` from `_send_session_id` in `agent.py`) and read `data.sessionId` in `sonic.js`, instead of regex-parsing the `Session ID: ...` message text - today any rewording silently drops the `sonicSessionId` Sentry tag and Firestore field. Keep the old text in `message` so an un-updated client still works, and redeploy the agent before the client
 
 ## Architecture
 

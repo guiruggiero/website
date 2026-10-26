@@ -25,7 +25,7 @@ The browser and server exchange JSON frames. **The first message from the client
 
 | Direction | type | Key fields |
 |-----------|------|------------|
-| client → server | `config` | `voice`, `firstMessage` |
+| client → server | `config` | `voice`, `firstMessage`, `cards`, `lang` |
 | client → server | `bidi_audio_input` | `audio` (base64 PCM), `format` |
 | client → server | `text_input` | `text` |
 | server → client | `bidi_connection_start` | `connection_id`, `model` |
@@ -34,10 +34,25 @@ The browser and server exchange JSON frames. **The first message from the client
 | server → client | `bidi_transcript_block` | `transcript`, `role` - the complete turn; the browser only uses the user's |
 | server → client | `bidi_barge_in` | - stops playback |
 | server → client | `bidi_response_stop` | - |
+| server → client | `card` | `card` - `{id, kind, title, items: [{text, detail?, url?}]}`, only when `config.cards` is `true` |
 | server → client | `session_end` | - agent-initiated end of conversation (triggers `endSession()`) |
 | server → client | `system` / `error` | `message` |
 
 `config.voice` comes from the `VOICES` map in `sonic.js`, keyed by the page language `getLangData()` exposes as `lang`: `"tiffany"` for English (and the fallback), `"carolina"` for Portuguese. `config.firstMessage` is covered in [Agent speaks first](#agent-speaks-first).
+
+### Takeaway cards (voice-first page)
+
+`voice.html` + `styles/voice.css` + `modules/voice.js` is a voice-first fork of the Sonic page: a board of cards instead of a transcript. `voice.js` is a copy of `sonic.js` with the chat window swapped for the board, so session/audio fixes need applying to both until one replaces the other.
+
+Cards come from `agentcore/cards.py`, opt-in via `config.cards` (so `/sonic` never pays for them), in the `config.lang` language. `CardBoard` sees every event before the `CLIENT_EVENT_TYPES` filter (it needs `bidi_response_start`), plus typed text and the first message via `on_visitor_text`, since those never come back as transcripts.
+
+- **Model**: Claude Sonnet 5.5 (`CARDS_MODEL_ID`), the only one that invented no facts in testing - Nova 2 Lite, Ministral and Haiku made things up. It rejects a forced tool choice, sampling parameters and disabled thinking, hence `toolChoice: auto` with the prompt asking for the call, and `thinking: between_tools` + `effort: low`. Tools and system prompt are cached (`cachePoint`). Fix bad cards in the prompt or the model, not by patching output in code
+- **Per sentence, synced to audio**: each assistant `bidi_transcript_delta` queues an extraction of the reply so far (one worker; a newer sentence replaces a queued one). `card` frames carry `response` (`bidi_response_stop` count) and `sentence` (assistant deltas in that response); `voice.js` counts the same frames and holds each card until its sentence starts playing. Both sides must keep counting every delta and stop, or the keys drift
+- **Interruptions**: `bidi_barge_in` drops queued and in-flight extractions server-side and held cards client-side; cards on screen stay. Nova also sends it when the visitor types or talks over the end of a reply
+- **One card per kind**: `KINDS` holds each kind's `en`/`pt` title and description, and the kind is the card's `id`; `CARD_ICONS` in `voice.js` must list the same kinds. The model resends whole cards, the server replaces them
+- **No facts about Gui in the card prompt**: examples, `KINDS` descriptions and `LINKS` labels all got copied onto cards as if GuiPT had said them
+- **URLs are allowlisted** against `LINKS` server-side, and `voice.js` only accepts `https:`/`mailto:` and renders with `textContent`
+- Cards aren't logged to Firestore (the rules' key allowlists don't cover them). The `Dockerfile` `COPY`s `cards.py`
 
 ### Tools
 
@@ -108,7 +123,7 @@ The system prompt is fetched from Langfuse (prompt `GuiPT-Sonic`), not hardcoded
 
 **Editing the prompt**: `scripts/prompt_sync.py pull|push` syncs against `agentcore/prompt.md` (gitignored by the `prompt*.md` rule, so draft variants next to it stay out of this public repo too). `pull` prints a diff before overwriting. `push` creates a version without the `production` label; to try it before promoting it in Langfuse, run the local server with `LANGFUSE_PROMPT_LABEL=latest` (`agent.py` defaults to `production`).
 
-**Name spelling**: the prompt writes Gui as "Ghee" (and GuiPT as "GheePT", the spoken email as "ghee ruggiero") so speech generation pronounces it right, except in Portuguese, which already says "Gui" correctly. `_respell_name()` in `agent.py` maps it back on both roles' `bidi_transcript_delta`/`bidi_transcript_block` (on a copy, so the agent's history is untouched) and in `send_email`'s message, so what's displayed, logged to Firestore and emailed always reads Gui. The `send_email` docstring and result use "Ghee" too, since the model reads them. Keep the prompt and the regexes in step if either changes.
+**Name spelling**: the prompt writes Gui as "Ghee" (and GuiPT as "GheePT", the spoken email and handle as separate words - "ghee ruggiero", or "gui ruggiero" with "arroba"/"ponto" in Portuguese) so speech generation pronounces it right, except in Portuguese, which already says "Gui" correctly. `_respell_name()` in `agent.py` maps it back on both roles' `bidi_transcript_delta`/`bidi_transcript_block` (on a copy, so the agent's history is untouched) and in `send_email`'s message, so what's displayed, logged to Firestore and emailed always reads Gui, with the spoken email and handle back in written form (`hello@guiruggiero.com`, `guiruggiero`). The handle has no "at"/"arroba" to anchor on, so `_HANDLE_REGEX` is case-sensitive: the prompt writes it lowercase and his name capitalized - keep it that way. The `send_email` docstring and result use "Ghee" too, since the model reads them. Keep the prompt and the regexes in step if either changes.
 
 ### Agent speaks first
 
