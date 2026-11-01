@@ -66,10 +66,12 @@
 
                 <!-- Social links would go here on a public page -->
                 <div class="header-actions">
-                    <a href="https://console.firebase.google.com/u/0/project/guiruggiero/firestore/databases/-default-/data/~2Fv1" target="_blank" class="external-link">
-                        Firebase Console
-                        <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
-                    </a>
+                    <span id="last-refresh" class="page-meta"></span>
+
+                    <button id="refresh" class="ghost-button" type="button">
+                        <iconify-icon icon="ph:arrows-clockwise-bold"></iconify-icon>
+                        Refresh
+                    </button>
                 </div>
             </div>
         </header>
@@ -109,13 +111,12 @@
                     </div>
 
                     <!-- Quick ranges, counted back from today -->
-                    <fieldset class="range-presets" aria-label="Quick date ranges">
+                    <fieldset class="range-presets">
+                        <legend>Last</legend>
                         <button type="button" class="preset-button" data-days="7" aria-pressed="false">7d</button>
                         <button type="button" class="preset-button" data-days="30" aria-pressed="false">30d</button>
                         <button type="button" class="preset-button" data-days="90" aria-pressed="false">90d</button>
                     </fieldset>
-
-                    <button id="load-chats" class="primary-button" type="button">Load</button>
                 </div>
 
                 <div class="results-bar">

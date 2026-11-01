@@ -13,6 +13,8 @@ Receives `{message, history}` — stateless, history is passed in from the clien
 
 **Access**: CORS restricted to `guiruggiero.com` and the ngrok dev URL, plus a server-side origin check that returns 403 for unknown origins.
 
+**Known gap**: that origin/referer check is client-spoofable, so there is no real auth, and Cloudflare Access can't cover this function (it lives on `*.cloudfunctions.net`/`*.run.app`, not `guiruggiero.com`). No fix is planned or scaffolded; if this comes up, raise whether GuiPT should get a Cloudflare Worker proxy or some other real auth.
+
 **Limits**: max 5 instances, 8-second function timeout. The client (`modules/guipt.js`) enforces a 22-second timeout, raced against the axios 6-second retry chain. When changing the API contract (request/response shape, error codes, timeouts), update both `guipt/index.js` and `modules/guipt.js` together.
 
 **Required env vars** (set in Firebase Console, never in source): `GEMINI_API_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_PUBLIC_KEY`, `SENTRY_DSN`.
@@ -23,10 +25,4 @@ Chat sessions are logged to Firestore in collection `dev` (ngrok) or `v1` (every
 
 ## Prompt Management
 
-`prompt.md` is the local copy of the GuiPT system prompt (gitignored). The live prompt is on Langfuse; `prompt.md` exists so Claude Code always has the full prompt in context. Use `npm run prompt-pull` / `npm run prompt-push` to sync; the scripts require `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored). Always apply changes to the system prompt, let the user know, and offer to push to Langfuse; but never mention it in the commit message.
-
-**A push is not a deploy.** `prompt-push` creates the version with `labels: []`, deliberately omitting `"production"`, so the live prompt doesn't change until the version is promoted in the Langfuse UI. And because `prompt-pull` fetches the production-labelled version, pulling before promoting overwrites `prompt.md` with the old live prompt — losing the local edits you just pushed.
-
-## ESLint
-
-Uses the Google style config, which enforces a max line length of 80 characters.
+`prompt.md` is the local copy of the GuiPT system prompt. `prompt-pull` / `prompt-push` need `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` in `.env` (gitignored).

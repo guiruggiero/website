@@ -9,7 +9,7 @@
   "main": "index.js",
   "dependencies": {
     "@google/genai": "^2.11.0",
-    "@langfuse/client": "^5.9.1",
+    "@langfuse/client": "^6.0.2",
     "@sentry/node": "^11.0.0",
     "axios": "^1.18.0",
     "firebase-functions": "^7.2.5",
@@ -27,7 +27,11 @@
   "overrides": {
     "uuid": ">=11.1.1",
     "qs": ">=6.16.0",
-    "proxy-addr": ">=2.0.8"
+    "proxy-addr": ">=2.0.8",
+    "@sentry/bundler-plugins": {
+      "glob": ">=14.0.2",
+      "minimatch": ">=11.0.1"
+    }
   },
   "scripts": {
     "lint": "eslint .",

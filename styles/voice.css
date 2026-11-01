@@ -1,0 +1,577 @@
+@import "global.css";
+
+main {
+    margin: 80px auto 0;
+    gap: 20px;
+}
+
+    /* Hero */
+    #hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+        #orb {
+            width: 140px;
+            height: 140px;
+            margin: 36px 0 32px;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+            #orb iconify-icon {
+                font-size: 56px;
+                color: #ffffffd9;
+            }
+
+            /* Breathing rings, inviting a tap */
+            #orb::before,
+            #orb::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                border-radius: 50%;
+                border: 2px solid var(--accent-color);
+                animation: ripple 2.4s ease-out infinite;
+                pointer-events: none;
+            }
+
+                #orb::after {
+                    animation-delay: 1.2s;
+                }
+
+                @keyframes ripple {
+                    from {transform: scale(1); opacity: 0.6;}
+                    to {transform: scale(1.6); opacity: 0;}
+                }
+
+            #orb:hover {
+                opacity: 0.85;
+                transform: scale(1.03);
+            }
+
+        #hero-title {
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        #hero-subtitle {
+            color: var(--secondary-text-color);
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+    /* Stage: one box like the Sonic and text chats, board above and controls below, once a conversation starts */
+    #stage {
+        display: none;
+        width: 100%;
+        max-width: 900px;
+        height: calc(100dvh - 120px);
+        min-height: 420px;
+        max-height: 800px;
+        flex-direction: column;
+        background-color: var(--secondary-bg-color);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: color 0s, background-color 0s;
+    }
+
+        /* Board of takeaways, newest first */
+        #board {
+            flex-grow: 1;
+            min-height: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px 9px 4px 15px;
+            /* eslint-disable-next-line css/use-baseline */
+            scrollbar-gutter: stable;
+        }
+
+            #board::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #board::-webkit-scrollbar-thumb {
+                background-color: var(--secondary-text-color);
+                border-radius: 3px;
+            }
+
+                #board:hover::-webkit-scrollbar-thumb {
+                    background-color: var(--accent-color);
+                }
+
+            /* Privacy notice as the board's first line - chats are logged */
+            #disclaimer {
+                color: var(--secondary-text-color);
+                font-size: 0.7em;
+                text-align: center;
+                overflow-wrap: anywhere;
+            }
+
+            #board-empty {
+                margin: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                max-width: 280px;
+                color: var(--secondary-text-color);
+                font-size: 0.85em;
+                text-align: center;
+            }
+
+                #board-empty iconify-icon,
+                #board-empty span {
+                    color: inherit;
+                }
+
+                #board-empty iconify-icon {
+                    font-size: 1.6em;
+                }
+
+                main.has-cards #board-empty {
+                    display: none;
+                }
+
+            #cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 12px;
+                align-items: start;
+            }
+
+                .card {
+                    background-color: var(--tertiary-bg-color);
+                    border-radius: 12px;
+                    padding: 14px 16px;
+                    border: 1px solid transparent;
+                    animation: card-in 0.5s ease;
+                    transition: border-color 1.2s ease, background-color 0s;
+                }
+
+                    /* A new or updated card gets a short-lived accent outline */
+                    .card.fresh {
+                        border-color: var(--accent-color);
+                        transition: border-color 0.2s ease, background-color 0s;
+                    }
+
+                    @keyframes card-in {
+                        from {opacity: 0; transform: translateY(10px) scale(0.98);}
+                        to {opacity: 1; transform: none;}
+                    }
+
+                    .card-title {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        margin-bottom: 8px;
+                        font-size: 0.8em;
+                        font-weight: 600;
+                        color: var(--secondary-text-color);
+                        text-transform: uppercase;
+                        letter-spacing: 0.04em;
+                    }
+
+                        .card-title iconify-icon {
+                            font-size: 1.3em;
+                            color: var(--accent-color);
+                        }
+
+                        .card-title span {
+                            color: inherit;
+                        }
+
+                    .card ul {
+                        list-style: none;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                        .card-item-text {
+                            display: block;
+                            font-size: 1em;
+                            font-weight: 600;
+                            line-height: 1.35;
+                            overflow-wrap: anywhere;
+                        }
+
+                            a.card-item-text {
+                                text-decoration: none;
+                                color: var(--accent-color);
+                                transition: opacity 0.3s ease;
+                            }
+
+                                a.card-item-text:hover {
+                                    opacity: 0.7;
+                                }
+
+                                a.card-item-text iconify-icon {
+                                    font-size: 0.8em;
+                                    margin-left: 4px;
+                                    vertical-align: -1px;
+                                    color: inherit;
+                                }
+
+                        .card-item-detail {
+                            display: block;
+                            margin-top: 2px;
+                            font-size: 0.85em;
+                            line-height: 1.4;
+                            color: var(--secondary-text-color);
+                        }
+
+        /* Call dock: speaker, mic, end call in one row, "Type instead" below */
+        #dock {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 10px 10px;
+        }
+
+            /* One live line, only while GuiPT's voice is muted */
+            #caption {
+                display: none;
+                max-width: 600px;
+                min-height: 1.4em;
+                margin-bottom: 6px;
+                font-size: 0.9em;
+                line-height: 1.4;
+                text-align: center;
+            }
+
+                main.speaker-muted:not([data-state="idle"], [data-state="ended"], [data-state="error"]) #caption {
+                    display: block;
+                }
+
+            .call-row {
+                display: flex;
+                align-items: center;
+                gap: 28px;
+            }
+
+                .icon-button {
+                    height: 44px;
+                    width: 44px;
+                    border: none;
+                    border-radius: 50%;
+                    background-color: var(--tertiary-bg-color);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity 0.3s ease, background-color 0.3s ease;
+                }
+
+                    .icon-button iconify-icon {
+                        font-size: 1.3em;
+                    }
+
+                    .icon-button:hover {
+                        opacity: 0.7;
+                    }
+
+                #end-call {
+                    background-color: #dc2626;
+                }
+
+                    #end-call iconify-icon {
+                        color: #ffffffd9;
+                    }
+
+                /* GuiPT's voice off reads as a pressed, inverted button */
+                #speaker-toggle[aria-pressed="true"] {
+                    background-color: var(--primary-text-color);
+                }
+
+                    #speaker-toggle[aria-pressed="true"] iconify-icon {
+                        color: var(--primary-bg-color);
+                    }
+
+                /* Speaker and end call only exist during a conversation - hidden, not removed, so the mic stays centered */
+                main:not([data-state="connecting"], [data-state="listening"], [data-state="speaking"], [data-state="muted"]) :is(#speaker-toggle, #end-call) {
+                    visibility: hidden;
+                }
+
+                /* The mic carries the state, there's no status line. Big while the board is empty, compact once cards arrive */
+                #mic-toggle {
+                    --level: 0; /* Live audio level (0-1), set per frame by voice.js on this element only */
+                    position: relative;
+                    height: 96px;
+                    width: 96px;
+                    border: none;
+                    border-radius: 50%;
+                    background-color: var(--tertiary-bg-color);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: opacity 0.3s ease, background-color 0.3s ease, width 0.4s ease, height 0.4s ease; /* No box-shadow transition, the level is already smoothed in JS */
+                }
+
+                    #mic-toggle iconify-icon {
+                        font-size: 2.4em;
+                        transition: font-size 0.4s ease;
+                    }
+
+                    main.has-cards #mic-toggle {
+                        height: 64px;
+                        width: 64px;
+                    }
+
+                        main.has-cards #mic-toggle iconify-icon {
+                            font-size: 1.8em;
+                        }
+
+                    #mic-toggle:hover {
+                        opacity: 0.85;
+                    }
+
+                    #mic-toggle:disabled {
+                        opacity: 0.4;
+                        cursor: not-allowed;
+                    }
+
+                    #mic-toggle.on {
+                        background-color: var(--accent-color);
+                    }
+
+                        #mic-toggle.on iconify-icon {
+                            color: #ffffffd9;
+                        }
+
+                    /* Rings for the breathing and speaking states */
+                    #mic-toggle::before,
+                    #mic-toggle::after {
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        border-radius: 50%;
+                        border: 2px solid var(--accent-color);
+                        opacity: 0;
+                        pointer-events: none;
+                    }
+
+                    /* Between conversations: the hero orb's breathing, inviting a tap */
+                    main:is([data-state="ready"], [data-state="ended"]) #mic-toggle::before,
+                    main:is([data-state="ready"], [data-state="ended"]) #mic-toggle::after {
+                        animation: ripple 2.4s ease-out infinite;
+                    }
+
+                        main:is([data-state="ready"], [data-state="ended"]) #mic-toggle::after {
+                            animation-delay: 1.2s;
+                        }
+
+                    /* Listening: a solid ring that grows with the visitor's voice */
+                    main[data-state="listening"] #mic-toggle {
+                        box-shadow: 0 0 0 calc(5px + var(--level) * 18px) var(--secondary-accent-color);
+                    }
+
+                    /* Speaking: waves out of the mic, spreading and brightening with GuiPT's voice */
+                    main[data-state="speaking"] #mic-toggle::before {
+                        opacity: calc(0.25 + var(--level) * 0.6);
+                        transform: scale(calc(1.1 + var(--level) * 0.25));
+                    }
+
+                    main[data-state="speaking"] #mic-toggle::after {
+                        opacity: calc(0.1 + var(--level) * 0.4);
+                        transform: scale(calc(1.22 + var(--level) * 0.4));
+                    }
+
+                    main[data-state="connecting"] #mic-toggle {
+                        animation: mic-wait 1.2s ease-in-out infinite;
+                    }
+
+                        @keyframes mic-wait {
+                            0%, 100% {box-shadow: 0 0 0 0 var(--secondary-accent-color);}
+                            50% {box-shadow: 0 0 0 10px var(--secondary-accent-color);}
+                        }
+
+            /* Screen readers only, the mic shows the state */
+            #status-text {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip-path: inset(50%);
+                white-space: nowrap;
+            }
+
+            /* Errors, in place of the transcript's error bubbles */
+            #notice {
+                display: none;
+                padding: 6px 12px;
+                border-radius: 8px;
+                background-color: var(--error-message-bg-color);
+                font-size: 0.8em;
+                text-align: center;
+            }
+
+                #notice.shown {
+                    display: block;
+                }
+
+            #type-toggle {
+                display: flex;
+                margin-top: 14px; /* Clears the mic's ring */
+                align-items: center;
+                gap: 6px;
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 0.8em;
+                color: var(--secondary-text-color);
+                transition: color 0.3s ease;
+            }
+
+                #type-toggle iconify-icon,
+                #type-toggle span {
+                    color: inherit;
+                }
+
+                #type-toggle:hover {
+                    color: var(--accent-color);
+                }
+
+        /* Text input, opt-in mid-conversation via "Type instead" */
+        #input-container {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px 10px;
+        }
+
+            main.typing:not([data-state="idle"]) #input-container {
+                display: flex;
+            }
+
+            #prompt {
+                flex-grow: 1;
+                min-width: 0;
+                padding: 8px 12px;
+                font-size: 1em;
+                font-family: inherit;
+                border: none;
+                border-radius: 8px;
+                background-color: var(--tertiary-bg-color);
+                caret-color: var(--primary-text-color);
+                height: 40px;
+            }
+
+                #prompt::placeholder {
+                    color: var(--secondary-text-color);
+                }
+
+                #prompt:focus {
+                    outline: none;
+                }
+
+            #submit {
+                background-color: var(--accent-color);
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                height: 40px;
+                width: 40px;
+                padding: 8px;
+                flex-shrink: 0;
+                opacity: 0.4;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+
+                #submit iconify-icon {
+                    display: inline-block;
+                    width: 1em;
+                    height: 1em;
+                    font-size: 1.5em;
+                    color: #ffffffd9;
+                }
+
+                #submit.active {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+
+                    #submit.active:hover {
+                        opacity: 0.7;
+                    }
+
+    #prompt-pills-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .prompt-pill {
+            background-color: var(--tertiary-bg-color);
+            border-radius: 16px;
+            padding: 8px 16px;
+            margin: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+            .prompt-pill.hidden {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            .prompt-pill:hover {
+                opacity: 0.7;
+            }
+
+    /* Local-dev override bar, hidden by default */
+    #local-bar {
+        display: none;
+        background-color: var(--error-message-bg-color);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.8em;
+    }
+
+/* Conversation layout */
+main:not([data-state="idle"]) {
+    margin-top: 60px;
+    gap: 10px;
+}
+
+    main:not([data-state="idle"]) #hero,
+    main:not([data-state="idle"]) #prompt-pills-container {
+        display: none;
+    }
+
+    main:not([data-state="idle"]) #stage {
+        display: flex;
+    }
+
+        main.typing #type-toggle {
+            display: none;
+        }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    #orb::before,
+    #orb::after,
+    #mic-toggle::before,
+    #mic-toggle::after,
+    main[data-state="connecting"] #mic-toggle,
+    .card {
+        animation: none;
+    }
+}

@@ -18,7 +18,7 @@ ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.1.7
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
-COPY server.py agent.py ./
+COPY server.py agent.py cards.py ./
 
 ENV HOST="0.0.0.0"
 ENV PORT=8080

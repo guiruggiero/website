@@ -186,10 +186,8 @@ export const guipt = onRequest(functionConfig, async (request, response) => {
       },
     });
 
-    response.status(500).json({
-      errorName: error.name,
-      errorMessage: error.message,
-    });
+    // Generic body only; error details go to Sentry above, not to the client
+    response.status(500).json({error: "Internal server error"});
   }
 
   await Sentry.flush(2000);

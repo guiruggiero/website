@@ -7,6 +7,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 ### Pages and Modules
 
 - `index.html` — main page; loads the GuiPT AI chat interface
+- `voice.html` — voice-first homepage candidate (Sonic with takeaway cards instead of a transcript), WIP; see `sonic/CLAUDE.md`
 - `resume.html` — portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with a `noindex` meta tag
 - Admin pages (`admin.html`, `admin-firestore.html`) — see [Admin Area](#admin-area)
@@ -17,6 +18,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `guipt.js` — API call to the GuiPT Cloud Function with axios + retry
   - `firebase.js` — Firestore Lite logging (`createLog`, `logTurn`), shared by GuiPT and Sonic via optional collection/extra-field options
   - `sonic.js` — the Sonic voice client loaded by `sonic.html`, with `mic-processor.js` as its AudioWorklet; see `sonic/CLAUDE.md`
+  - `voice.js` — fork of `sonic.js` for `voice.html`, rendering cards instead of a transcript
   - `validation.js` — input sanitization, length check, rate limiting (5 msg/min)
   - `localization.js` — i18n, auto-detects browser locale; exposes an async `getLangData()` (not a top-level-await default export — that pattern caused an intermittent WebKit TDZ error, see WEBSITE-23) that callers `await`
   - `theme-toggle.js` — dark/light mode, persisted in localStorage
@@ -38,6 +40,10 @@ The same split applies one level down, when one module imports another: a static
 
 `theme-toggle.js` and `shared-head.js` reference images and styles by root-absolute paths (`/images/...`, `/styles/...`) so they work whatever the page's URL; keep new asset paths in shared modules absolute too.
 
+`loadScript()` (inlined in all 15 pages) sets `script.async = false`: script-inserted elements default to async, so `defer` is a no-op and the scripts race (this caused WEBSITE-40, `getLangData is not a function`). Don't revert it.
+
+Cloudflare Rocket Loader is disabled zone-wide (since 2026-10-09, for WEBSITE-45). Don't suggest re-enabling it. If `rocket-loader` frames reappear in Sentry, purge the Cloudflare cache, because cached HTML may still have rewritten script tags.
+
 ### Localization
 
 All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI text, add keys to both locale files. The language is auto-detected from `navigator.language`.
@@ -46,7 +52,7 @@ All UI strings live in `locales/en.js` and `locales/pt.js`. When adding new UI t
 
 ### Linting
 
-ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline does not run lint automatically — it only minifies and deploys.
+The CI pipeline doesn't run lint — it only minifies and deploys.
 
 ## Admin Area
 
@@ -60,7 +66,7 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 **Shared layout conventions** for both pages:
 
 - They deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only
-- Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; a Firebase Console link on `admin-firestore.html`), and the tabs between the two pages are the first thing under it
+- Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; the same on `admin-firestore.html`, where `Refresh` re-runs the current query), and the centered tabs between the two pages are the first thing under it
 - `admin.css` overrides `main` to the site's standard 750px so both pages line up with the header and footer
 - Card headers are plain `<div class="card-header">`, never `<header>`: `global.css` styles the bare `header` selector as `position: fixed; height: 60px`, so a nested `<header>` is pulled out of flow and stacks on top of the site header
 
@@ -70,12 +76,13 @@ ESLint is configured to lint JS, HTML, CSS, YAML, and Markdown. The CI pipeline 
 
 - User turns are rendered with `textContent`, never `innerHTML` — unsanitized input from anonymous visitors
 - Model turns are rendered with `innerHTML` through DOMPurify, using the same tag/attribute allowlist as `ui.js`'s chat window — GuiPT's replies carry HTML (links, line breaks) that needs to render, not display as raw markup
-- **Read-only by design** — no delete button. Each chat row shows its Firestore document ID so a chat can be found and deleted from the Firebase Console instead (`Ctrl+F` the ID there; the badge is click-to-copy)
-- Filters are the collection, a date range with 7d/30d/90d presets that query on click, and an expand/collapse-all toggle over the result list
+- **Read-only by design** — no delete button. A chat is deleted from the Firebase Console instead, which the ↗ next to its Firestore ID opens straight to the document (`~2F<collection>~2F<id>`)
+- Each row's header has labeled copy buttons, with the IDs only as hover tooltips: `Firestore ID` (the document ID), `Sonic ID` (Sonic only, `sonicSessionId`; its ↗ opens Ellmo Inspector at `?requestId=<id>`) and `Transcript` — the turns in order plus `micUsed`, as JSON, for pasting elsewhere
+- Filters are the collection, a date range with 7d/30d/90d presets, and an expand/collapse-all toggle over the result list. There's no Load button: every filter queries on its own (date edits debounced, since typing fires `change` per segment), and only the newest query renders
 
 ### Service Health Dashboard
 
-`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a copyable code badge, same pattern as the chat-ID badge above. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. Both cards link out to the same PM2 bucket via an icon in the card header.
+`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a click-to-copy code badge. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. A static `Servers` card (code-server and runtime-server) sits above the mock card, with an icon in its header linking to the PM2 bucket both services run in. The cards sit in two `.card-column`s so each column's cards split that column's height independently.
 
 On Air sign is a placeholder/mock card, and can't be a live one from here: the Pico serves plain HTTP on the LAN while this page is HTTPS, so the browser blocks its `/stats`, `/logs` and `/errors` as mixed content — no CORS header on the Pico can change that. Its links still work from home, since a top-level navigation isn't mixed content. The firmware side of this is tracked in `on-air-sign/pico-push/CLAUDE.md` — keep the two in sync if the approach changes.
 
@@ -105,7 +112,7 @@ Sonic voice chats go to `voice` (`voice-dev` on ngrok) with the same shape, plus
   turns: {"1": {user, model, input}, ...}   // input is "spoken" (user text is Nova's ASR transcript) or "typed"
 ```
 
-The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number, `ttfa` beside the turn count and duration, and `sonicSessionId` as a click-to-copy line at the top of the expanded row.
+The opening greeting isn't logged (it answers a synthetic "Hello", not the visitor), and `model` only holds what actually played, so a barge-in truncates it. The admin viewer shows `input` next to the turn number and `ttfa` beside the turn count and duration, and copies `sonicSessionId` from the row header's `Sonic ID` button.
 
 ### Firestore Rules
 
@@ -126,7 +133,7 @@ Pushing to the `live` branch triggers the minification workflow:
 7. Minified output force-pushed to `live-min` branch
 8. GitHub Pages serves from `live-min`; Cloudflare cache is then purged
 
-The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com.
+The `main` branch is for development; `live` is the pre-minification source; `live-min` is what's actually served at guiruggiero.com. To tell whether a fix is live in production, don't use commit dates on `main` — check `git merge-base --is-ancestor <sha> origin/live` (or `origin/live-min`) and the `createdAt` of the latest `gh run list --branch live` minification run, which is when browser caches really start counting.
 
 ### Syncing `main` into `live`
 
@@ -134,9 +141,9 @@ The `main` branch is for development; `live` is the pre-minification source; `li
 
 Name the sync PR for its actual content, not the mechanical action — e.g. `Weekly update`, `Bump dependencies`, or (for a large mixed batch) `Too many changes/updates accumulated to list`, not a generic title like "Sync main into live".
 
-The SonarCloud check on these PRs can fail on pre-existing findings unrelated to the sync itself (e.g. Dockerfile or Python findings in `sonic/agentcore/`) — it isn't a required check, so a failure there doesn't block merging; confirm via `sonarqube-code-scanning` that the findings predate the sync before merging anyway.
+The SonarCloud check on these PRs can fail on pre-existing findings unrelated to the sync itself (e.g. Dockerfile or Python findings in `sonic/agentcore/`) — it isn't a required check, so a failure there doesn't block merging; confirm via `~/.claude/sonarqube.sh` that the findings predate the sync before merging anyway.
 
-`guipt/` is deployed independently and separately from this pipeline (`npm run deploy` from within `guipt/`, using whatever is on local disk — not tied to git state). Never let `guipt/index.js` reference files that aren't committed to git (e.g. an in-progress `tools/`/`utils/` addition) — it'll deploy fine from local disk, but leaves `main` broken for a fresh clone and creates drift between what's committed and what's actually running in production.
+`guipt/` is deployed independently and separately from this pipeline (`npm run deploy` from within `guipt/`, using whatever is on local disk — not tied to git state). Never let `guipt/index.js` reference files that aren't committed to git (e.g. an in-progress `tools/`/`utils/` addition) — it'll deploy fine from local disk, but leaves `main` broken for a fresh clone and creates drift between what's committed and what's actually running in production. Currently untracked in git: `guipt/index.wip.js` (the committed `index.js` plus a tool-calling loop) and the files only it uses — `guipt/tools/` (`bookMeeting.js`, `getAvailableSlots.js`, `getCurrentDateTime.js`, `sendEmail.js`), `guipt/utils/calCom.js` and `guipt/scripts/testCalCom.js`. This is unfinished work, not in the committed `index.js`; commit it or discard it so it isn't lost with the working tree (and delete this note).
 
 ## Sentry
 

@@ -91,6 +91,10 @@ export default {
         "errorConnection": "⚠️ Opa! Não consegui conectar ao GuiPT. Pode tentar de novo, por favor?",
         "errorDisconnected": "⚠️ Conexão perdida, toque no microfone ou escreva para recomeçar",
     },
+    "voice": {
+        "board": "Destaques da conversa",
+        "boardEmpty": "Os principais detalhes aparecem aqui conforme a conversa avança",
+    },
     "travel": {
         "alt": "Mapa de viagens do Gui Ruggiero",
         "instruction": "Clique abaixo para mais detalhes:",

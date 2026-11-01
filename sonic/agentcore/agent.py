@@ -15,6 +15,7 @@ from strands import ToolContext, tool
 from strands.bidi.agent import BidiAgent
 from strands.bidi.models import BedrockNovaSonicModel
 from strands.bidi.types.media import AudioDelta
+from cards import CardBoard
 
 # Initializations
 logger = logging.getLogger(__name__)
@@ -23,12 +24,23 @@ REGION = "us-west-2"
 INPUT_SAMPLE_RATE = 16000
 OUTPUT_SAMPLE_RATE = 24000
 LANGFUSE_PROMPT_NAME = "GuiPT-Sonic"
+LANGFUSE_PROMPT_LABEL = os.environ.get("LANGFUSE_PROMPT_LABEL", "production") # "latest" locally, to test an unpromoted version
 _langfuse: Langfuse | None = None
 PST = ZoneInfo("America/Los_Angeles")
 _EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 MAX_EMAILS_PER_SESSION = 2
 DEFAULT_FIRST_MESSAGE = "Hello"
 MAX_FIRST_MESSAGE_LENGTH = 1000
+
+# Prompt spells Gui as "Ghee" for speech generation, and the email and handle as separate words, these map it back for display
+_EMAIL_REGEX_SPOKEN = re.compile(r"\bhello (?:at|arroba) (?:ghee|gui) ?ruggiero (?:dot|ponto) com\b", re.IGNORECASE) # "hello at ghee ruggiero dot com", "hello arroba gui ruggiero ponto com"
+_HANDLE_REGEX = re.compile(r"\b(?:ghee|gui) ruggiero\b") # Case-sensitive: the prompt writes the handle lowercase, his name capitalized
+_NAME_REGEX = re.compile(r"\bghee ?(?=PT\b)|\bghee\b", re.IGNORECASE) # "GheePT" and "Ghee PT" (both to GuiPT), "Ghee", "Ghee's"
+
+def _respell_name(text: str) -> str:
+    text = _EMAIL_REGEX_SPOKEN.sub("hello@guiruggiero.com", text)
+    text = _HANDLE_REGEX.sub("guiruggiero", text)
+    return _NAME_REGEX.sub("Gui", text)
 
 # Tool registrations via  Strands with docstrings as tool descriptions
 @tool(context=True)
@@ -54,7 +66,7 @@ def get_date_and_time() -> dict:
 
 @tool(context=True)
 def send_email(first_name: str, last_name: str, sender_email: str, message: str, tool_context: ToolContext[BidiAgent]) -> str:
-    """Send an email to Gui on behalf of the user. Use when someone wants to send Gui a message.
+    """Send an email to Ghee on behalf of the user. Use when someone wants to send Ghee a message.
 
     Args:
         first_name: The sender's first name.
@@ -76,6 +88,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
 
     # Build the email
     full_name = f"{first_name} {last_name}"
+    message = _respell_name(message)  # the model writes Gui as "Ghee"
     email = EmailMessage()
     email["From"] = f"GuiPT Sonic <{gmail_sender}>"
     email["To"] = recipient
@@ -94,7 +107,7 @@ def send_email(first_name: str, last_name: str, sender_email: str, message: str,
             server.login(gmail_sender, gmail_password)
             server.send_message(email)
         state["emails_sent"] = state.get("emails_sent", 0) + 1
-        return f"Email sent successfully to Gui from {full_name}."
+        return f"Email sent successfully to Ghee from {full_name}."
     except Exception as e:
         logger.exception("Failed to send email: %s", e)
         return "Sorry, there was an error sending the email. Please try again."
@@ -107,7 +120,7 @@ def init_langfuse():
         public_key=os.environ["LANGFUSE_PUBLIC_KEY"],
         base_url="https://us.cloud.langfuse.com",
     )
-    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, label=LANGFUSE_PROMPT_LABEL, cache_ttl_seconds=600)
     logger.info("Langfuse initialized, prompt cached (v%s)", prompt.version)
 
 # Strands events the browser consumes; everything else (deltas, usage, tool blocks, etc.) stays server-side
@@ -121,7 +134,7 @@ CLIENT_EVENT_TYPES = frozenset({
 })
 
 # Read incoming messages and forward non-config events to the agent
-async def _handle_websocket_input(websocket: WebSocket, agent):
+async def _handle_websocket_input(websocket: WebSocket, agent, card_board=None):
     while True:
         message = await websocket.receive_json()
 
@@ -136,6 +149,8 @@ async def _handle_websocket_input(websocket: WebSocket, agent):
         if message.get("type") == "text_input":
             text = message.get("text", "")
             logger.info("Text input received")
+            if card_board:
+                card_board.on_visitor_text(text) # Typed text never comes back as a transcript
             await agent.send(text)
             continue
 
@@ -147,13 +162,16 @@ async def _handle_websocket_input(websocket: WebSocket, agent):
 
 # Input stream for agent.run(); start() fires once the connection is live, so the first turn goes out from there
 class _WebSocketInput:
-    def __init__(self, websocket: WebSocket, first_message: str):
+    def __init__(self, websocket: WebSocket, first_message: str, card_board=None):
         self._websocket = websocket
         self._agent = None
         self._first_message = first_message
+        self._card_board = card_board
 
     async def start(self, agent):
         self._agent = agent
+        if self._card_board:
+            self._card_board.on_visitor_text(self._first_message) # A pill's question, or the greeting - harmless context either way
         await agent.send(self._first_message)
 
     async def stop(self):
@@ -161,14 +179,27 @@ class _WebSocketInput:
         pass
 
     def __call__(self):
-        return _handle_websocket_input(self._websocket, self._agent)
+        return _handle_websocket_input(self._websocket, self._agent, self._card_board)
 
 async def handle_websocket_session(websocket: WebSocket, send_output=None):
     send_fn = send_output or websocket.send_json
+    card_board = None # Only for clients that asked for cards in their config
 
     # Only allowlisted Strands events reach the browser; our own frames go straight through send_fn
     async def output_fn(event):
-        if event.get("type") in CLIENT_EVENT_TYPES:
+        event_type = event.get("type")
+
+        # Transcripts (both roles) get the name respelled on a copy - agent's history is untouched
+        if event_type == "bidi_transcript_delta":
+            event = {**event, "delta": _respell_name(event["delta"])}
+        elif event_type == "bidi_transcript_block":
+            event = {**event, "transcript": _respell_name(event["transcript"])}
+
+        # Cards see every event, response starts included, before the browser allowlist
+        if card_board:
+            card_board.on_event(event)
+
+        if event_type in CLIENT_EVENT_TYPES:
             await send_fn(event)
 
     logger.info("New WebSocket connection - waiting for config event")
@@ -184,8 +215,10 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
         await websocket.send_json({"type": "system", "message": "Configuration applied, agent ready"})
 
         agent = _create_agent(config)
+        if config["cards"]:
+            card_board = CardBoard(send_fn, config["lang"])
 
-        ws_input = _WebSocketInput(websocket, config["first_message"])
+        ws_input = _WebSocketInput(websocket, config["first_message"], card_board)
 
         # Relay Nova Sonic's session ID to the client once the model captures it
         async def _send_session_id():
@@ -199,6 +232,8 @@ async def handle_websocket_session(websocket: WebSocket, send_output=None):
             await send_fn({"type": "session_end"}) # signal clean stop before close
         finally:
             session_id_task.cancel()
+            if card_board:
+                card_board.close()
 
     except WebSocketDisconnect:
         logger.info("Client disconnected")
@@ -225,8 +260,10 @@ async def _wait_for_config(websocket: WebSocket) -> dict | None:
             config = {
                 "voice": message.get("voice", "tiffany"),
                 "first_message": _clean_first_message(message.get("firstMessage")),
+                "cards": message.get("cards") is True, # Voice-first page's takeaway board, see cards.py
+                "lang": message.get("lang", "en"),
             }
-            logger.info("Config received: voice=%s, custom first message=%s", config["voice"], config["first_message"] != DEFAULT_FIRST_MESSAGE)
+            logger.info("Config received: voice=%s, custom first message=%s, cards=%s", config["voice"], config["first_message"] != DEFAULT_FIRST_MESSAGE, config["cards"])
             return config
 
         # Reject any other message type and keep waiting
@@ -257,7 +294,7 @@ class _SessionIdCapturingNovaSonicModel(BedrockNovaSonicModel):
 # Instantiate the Nova Sonic model and wrap it in a BidiAgent
 def _create_agent(config: dict) -> BidiAgent:
     # Langfuse serves from local cache or fetches again
-    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, cache_ttl_seconds=600)
+    prompt = _langfuse.get_prompt(LANGFUSE_PROMPT_NAME, label=LANGFUSE_PROMPT_LABEL, cache_ttl_seconds=600)
     system_prompt = prompt.compile()
     logger.info("System prompt fetched (Langfuse v%s)", prompt.version)
 
