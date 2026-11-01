@@ -32,6 +32,9 @@
     "lightningcss-cli": "^1.33.0",
     "terser": "^5.51.2"
   },
+  "overrides": {
+    "minimatch": ">=11.0.1"
+  },
   "scripts": {
     "webp": "# cwebp -preset icon -q 50 -progress -short <filename>.<extension> -o <filename>.webp",
     "lint": "eslint .",
