@@ -9,7 +9,7 @@
   "main": "index.js",
   "dependencies": {
     "@google/genai": "^2.11.0",
-    "@langfuse/client": "^5.9.1",
+    "@langfuse/client": "^6.0.2",
     "@sentry/node": "^11.0.0",
     "axios": "^1.18.0",
     "firebase-functions": "^7.2.5",
