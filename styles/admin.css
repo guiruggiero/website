@@ -107,7 +107,6 @@
         opacity: 0.5;
         cursor: default;
     }
-
 /* Same width as the header and footer */
 main {
     max-width: 750px;
@@ -175,10 +174,20 @@ main {
             gap: 16px;
         }
 
-            #card-onairsign {
-                grid-column: 2;
-                grid-row: 1 / span 2; /* The left cards split its height */
+            /* Each column keeps its own card heights, and its cards split the column's height */
+            .card-column {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
             }
+
+                .card-column .service-card {
+                    flex: 1;
+                }
+
+                    .card-column #card-servers {
+                        flex: none; /* Short, so it keeps its own height */
+                    }
 
             .service-card {
                 background-color: var(--secondary-bg-color);
@@ -271,9 +280,10 @@ main {
                             border-color: var(--media-border-color);
                         }
 
-                    /* Opens the service's dashboard in a new tab */
+                    /* Opens the PM2 dashboard in a new tab, pinned to the card's right edge */
                     .card-link-icon {
                         display: flex;
+                        margin-left: auto;
                     }
 
                         .card-link-icon iconify-icon {
@@ -597,11 +607,6 @@ main {
     #service-cards {
         grid-template-columns: 1fr;
     }
-
-        #card-onairsign {
-            grid-column: auto;
-            grid-row: auto;
-        }
 
     /* Two rows: collection + presets, then the two dates side by side */
     .filters {

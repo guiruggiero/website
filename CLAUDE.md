@@ -82,7 +82,7 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 
 ### Service Health Dashboard
 
-`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a click-to-copy code badge. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. Both cards link out to the same PM2 bucket via an icon in the card header.
+`modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a click-to-copy code badge. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. A static `Servers` card (code-server and runtime-server) sits above the mock card, with an icon in its header linking to the PM2 bucket both services run in. The cards sit in two `.card-column`s so each column's cards split that column's height independently.
 
 On Air sign is a placeholder/mock card, and can't be a live one from here: the Pico serves plain HTTP on the LAN while this page is HTTPS, so the browser blocks its `/stats`, `/logs` and `/errors` as mixed content — no CORS header on the Pico can change that. Its links still work from home, since a top-level navigation isn't mixed content. The firmware side of this is tracked in `on-air-sign/pico-push/CLAUDE.md` — keep the two in sync if the approach changes.
 

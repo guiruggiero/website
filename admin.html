@@ -84,78 +84,89 @@
                 </nav>
 
                 <div id="service-cards">
-                    <!-- GuiDo -->
-                    <article class="service-card" id="card-guido">
-                        <!-- Not a <header> - global.css pins those to the top -->
-                        <div class="card-header">
-                            <h2>GuiDo</h2>
+                    <!-- Live services -->
+                    <div class="card-column">
+                        <!-- GuiDo -->
+                        <article class="service-card" id="card-guido">
+                            <!-- Not a <header> - global.css pins those to the top -->
+                            <div class="card-header">
+                                <h2>GuiDo</h2>
 
-                            <span class="status-pill" data-state="unknown">
-                                <span class="status-dot"></span>
-                                <span class="status-text">Unknown</span>
-                            </span>
+                                <span class="status-pill" data-state="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Unknown</span>
+                                </span>
+                            </div>
 
-                            <a href="https://app.pm2.io/bucket/68d5437b519463db832f93b5/backend/overview/servers" target="_blank" class="card-link-icon" title="Open PM2" aria-label="Open PM2">
-                                <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
-                            </a>
-                        </div>
+                            <p class="card-detail" aria-live="polite">Not checked yet</p>
+                            <p class="card-note">WhatsApp assistant on runtime-server</p>
+                        </article>
 
-                        <p class="card-detail" aria-live="polite">Not checked yet</p>
-                        <p class="card-note">WhatsApp assistant on runtime-server</p>
-                    </article>
+                        <!-- Claude Code Gateway -->
+                        <article class="service-card" id="card-gateway">
+                            <div class="card-header">
+                                <h2>Claude Code Gateway</h2>
 
-                    <!-- Claude Code Gateway -->
-                    <article class="service-card" id="card-gateway">
-                        <div class="card-header">
-                            <h2>Claude Code Gateway</h2>
+                                <span class="status-pill" data-state="unknown">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Unknown</span>
+                                </span>
+                            </div>
 
-                            <span class="status-pill" data-state="unknown">
-                                <span class="status-dot"></span>
-                                <span class="status-text">Unknown</span>
-                            </span>
+                            <p class="card-detail" aria-live="polite">Not checked yet</p>
+                            <p class="card-note">Claude Code as a service on code-server</p>
+                        </article>
+                    </div>
 
-                            <a href="https://app.pm2.io/bucket/68d5437b519463db832f93b5/backend/overview/servers" target="_blank" class="card-link-icon" title="Open PM2" aria-label="Open PM2">
-                                <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
-                            </a>
-                        </div>
+                    <!-- Servers and the mock card -->
+                    <div class="card-column">
+                        <!-- Servers -->
+                        <article class="service-card" id="card-servers">
+                            <div class="card-header">
+                                <h2>Servers</h2>
 
-                        <p class="card-detail" aria-live="polite">Not checked yet</p>
-                        <p class="card-note">Claude Code as a service on code-server</p>
-                    </article>
+                                <a href="https://app.pm2.io/bucket/68d5437b519463db832f93b5/backend/overview/servers" target="_blank" rel="noopener" class="card-link-icon" title="Open PM2" aria-label="Open PM2">
+                                    <iconify-icon icon="ph:arrow-square-out-bold"></iconify-icon>
+                                </a>
+                            </div>
 
-                    <!-- On Air sign -->
-                    <article class="service-card" id="card-onairsign">
-                        <div class="card-header">
-                            <h2>On Air sign</h2>
+                            <p class="card-note">code-server and runtime-server</p>
+                        </article>
 
-                            <span class="status-pill" data-state="static">
-                                <span class="status-dot"></span>
-                                <span class="status-text">Mock</span>
-                            </span>
-                        </div>
+                        <!-- On Air sign -->
+                        <article class="service-card" id="card-onairsign">
+                            <div class="card-header">
+                                <h2>On Air sign</h2>
 
-                        <dl class="card-stats">
-                            <dt>State</dt>
-                            <dd>-</dd>
-                            <dt>Uptime</dt>
-                            <dd>-</dd>
-                            <dt>Free memory</dt>
-                            <dd>-</dd>
-                        </dl>
+                                <span class="status-pill" data-state="static">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">Mock</span>
+                                </span>
+                            </div>
 
-                        <div class="card-controls">
-                            <button type="button" disabled>OFF</button>
-                            <button type="button" disabled>YELLOW</button>
-                            <button type="button" disabled>RED</button>
-                        </div>
+                            <dl class="card-stats">
+                                <dt>State</dt>
+                                <dd>-</dd>
+                                <dt>Uptime</dt>
+                                <dd>-</dd>
+                                <dt>Free memory</dt>
+                                <dd>-</dd>
+                            </dl>
 
-                        <p class="card-links">
-                            <a href="http://192.168.0.209" target="_blank">Dashboard</a> ·
-                            <a href="http://192.168.0.209/logs" target="_blank">Logs</a> ·
-                            <a href="http://192.168.0.209/errors" target="_blank">Errors</a> ·
-                            <a href="http://micropython.org/webrepl/?#192.168.0.209:8266" target="_blank">WebREPL</a>
-                        </p>
-                    </article>
+                            <div class="card-controls">
+                                <button type="button" disabled>OFF</button>
+                                <button type="button" disabled>YELLOW</button>
+                                <button type="button" disabled>RED</button>
+                            </div>
+
+                            <p class="card-links">
+                                <a href="http://192.168.0.209" target="_blank">Dashboard</a> ·
+                                <a href="http://192.168.0.209/logs" target="_blank">Logs</a> ·
+                                <a href="http://192.168.0.209/errors" target="_blank">Errors</a> ·
+                                <a href="http://micropython.org/webrepl/?#192.168.0.209:8266" target="_blank">WebREPL</a>
+                            </p>
+                        </article>
+                    </div>
                 </div>
             </section>
         </main>
