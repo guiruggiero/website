@@ -3,6 +3,15 @@ const GUIDO_HEALTH_URL = "https://runtime.guiruggiero.com/guido-health";
 const GATEWAY_HEALTH_URL = "https://claudecode.guiruggiero.com/health";
 const REQUEST_TIMEOUT = 8000; // 8s
 
+// On Air sign: Pico heartbeat every minute
+const PICO_HEARTBEAT_URL = "https://io.adafruit.com/api/v2/guiruggiero/feeds/pico/data/last?include=value,created_at";
+const HEARTBEAT_STALE_MS = 150 * 1000; // 2.5 heartbeats
+const SIGN_STATES = {
+    off: "Off ⚫",
+    yellow: "Yellow 🟡",
+    red: "Red 🔴",
+};
+
 // Short label next to each status dot
 const STATUS_LABELS = {
     up: "Up",
@@ -95,6 +104,63 @@ async function checkService(cardID, healthURL) {
     }
 }
 
+// Two largest units, truncated
+function formatDuration(seconds) {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor(seconds % 86400 / 3600);
+    const minutes = Math.floor(seconds % 3600 / 60);
+    if (days) return `${days}d ${hours}h`;
+    if (hours) return `${hours}h ${minutes}m`;
+    if (minutes) return `${minutes}m`;
+    return `${seconds}s`;
+}
+
+// Fill one of the On Air card's stats
+function setStat(card, name, text) {
+    const stat = card?.querySelector(`[data-stat="${name}"]`);
+    if (stat) stat.textContent = text;
+}
+
+// Read the Pico's latest heartbeat
+async function checkPico() {
+    const cardID = "card-onairsign";
+    const card = document.getElementById(cardID);
+    setCardStatus(cardID, "checking");
+    setStat(card, "heartbeat", "Checking...");
+
+    try {
+        const response = await fetch(PICO_HEARTBEAT_URL, {signal: AbortSignal.timeout(REQUEST_TIMEOUT)});
+
+        // Adafruit IO reachable, but not happy
+        if (!response.ok) {
+            setCardStatus(cardID, "down");
+            setStat(card, "heartbeat", `Adafruit IO responded with HTTP ${response.status}`);
+            return;
+        }
+
+        // The feed value is itself a JSON string: {state, uptime_s, mem_used, mem_free}
+        const {value, created_at: createdAt} = await response.json();
+        const heartbeat = JSON.parse(value);
+
+        const ageSeconds = Math.max(0, Math.round((Date.now() - new Date(createdAt).getTime()) / 1000));
+        setCardStatus(cardID, ageSeconds * 1000 <= HEARTBEAT_STALE_MS ? "up" : "down");
+        setStat(card, "heartbeat", `${formatDuration(ageSeconds)} ago`);
+
+        // Shown even when down - the last report helps explain what happened
+        setStat(card, "state", SIGN_STATES[heartbeat.state] ?? heartbeat.state);
+        setStat(card, "uptime", formatDuration(heartbeat.uptime_s));
+        const {mem_used: memUsed, mem_free: memFree} = heartbeat;
+        setStat(card, "memory", memUsed === undefined ? "-" : `${Math.round(memUsed / 1024)} KB (${Math.round(100 * memUsed / (memUsed + memFree))}%)`);
+
+    } catch (error) {
+        // Down or unreachable is expected, not an error
+        setCardStatus(cardID, "down");
+        if (error.name === "TimeoutError") setStat(card, "heartbeat", "Adafruit IO didn't respond, timed out");
+        else if (error instanceof SyntaxError) setStat(card, "heartbeat", "Bad payload");
+        else setStat(card, "heartbeat", "Adafruit IO unreachable");
+    }
+}
+
 // Refresh every card that polls a live service
 async function refreshAll() {
     if (refreshButton) refreshButton.disabled = true;
@@ -104,6 +170,7 @@ async function refreshAll() {
         await Promise.all([
             checkService("card-guido", GUIDO_HEALTH_URL),
             checkService("card-gateway", GATEWAY_HEALTH_URL),
+            checkPico(),
         ]);
 
         // Timestamp so a stale dashboard is obvious

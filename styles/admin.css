@@ -316,6 +316,14 @@ main {
                         color: var(--secondary-text-color);
                     }
 
+                    /* Two label/value pairs per row, to keep the card about as short as its column neighbors.
+                       Content-sized and unwrapped, so short labels leave the values room */
+                    #card-onairsign .card-stats {
+                        grid-template-columns: auto auto auto auto;
+                        justify-content: space-between;
+                        white-space: nowrap;
+                    }
+
                 .card-controls {
                     display: flex;
                     gap: 8px;
@@ -603,7 +611,7 @@ main {
 
 /* Stack the toolbars instead of overflowing */
 @media (max-width: 600px) {
-    /* One column, mock card last */
+    /* One column, On Air sign card last */
     #service-cards {
         grid-template-columns: 1fr;
     }
@@ -644,4 +652,11 @@ main {
         .copy-chips {
             margin-left: auto;
         }
+}
+
+/* Too narrow for two stat pairs per row */
+@media (max-width: 400px) {
+    #card-onairsign .card-stats {
+        grid-template-columns: auto 1fr;
+    }
 }

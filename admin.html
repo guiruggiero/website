@@ -118,7 +118,7 @@
                         </article>
                     </div>
 
-                    <!-- Servers and the mock card -->
+                    <!-- Servers and the On Air sign card -->
                     <div class="card-column">
                         <!-- Servers -->
                         <article class="service-card" id="card-servers">
@@ -138,31 +138,29 @@
                             <div class="card-header">
                                 <h2>On Air sign</h2>
 
-                                <span class="status-pill" data-state="static">
+                                <span class="status-pill" data-state="unknown">
                                     <span class="status-dot"></span>
-                                    <span class="status-text">Mock</span>
+                                    <span class="status-text">Unknown</span>
                                 </span>
                             </div>
 
-                            <dl class="card-stats">
+                            <!-- Filled from the Pico's heartbeat; kept after it goes down, as its last report -->
+                            <dl class="card-stats" aria-live="polite">
+                                <dt>Heartbeat</dt>
+                                <dd data-stat="heartbeat">Not checked yet</dd>
                                 <dt>State</dt>
-                                <dd>-</dd>
+                                <dd data-stat="state">-</dd>
                                 <dt>Uptime</dt>
-                                <dd>-</dd>
-                                <dt>Free memory</dt>
-                                <dd>-</dd>
+                                <dd data-stat="uptime">-</dd>
+                                <dt>Memory</dt>
+                                <dd data-stat="memory">-</dd>
                             </dl>
 
-                            <div class="card-controls">
-                                <button type="button" disabled>OFF</button>
-                                <button type="button" disabled>YELLOW</button>
-                                <button type="button" disabled>RED</button>
-                            </div>
+                            <!-- OFF/YELLOW/RED buttons (.card-controls) return once a backend holding the Adafruit IO key can write the feed -->
 
                             <p class="card-links">
-                                <a href="http://192.168.0.209" target="_blank">Dashboard</a> ·
-                                <a href="http://192.168.0.209/logs" target="_blank">Logs</a> ·
-                                <a href="http://192.168.0.209/errors" target="_blank">Errors</a> ·
+                                <a href="https://io.adafruit.com/guiruggiero/feeds/on-air-sign" target="_blank">Mac feed</a> ·
+                                <a href="https://io.adafruit.com/guiruggiero/feeds/pico" target="_blank">Sign feed</a> ·
                                 <a href="http://micropython.org/webrepl/?#192.168.0.209:8266" target="_blank">WebREPL</a>
                             </p>
                         </article>
