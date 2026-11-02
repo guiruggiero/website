@@ -1,5 +1,5 @@
 // Imports
-import {getFirestore, query, collection, where, Timestamp, orderBy, getDocs} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import {getFirestore, query, collection, where, Timestamp, orderBy, getDocs} from "https://cdn.jsdelivr.net/npm/firebase/firestore/+esm";
 import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify/+esm";
 
 // Import module dynamically
