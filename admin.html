@@ -75,8 +75,13 @@
         </header>
 
         <main>
-            <!-- No Firebase Auth gate - Zero Trust alone covers this page -->
-            <section id="admin-content">
+            <!-- Second gate, on top of Cloudflare Zero Trust -->
+            <section id="auth-overlay">
+                <button id="sign-in" class="primary-button" type="button">Sign in with Google</button>
+                <p id="auth-error" class="auth-error"></p>
+            </section>
+
+            <section id="admin-content" hidden>
                 <nav class="admin-nav">
                     <a href="admin.html" class="admin-nav-current" aria-current="page">Service health</a>
                     <a href="admin-firestore.html">Chat logs</a>
@@ -155,7 +160,14 @@
                                 <dd data-stat="memory">-</dd>
                             </dl>
 
-                            <!-- OFF/YELLOW/RED buttons (.card-controls) return once a backend holding the Adafruit IO key can write the feed -->
+                            <!-- Written through Guiddleware -->
+                            <div class="card-controls">
+                                <button type="button" data-sign-state="off">Off</button>
+                                <button type="button" data-sign-state="yellow">Yellow</button>
+                                <button type="button" data-sign-state="red">Red</button>
+                            </div>
+
+                            <p class="card-note" data-controls-status aria-live="polite"></p>
 
                             <p class="card-links">
                                 <a href="https://io.adafruit.com/guiruggiero/feeds/on-air-sign" target="_blank">Mac feed</a> ·

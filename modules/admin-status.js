@@ -1,3 +1,10 @@
+// Import module dynamically
+async function importModule(path) {
+    if (globalThis.location?.href.includes("ngrok")) return await import(path.replace(".min.js", ".js"));
+    else return await import(path);
+}
+const {initAdminAuth, auth} = await importModule("./admin-auth.min.js");
+
 // Initializations
 const GUIDO_HEALTH_URL = "https://runtime.guiruggiero.com/guido-health";
 const GATEWAY_HEALTH_URL = "https://claudecode.guiruggiero.com/health";
@@ -6,6 +13,8 @@ const REQUEST_TIMEOUT = 8000; // 8s
 // On Air sign: Pico heartbeat every minute
 const PICO_HEARTBEAT_URL = "https://io.adafruit.com/api/v2/guiruggiero/feeds/pico/data/last?include=value,created_at";
 const HEARTBEAT_STALE_MS = 150 * 1000; // 2.5 heartbeats
+const SIGN_URL = "https://us-central1-guiruggiero.cloudfunctions.net/guiddleware/onairsign";
+const SIGN_HOLD_MINUTES = 60; // Manual yellow/red holds, instead of the Pico's 5-minute default
 const SIGN_STATES = {
     off: "Off ⚫",
     yellow: "Yellow 🟡",
@@ -181,6 +190,53 @@ async function refreshAll() {
     }
 }
 
-// Check on load, then only on demand
+// Set the sign's color through Guiddleware, showing it right away
+async function setSign(state) {
+    const card = document.getElementById("card-onairsign");
+    const buttons = card.querySelectorAll("[data-sign-state]");
+    const controlsStatus = card.querySelector("[data-controls-status]");
+    const previousState = card.querySelector('[data-stat="state"]').textContent;
+
+    buttons.forEach((button) => button.disabled = true);
+    controlsStatus.textContent = "";
+    setStat(card, "state", `${SIGN_STATES[state]} (sending)`);
+
+    try {
+        const idToken = await auth.currentUser.getIdToken();
+        const response = await fetch(SIGN_URL, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${idToken}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(state === "off" ? {state} : {state, minutes: SIGN_HOLD_MINUTES}),
+            signal: AbortSignal.timeout(REQUEST_TIMEOUT),
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        setStat(card, "state", SIGN_STATES[state]);
+
+    } catch (error) {
+        // Put back what was shown before
+        setStat(card, "state", previousState);
+        controlsStatus.textContent = `Couldn't set the sign (${error.message})`;
+
+        // Capture error with context
+        Sentry.captureException(error, {contexts: {signControl: {
+            operation: "setSign",
+            state,
+        }}});
+
+    } finally {
+        buttons.forEach((button) => button.disabled = false);
+    }
+}
+
+document.querySelectorAll("[data-sign-state]").forEach((button) => {
+    button.addEventListener("click", () => setSign(button.dataset.signState));
+});
+
+// Wait for the sign-in, then check on load and only on demand after that
 refreshButton?.addEventListener("click", refreshAll);
+await initAdminAuth();
 await refreshAll();
