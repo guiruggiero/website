@@ -26,7 +26,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `cookie-banner.js` — Google Analytics consent
   - `shared-head.js` — shared `<head>` injection (GTM, cookie banner CSS, favicons); deliberately skipped by the admin pages
   - `redirect.js` — URL redirection helper
-  - `admin-auth.js` — Firebase Auth gate for `admin-firestore.html`
+  - `admin-auth.js` — Firebase Auth gate for both admin pages
   - `admin-status.js` — service health cards on `admin.html`
   - `admin-firestore.js` — chat log viewer on `admin-firestore.html`
 
@@ -61,7 +61,7 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 **Access control** is two-layered:
 
 - Both pages sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths), policy set to allow only the owner's email
-- `admin-firestore.html` has a second gate on top: **Firebase Auth** Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally — `firestore.rules` grants `read` only to the owner's UID, so without it the viewer just gets `PERMISSION_DENIED`. `admin.html` skips this gate; it never calls Firestore, so Zero Trust alone already fully restricts it
+- Both pages have a second gate on top: **Firebase Auth** Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally — `firestore.rules` grants `read` only to the owner's UID, so without it `admin-firestore.html` just gets `PERMISSION_DENIED`, and `admin.html`'s On Air buttons send the ID token to Guiddleware, which rejects any UID but the owner's. Zero Trust doesn't cover the Guiddleware URL, so that check is the only protection for the route
 
 **Shared layout conventions** for both pages:
 
@@ -84,7 +84,7 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 
 `modules/admin-status.js` polls each service's health endpoint on page load and on the header's `Refresh` button — never on an interval — and paints a status pill (dot + label) plus a detail line per card. When a service is up, that line shows the commit hash as a click-to-copy code badge. GuiDo and claudeCodeGateway are live checks; details on those endpoints live in their own repos, not here. A static `Servers` card (code-server and runtime-server) sits above the On Air sign card, with an icon in its header linking to the PM2 bucket both services run in. The cards sit in two `.card-column`s so each column's cards split that column's height independently.
 
-The On Air sign card reads the Pico's heartbeat from the public Adafruit IO feed `pico` (keyless, CORS `*`), which the Pico writes every minute: `{state, uptime_s, mem_used, mem_free}`. Up if the heartbeat is under 150s old (2.5 heartbeats); the stats stay filled when down, as the Pico's last report. Its stats sit two pairs per row to keep the card about as short as its column neighbors. OFF/YELLOW/RED buttons will come back once a backend holding the Adafruit IO key can write the sign's feed (`.card-controls` styles are kept for them). The firmware side is in `on-air-sign/mac/pico/CLAUDE.md` — keep the two in sync if the heartbeat changes.
+The On Air sign card reads the Pico's heartbeat from the public Adafruit IO feed `pico` (keyless, CORS `*`), which the Pico writes every minute: `{state, uptime_s, mem_used, mem_free}`. Up if the heartbeat is under 150s old (2.5 heartbeats); the stats stay filled when down, as the Pico's last report. Its stats sit two pairs per row to keep the card about as short as its column neighbors. Its OFF/YELLOW/RED buttons `POST` `{state, minutes?}` to Guiddleware's `/onairsign` with the Firebase ID token; yellow/red hold for 60 minutes (`SIGN_HOLD_MINUTES`) instead of the Pico's 5-minute default. The state shows optimistically (the heartbeat lags up to 60s) and reverts with an error line if the call fails. Guiddleware's CORS allows only `guiruggiero.com`, so the buttons don't work through ngrok. The firmware side is in `on-air-sign/mac/pico/CLAUDE.md` — keep the two in sync if the heartbeat changes.
 
 ### Firebase Sign-In
 
