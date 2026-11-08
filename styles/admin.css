@@ -77,36 +77,42 @@
     }
 
 /* Secondary action, quieter than .primary-button */
-.ghost-button {
+.small-button {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background-color: var(--secondary-bg-color);
     border: 1px solid var(--media-border-color);
     border-radius: 6px;
-    padding: 7px 12px;
+    padding: 7px 10px;
     font-family: inherit;
     font-size: 0.85em;
+    color: var(--secondary-text-color);
     cursor: pointer;
     transition: color 0.3s ease, border-color 0.3s ease;
 }
 
     /* The global `*` rule colors every element, so icons need it spelled out */
-    .ghost-button iconify-icon {
+    .small-button iconify-icon {
         font-size: 15px;
         color: inherit;
         transition: color 0.3s ease;
     }
 
-    .ghost-button:hover:not(:disabled) {
+    .small-button:hover:not(:disabled) {
+        color: var(--primary-text-color);
+    }
+
+    .small-button[aria-pressed="true"] {
         color: var(--accent-color);
         border-color: var(--accent-color);
     }
 
-    .ghost-button:disabled {
+    .small-button:disabled {
         opacity: 0.5;
         cursor: default;
     }
+
 /* Same width as the header and footer */
 main {
     max-width: 750px;
@@ -329,24 +335,15 @@ main {
                     gap: 8px;
                 }
 
-                    .card-controls button {
+                    /* Same look and hover as the other buttons, stretched to share the row */
+                    .card-controls .small-button {
                         flex: 1;
-                        background-color: var(--tertiary-bg-color);
-                        border: none;
-                        border-radius: 6px;
-                        padding: 8px;
-                        font-family: inherit;
-                        font-size: 0.8em;
-                        cursor: pointer;
+                        justify-content: center;
                     }
-
-                        .card-controls button:disabled {
-                            opacity: 0.4;
-                            cursor: default;
-                        }
 
                 .card-links {
                     margin-top: auto; /* Pinned to the bottom, so links line up */
+                    text-align: center;
                     font-size: 0.85em;
                     color: var(--secondary-text-color);
                 }
@@ -415,27 +412,6 @@ main {
                     padding: 0;
                     margin-bottom: 5px;
                 }
-
-                .preset-button {
-                    background-color: var(--secondary-bg-color);
-                    border: 1px solid var(--media-border-color);
-                    border-radius: 6px;
-                    padding: 7px 10px;
-                    font-family: inherit;
-                    font-size: 0.85em;
-                    color: var(--secondary-text-color);
-                    cursor: pointer;
-                    transition: color 0.3s ease, border-color 0.3s ease;
-                }
-
-                    .preset-button:hover {
-                        color: var(--primary-text-color);
-                    }
-
-                    .preset-button[aria-pressed="true"] {
-                        color: var(--accent-color);
-                        border-color: var(--accent-color);
-                    }
 
         /* Count left, expand/collapse right */
         .results-bar {

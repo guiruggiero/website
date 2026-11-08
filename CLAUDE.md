@@ -68,6 +68,7 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 - They deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only
 - Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; the same on `admin-firestore.html`, where `Refresh` re-runs the current query), and the centered tabs between the two pages are the first thing under it
 - `admin.css` overrides `main` to the site's standard 750px so both pages line up with the header and footer
+- Secondary buttons (Refresh, the date presets, the On Air sign's Off/Yellow/Red) share one `.small-button` class; JS finds the date presets by `[data-days]`, not by class
 - Card headers are plain `<div class="card-header">`, never `<header>`: `global.css` styles the bare `header` selector as `position: fixed; height: 60px`, so a nested `<header>` is pulled out of flow and stacks on top of the site header
 
 ### Chat Log Viewer
