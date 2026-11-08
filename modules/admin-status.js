@@ -199,7 +199,7 @@ async function setSign(state) {
 
     buttons.forEach((button) => button.disabled = true);
     controlsStatus.textContent = "";
-    setStat(card, "state", `${SIGN_STATES[state]} (sending)`);
+    setStat(card, "state", SIGN_STATES[state]);
 
     try {
         const idToken = await auth.currentUser.getIdToken();
@@ -214,7 +214,6 @@ async function setSign(state) {
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        setStat(card, "state", SIGN_STATES[state]);
 
     } catch (error) {
         // Put back what was shown before
