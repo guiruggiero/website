@@ -5,12 +5,14 @@
   "version": "2.2",
   "main": "modules/main.js",
   "type": "module",
+  "manualDependencies": {
+    "firebase": "",
+    "firebase-firestore-lite": ""
+  },
   "cdnDependencies": {
     "axios": "",
     "axios-retry": "",
     "dompurify": "",
-    "firebase": "",
-    "firebase-firestore-lite": "",
     "iconify-icon": "",
     "jsdelivr": "",
     "typed.js": "",

@@ -11,18 +11,18 @@ const _cognitoP = import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-cognito-i
 const _stsP = import("https://cdn.jsdelivr.net/npm/@aws-sdk/client-sts/+esm");
 const _langDataP = importModule("./localization.min.js").then(module => module.getLangData());
 const _validationP = importModule("./validation.min.js"); // Only awaited on submit
-const _firebaseP = importModule("./firebase.min.js").catch(() => null); // Only awaited at the first log write, null if blocked
+const _firebaseP = importModule("./firebase.min.js").catch(() => null); // Awaited at the first log write, null if blocked
 
 // Initializations
 const COGNITO_IDENTITY_POOL_ID = "us-west-2:c71bd164-55c9-4dba-9abd-fec92b8b5de4";
 const COGNITO_ROLE_ARN = "arn:aws:iam::250711740447:role/MinimalSonicCognitoRole";
 const RUNTIME_WSS_BASE = "wss://bedrock-agentcore.us-west-2.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-west-2%3A250711740447%3Aruntime%2Fminimal_sonic_agent-XNEC1PGRQK/ws";
 const REGION = "us-west-2";
-const VOICES = {en: "tiffany", pt: "carolina"}; // Per page language, Carolina is Nova Sonic's Brazilian Portuguese voice
-const OUTPUT_SAMPLE_RATE = 24000; // Must match OUTPUT_SAMPLE_RATE in agentcore/agent.py, the playback context is created at click time (mobile), before any audio frame can report its rate
-const SPEAKING_HOLD = 300; // Keeps "speaking" steady across tiny gaps between audio chunks
+const VOICES = {en: "tiffany", pt: "carolina"}; // Per page language
+const OUTPUT_SAMPLE_RATE = 24000; // Must match OUTPUT_SAMPLE_RATE in agentcore/agent.py, since the context is created at click time
+const SPEAKING_HOLD = 300; // Steadies "speaking" across audio gaps
 const ANALYSER_SIZE = 512; // fftSize for both level meters, sizes the shared buffer below
-const levelBuffer = new Float32Array(ANALYSER_SIZE); // Reused every frame instead of allocating one
+const levelBuffer = new Float32Array(ANALYSER_SIZE); // Reused every frame
 const LOG_DEBOUNCE = 1500; // Batches a turn's sentences into one Firestore write
 const NOTICE_TIME = 8000; // How long an error stays up
 const FRESH_TIME = 2500; // How long a new or updated card keeps its accent outline
@@ -39,7 +39,7 @@ const CARD_ICONS = {
     "glossary": "ph:book-open-text-bold",
     "other": "ph:sparkle-bold",
 }; // Card kinds from KINDS in agentcore/cards.py
-const MIC_PROCESSOR_URL = new URL(globalThis.location?.href.includes("ngrok") ? "mic-processor.js" : "mic-processor.min.js", import.meta.url).href; // Relative to this module, not the page
+const MIC_PROCESSOR_URL = new URL(globalThis.location?.href.includes("ngrok") ? "mic-processor.js" : "mic-processor.min.js", import.meta.url).href;
 
 // DOM elements
 const elements = {
@@ -179,7 +179,7 @@ if (localWsUrl || !COGNITO_IDENTITY_POOL_ID.includes("REPLACE")) {
     ensureWebSocket();
 }
 
-// UI strings, awaited only once pre-warming is underway so they never delay it - the rest of the UI dependencies load lazily
+// UI strings, awaited after pre-warming starts so they never delay it
 const langData = await _langDataP;
 const t = langData.sonic;
 const tv = langData.voice;
@@ -202,7 +202,7 @@ async function buildSignedUrl(creds) {
 
     const host = `bedrock-agentcore.${REGION}.amazonaws.com`;
     const rawPath = RUNTIME_WSS_BASE.replace(/^wss:\/\/[^/]+/, "");
-    // Fully decode so Smithy re-encodes with its own rules to match what botocore produces
+    // Fully decode so Smithy re-encodes to match botocore
     const decodedPath = decodeURIComponent(rawPath);
 
     const signer = new SignatureV4({
@@ -224,7 +224,7 @@ async function buildSignedUrl(creds) {
         {expiresIn: 900},
     );
 
-    // Rebuild query string from signed params and use signed.path so the URL matches the canonical URI Smithy signed over
+    // Rebuild the query string from signed params, with signed.path to match the canonical URI
     const qs = Object.entries(signed.query || {})
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join("&");
@@ -312,7 +312,6 @@ function renderCard(card) {
         cardElements.set(card.id, element);
     }
 
-    // Title row with the kind's icon
     const title = document.createElement("div");
     title.classList.add("card-title");
     const icon = document.createElement("iconify-icon");
@@ -603,7 +602,7 @@ async function startAudioInput(stream) {
         }));
     };
 
-    // Silent source keeps frames flowing at real-time pace, so text-only and muted sessions look like quiet audio to the model
+    // Silent source keeps frames flowing, so text-only and muted sessions look like quiet audio
     const silenceSource = new ConstantSourceNode(audioContext, {offset: 0});
     silenceSource.connect(worklet);
     silenceSource.start();
@@ -782,7 +781,7 @@ async function handleServerMessage(event) {
             break;
 
         case "bidi_transcript_delta":
-            // Agent text arrives per sentence, ahead of its audio (the final block only lands after playback has been queued)
+            // Agent text arrives per sentence, ahead of its audio
             if (data.role === "assistant") {
                 pendingAgentTranscript = (pendingAgentTranscript ?? "") + data.delta;
                 sentenceIndex++;
@@ -851,12 +850,12 @@ async function startSession({withMic}) {
                 captureError(error, "Mic access failed at session start");
             }
 
-            // Restart the TTFA clock once the mic settles, so the permission prompt's human wait isn't counted as latency
+            // Restart the TTFA clock once the mic settles, so the permission prompt isn't counted
             sessionStartTime = performance.now();
         }
         await startPlayback();
 
-        // Local override bypasses Cognito entirely, otherwise the agent must be deployed first
+        // Local override bypasses Cognito
         if (!localWsUrl && (COGNITO_IDENTITY_POOL_ID.includes("REPLACE") || RUNTIME_WSS_BASE.includes("REPLACE"))) {
             throw new Error("Deploy the agent first and paste COGNITO_IDENTITY_POOL_ID and RUNTIME_WSS_BASE into voice.js");
         }
@@ -880,7 +879,7 @@ async function startSession({withMic}) {
 
         await Promise.all([inputPromise, openPromise]);
 
-        // Both ready, send config and go live - the first turn is the visitor's question (pill or typed) or a greeting in the page's language, so the first reply is already the answer, in that language
+        // Both ready, send config and go live - the first turn is the visitor's question or a greeting
         const firstMessage = queuedText ?? t.greeting;
         ws.send(JSON.stringify({type: "config", voice: VOICES[langData.lang] ?? VOICES.en, firstMessage, cards: true, lang: langData.lang})); // Cards: see agentcore/cards.py
         lastSentText = firstMessage.toLowerCase();
@@ -1004,7 +1003,7 @@ function reportSessionStart() {
     if (chatLog.ttfa === null || !chatLog.sonicSessionId) return;
     const {sonicSessionId, ttfa: sessionTtfa} = chatLog;
 
-    // Handy in DevTools while testing, no need to open the admin viewer or Firebase Console
+    // Handy in DevTools while testing
     console.info(`[sonic] Session ID: ${sonicSessionId} | TTFA: ${sessionTtfa}s`);
 
     if (typeof Sentry === "undefined") return;
