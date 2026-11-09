@@ -64,6 +64,7 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 - GitHub Pages - hosting
 - Cloudflare - CDN, redirects, and cache management
 - jsDelivr - dependencies CDN
+- esm.sh - Firebase SDK CDN
 
 ### Development
 - GitHub Actions - automated deployment

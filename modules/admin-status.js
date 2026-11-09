@@ -195,7 +195,7 @@ async function setSign(state) {
     const card = document.getElementById("card-onairsign");
     const buttons = card.querySelectorAll("[data-sign-state]");
     const controlsStatus = card.querySelector("[data-controls-status]");
-    const previousState = card.querySelector('[data-stat="state"]').textContent;
+    const previousState = card.querySelector("[data-stat=\"state\"]").textContent;
 
     buttons.forEach((button) => button.disabled = true);
     controlsStatus.textContent = "";
