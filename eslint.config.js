@@ -9,7 +9,7 @@ import eslintPluginYml from "eslint-plugin-yml";
 
 export default defineConfig([
     // Global configuration
-    {ignores: ["guipt/**", "**/.venv*/**"]},
+    {ignores: ["guipt/**", "**/.venv*/**", "apps/*/release/**"]},
 
     // JavaScript configuration
     {
@@ -49,6 +49,16 @@ export default defineConfig([
             }],
             "@stylistic/space-in-parens": "warn",
         },
+    },
+
+    // Apps - Node scripts and Cloudflare Workers, not browser code
+    {
+        files: ["apps/*.js"],
+        languageOptions: {globals: {...globals.node}},
+    },
+    {
+        files: ["apps/*/src/**/*.js"],
+        languageOptions: {globals: {...globals.serviceworker, HTMLRewriter: "readonly"}},
     },
 
     // HTML configuration

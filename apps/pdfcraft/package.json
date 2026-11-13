@@ -9,6 +9,7 @@
     "scripts": {
         "dev": "wrangler dev",
         "whoami": "npx wrangler whoami",
+        "update-app": "node ../update.js pdfcraft",
         "deploy": "wrangler deploy"
     },
     "devDependencies": {

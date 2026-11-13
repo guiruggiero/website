@@ -1,0 +1,42 @@
+name: Apps update
+
+permissions:
+  contents: read
+
+on:
+  # eslint-disable-next-line yml/no-empty-mapping-value
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 1 * *" # 1st of each month, 08:00 UTC
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update-apps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: |
+          for dir in apps/*/; do
+            (cd "$dir" && npm ci) || exit 1
+          done
+
+      - name: Update each app from its latest release
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_STORAGE }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for dir in apps/*/; do
+            node apps/update.js "$(basename "$dir")" || exit 1
+          done
