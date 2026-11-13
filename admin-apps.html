@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+
+        <!-- Preconnects and preloads -->
+        <link rel="preload" href="images/gr-logo-light.webp" as="image">
+        <link rel="preload" href="images/gr-logo-dark.webp" as="image">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" as="style">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="preconnect" href="https://esm.sh">
+
+        <!-- Browser tags -->
+        <title>Apps - Gui Ruggiero</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="color-scheme" content="dark light">
+
+        <!-- Favicons - inline instead of shared-head -->
+        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-light.ico" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-light.png" media="(prefers-color-scheme: dark)">
+        <link rel="icon" type="image/x-icon" href="images/favicons/favicon-dark.ico" media="(prefers-color-scheme: light)">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicons/favicon-32x32-dark.png" media="(prefers-color-scheme: light)">
+
+        <!-- Critical scripts -->
+        <script>
+            // Import scripts dynamically
+            function loadScript(baseName, {type = "module", crossorigin, target = "head"} = {}) {
+                const script = document.createElement("script");
+                const isDev = globalThis.location.href.includes("ngrok");
+                script.src = isDev ? `modules/${baseName}.js` : `modules/${baseName}.min.js`;
+                script.type = type;
+                script.async = false; // Restore execution order (default is async)
+                if (crossorigin) script.crossorigin = crossorigin;
+                (target === "body" ? document.body : document.head).appendChild(script);
+            }
+            loadScript("sentry", {type: "text/javascript"});
+            loadScript("theme-toggle");
+        </script>
+        <script src="https://js.sentry-cdn.com/08c1d6850ae372049a97cdeae4a933fc.min.js" crossorigin="anonymous" data-lazy="no"></script>
+
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="styles/admin.css">
+        <script src="https://cdn.jsdelivr.net/npm/iconify-icon/dist/iconify-icon.min.js"></script>
+
+        <!-- Search engine tag -->
+        <meta name="robots" content="noindex, nofollow">
+    </head>
+
+    <body>
+        <header>
+            <div class="header-container">
+                <div class="logo-theme-toggle">
+                    <a href="https://guiruggiero.com/" aria-label="Gui Ruggiero homepage">
+                        <picture>
+                            <source srcset="images/gr-logo-light.webp" type="image/webp">
+                            <img src="images/gr-logo-light.png" alt="Gui Ruggiero logo" width="28.43" height="34">
+                        </picture>
+                    </a>
+
+                    <button id="theme-toggle" aria-label="Switch to light theme"><iconify-icon icon="ph:sun-bold"></iconify-icon></button>
+                </div>
+
+                <!-- Social links would go here on a public page -->
+            </div>
+        </header>
+
+        <main>
+            <!-- Second gate, on top of Cloudflare Zero Trust -->
+            <section id="auth-overlay">
+                <button id="sign-in" class="primary-button" type="button">Sign in with Google</button>
+                <p id="auth-error" class="auth-error"></p>
+            </section>
+
+            <section id="admin-content" hidden>
+                <nav class="admin-nav">
+                    <a href="admin.html">Service health</a>
+                    <a href="admin-firestore.html">Chat logs</a>
+                    <a href="admin-apps.html" class="admin-nav-current" aria-current="page">Apps</a>
+                </nav>
+
+                <!-- Self-hosted ArtCraft apps -->
+                <div id="app-cards">
+                    <!-- PdfCraft -->
+                    <a href="https://pdfcraft.guiruggiero.com" class="service-card app-card">
+                        <iconify-icon icon="withicons-glass:file-pdf"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>PdfCraft</h2>
+                            <p class="card-note">PDF reader and editor</p>
+                        </div>
+                    </a>
+
+                    <!-- PhotoCraft -->
+                    <a href="https://photocraft.guiruggiero.com" class="service-card app-card">
+                        <iconify-icon icon="withicons-glass:image"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>PhotoCraft</h2>
+                            <p class="card-note">Photo editor</p>
+                        </div>
+                    </a>
+
+                    <!-- SoundCraft -->
+                    <a href="https://soundcraft.guiruggiero.com" class="service-card app-card">
+                        <iconify-icon icon="withicons-glass:audio-waveform"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>SoundCraft</h2>
+                            <p class="card-note">Digital audio workstation</p>
+                        </div>
+                    </a>
+
+                    <!-- Not hosted yet: greyed out, no link -->
+                    <!-- FilmCraft -->
+                    <div class="service-card app-card app-card-soon" aria-disabled="true">
+                        <iconify-icon icon="withicons-glass:clapperboard"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>FilmCraft <span class="app-soon">(soon)</span></h2>
+                            <p class="card-note">Nonlinear video editor</p>
+                        </div>
+                    </div>
+
+                    <!-- FigCraft -->
+                    <div class="service-card app-card app-card-soon" aria-disabled="true">
+                        <iconify-icon icon="withicons-glass:pen-tool"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>FigCraft <span class="app-soon">(soon)</span></h2>
+                            <p class="card-note">Interface design and prototyping</p>
+                        </div>
+                    </div>
+
+                    <!-- CADCraft -->
+                    <div class="service-card app-card app-card-soon" aria-disabled="true">
+                        <iconify-icon icon="withicons-glass:cube"></iconify-icon>
+
+                        <div class="app-card-text">
+                            <h2>CADCraft <span class="app-soon">(soon)</span></h2>
+                            <p class="card-note">Computer-aided design and drafting</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            Built with lots of ☕ by Gui Ruggiero himself
+        </footer>
+
+        <!-- Other script -->
+        <script>
+            loadScript("admin-apps", {crossorigin: "anonymous", target: "body"});
+        </script>
+    </body>
+</html>

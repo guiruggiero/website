@@ -10,7 +10,7 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
 - `voice.html` — voice-first homepage candidate (Sonic with takeaway cards instead of a transcript), WIP; see `sonic/CLAUDE.md`
 - `resume.html` — portfolio/resume page
 - Various external utility pages (`resume-pdf.html`, `scheduling.html`, etc.) using embedded content and with a `noindex` meta tag
-- Admin pages (`admin.html`, `admin-firestore.html`) — see [Admin Area](#admin-area)
+- Admin pages (`admin.html`, `admin-firestore.html`, `admin-apps.html`) — see [Admin Area](#admin-area)
 - Various redirect pages (`linkedin.html`, `github.html`, etc.) using `modules/redirect.js`
 - `modules/` — ES6 modules:
   - `main.js` — orchestrates chat: event listeners, turn flow, history management
@@ -26,9 +26,10 @@ This is a **static vanilla JavaScript website** — no framework, no bundler, no
   - `cookie-banner.js` — Google Analytics consent
   - `shared-head.js` — shared `<head>` injection (GTM, cookie banner CSS, favicons); deliberately skipped by the admin pages
   - `redirect.js` — URL redirection helper
-  - `admin-auth.js` — Firebase Auth gate for both admin pages
+  - `admin-auth.js` — Firebase Auth gate for all admin pages
   - `admin-status.js` — service health cards on `admin.html`
   - `admin-firestore.js` — chat log viewer on `admin-firestore.html`
+  - `admin-apps.js` — only runs the sign-in gate on `admin-apps.html`, whose content is static links
 
 ### Dev vs. Production Loading
 
@@ -56,20 +57,24 @@ The CI pipeline doesn't run lint — it only minifies and deploys.
 
 ## Admin Area
 
-`admin.html` and `admin-firestore.html` live at the repo root, not in an `admin/` subdirectory — `minification.yml` globs HTML with `find . -maxdepth 1`, so anything nested there would ship to `prod-min` unminified.
+`admin.html`, `admin-firestore.html` and `admin-apps.html` live at the repo root, not in an `admin/` subdirectory — `minification.yml` globs HTML with `find . -maxdepth 1`, so anything nested there would ship to `prod-min` unminified.
 
 **Access control** is two-layered:
 
-- Both pages sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` covering both via the path `admin*` (if the wildcard doesn't take, add `admin.html` and `admin-firestore.html` as separate paths), policy set to allow only the owner's email
-- Both pages have a second gate on top: **Firebase Auth** Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally — `firestore.rules` grants `read` only to the owner's UID, so without it `admin-firestore.html` just gets `PERMISSION_DENIED`, and `admin.html`'s On Air buttons send the ID token to Guiddleware, which rejects any UID but the owner's. Zero Trust doesn't cover the Guiddleware URL, so that check is the only protection for the route
+- All pages sit behind **Cloudflare Zero Trust** — one self-hosted application on `guiruggiero.com` named `Admin`, covering all three via the path `guiruggiero.com/admin*` (if the wildcard doesn't take, add each page as a separate path). Its policy is the reusable "Friends and family" allow rule (the owner's and their wife's emails), shared with the `Apps` application below. That's why the apps page is `admin-apps.html`, not `apps.html`
+- All pages have a second gate on top: **Firebase Auth** Google sign-in, in `modules/admin-auth.js`. This is the gate that matters functionally — `firestore.rules` grants `read` only to the owner's UID, so without it `admin-firestore.html` just gets `PERMISSION_DENIED`, and `admin.html`'s On Air buttons send the ID token to Guiddleware, which rejects any UID but the owner's. Zero Trust doesn't cover the Guiddleware URL, so that check is the only protection for the route
 
-**Shared layout conventions** for both pages:
+**Shared layout conventions** for all pages:
 
-- They deliberately skip `shared-head.js`, since it injects GTM and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline. They also skip localization (`data-i18n`); the admin UI is English-only
-- Neither has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; the same on `admin-firestore.html`, where `Refresh` re-runs the current query), and the centered tabs between the two pages are the first thing under it
-- `admin.css` overrides `main` to the site's standard 750px so both pages line up with the header and footer
+- They deliberately skip `shared-head.js`, since it injects GTM (Google Analytics) and the cookie banner CSS — neither belongs on an internal page — so they declare their own favicons inline, carry `noindex, nofollow` and show no cookie consent. They also skip localization (`data-i18n`); the admin UI is English-only
+- None has an in-page `<h1>` — page-level controls go in the header's right slot, where public pages carry social links (`Refresh` plus the last-checked time on `admin.html`; the same on `admin-firestore.html`, where `Refresh` re-runs the current query), `admin-apps.html` has no controls there, and the centered tabs between the three pages are the first thing under it
+- `admin.css` overrides `main` to the site's standard 750px so all pages line up with the header and footer
 - Secondary buttons (Refresh, the date presets, the On Air sign's Off/Yellow/Red) share one `.small-button` class; JS finds the date presets by `[data-days]`, not by class
 - Card headers are plain `<div class="card-header">`, never `<header>`: `global.css` styles the bare `header` selector as `position: fixed; height: 60px`, so a nested `<header>` is pulled out of flow and stacks on top of the site header
+
+### Apps Page
+
+`admin-apps.html` is a launcher: one card per self-hosted ArtCraft app, each with a `withicons-glass` Iconify icon. Hosted apps (PdfCraft, plus PhotoCraft and SoundCraft once set up) come first as large, fully clickable cards linking to the app's own URL; the ones not hosted yet (FilmCraft, FigCraft, CADCraft) are small, greyed-out `(soon)` cards with no link. Move a card up and make it a link when its app goes live. The Worker injects the site's GR favicons and sets the page title to `<App> - Gui Ruggiero`, since the releases' own `index.html` has neither. The apps themselves are not built here and never reach `prod-min`. Each app's web build is hosted from `apps/<name>/`: a Worker (`src/index.js`) serving the release's static files from an R2 bucket, because the builds' WASM files exceed the 25 MiB per-file limit of Workers static assets and Pages. Only PdfCraft is set up so far, PhotoCraft and SoundCraft are next. Deploy with `npm run deploy` from the app's folder; the bucket is filled with `wrangler r2 object put` from the GitHub release zip, which stays out of git (`apps/*/release/`). The `Open` URLs are `<name>.guiruggiero.com`, one Zero Trust application named `Apps` covering `*craft.guiruggiero.com`, with the same policy and IdP as `Admin`; both are hidden from the app launcher, since a wildcard tile can't link anywhere. The apps have no second gate like the Firebase sign-in, so this policy is their only protection.
 
 ### Chat Log Viewer
 
@@ -130,7 +135,7 @@ Pushing to the `prod` branch triggers the minification workflow:
 3. CSS → lightningcss-cli
 4. JS → terser (with source maps)
 5. Source maps uploaded to Sentry (before the delete step, since sourcemaps need the plain `.js` files and their content to still be present)
-6. Delete files not needed at runtime: `.github/`, `guipt/`, `sonic/agentcore/`, `sonic/scripts/`, `node_modules/` (created by step 1 — must be removed here since `.gitignore` itself is also deleted, so it's no longer around to keep it out of the commit), the plain (non-`.min.js`) `modules/*.js` sources, and dev-only root files (`CLAUDE.md`, `package.json`, etc.). **Any new backend-only or dev-only directory must be added to this list** so its source doesn't leak into the public `prod-min` branch
+6. Delete files not needed at runtime: `.github/`, `apps/`, `guipt/`, `sonic/agentcore/`, `sonic/scripts/`, `node_modules/` (created by step 1 — must be removed here since `.gitignore` itself is also deleted, so it's no longer around to keep it out of the commit), the plain (non-`.min.js`) `modules/*.js` sources, and dev-only root files (`CLAUDE.md`, `package.json`, etc.). **Any new backend-only or dev-only directory must be added to this list** so its source doesn't leak into the public `prod-min` branch
 7. Minified output force-pushed to `prod-min` branch
 8. GitHub Pages serves from `prod-min`; Cloudflare cache is then purged
 

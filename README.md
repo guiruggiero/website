@@ -46,6 +46,7 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 
 ### Utilities
 - Branded redirects to key online profiles or services
+- Private admin area (service health, chat logs, self-hosted apps) behind Cloudflare Zero Trust and Firebase sign-in, with no analytics or indexing
 - Embedded collaboration services
 - Automatic dependency update tracking
 

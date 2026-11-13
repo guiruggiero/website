@@ -173,6 +173,73 @@ main {
                     border-bottom-color: var(--accent-color);
                 }
 
+        /* Apps page - live apps first, three to a row, the rest smaller below */
+        #app-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+            /* The whole card is the link, icon on top and centered */
+            .service-card.app-card {
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                padding: 28px 16px;
+                text-align: center;
+                text-decoration: none;
+                transition: border-color 0.3s ease;
+            }
+
+                .app-card:hover {
+                    border-color: var(--accent-color);
+                }
+
+                .app-card iconify-icon {
+                    font-size: 72px;
+                    flex-shrink: 0;
+                }
+
+                .app-card-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                    .app-card-text h2 {
+                        font-size: 1.05em;
+                        font-weight: 600;
+                    }
+
+            /* Not hosted yet - compact, greyed out and not clickable */
+            .service-card.app-card-soon {
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 10px;
+                padding: 12px 14px;
+                text-align: left;
+                opacity: 0.5;
+                cursor: default;
+            }
+
+                .app-card-soon:hover {
+                    border-color: var(--media-border-color); /* No hover cue, it isn't a link */
+                }
+
+                .app-card-soon iconify-icon {
+                    font-size: 32px;
+                    filter: grayscale(1);
+                }
+
+                .app-card-soon h2 {
+                    font-size: 0.9em;
+                }
+
+                    .app-soon {
+                        font-weight: 400;
+                        color: var(--secondary-text-color);
+                    }
+
         /* Live services left, mock card right */
         #service-cards {
             display: grid;
@@ -588,7 +655,8 @@ main {
 /* Stack the toolbars instead of overflowing */
 @media (max-width: 600px) {
     /* One column, On Air sign card last */
-    #service-cards {
+    #service-cards,
+    #app-cards {
         grid-template-columns: 1fr;
     }
 
