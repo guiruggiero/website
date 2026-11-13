@@ -8,3 +8,5 @@ __pycache__
 setup_config.json
 .DS_Store
 firestore.rules
+.wrangler/
+apps/*/release/
