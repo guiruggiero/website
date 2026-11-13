@@ -24,6 +24,7 @@ updates:
     directories:
       - /
       - /guipt
+      - /apps/*
     schedule:
       interval: monthly
       time: "00:00"
