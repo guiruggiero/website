@@ -15,6 +15,7 @@ const apps = {
     pdfcraft: {
         repo: "storytold/pdfcraft",
         bucket: "pdfcraft",
+        url: "https://pdfcraft.guiruggiero.com",
         assetPattern: "pdfcraft-web-*.zip",
     },
 };
@@ -86,6 +87,34 @@ async function downloadRelease(app, version, workDir) {
     return topLevel.length === 1 ? path.join(extractDir, topLevel[0]) : extractDir;
 }
 
+// Checks the live app through Zero Trust with a service token
+async function verifyLive(appName, app, files) {
+    const clientId = process.env.CF_ACCESS_CLIENT_ID;
+    const clientSecret = process.env.CF_ACCESS_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+        console.log(`${appName}: skipped live check, no CF_ACCESS_CLIENT_ID/CF_ACCESS_CLIENT_SECRET`);
+        return;
+    }
+
+    const headers = {"CF-Access-Client-Id": clientId, "CF-Access-Client-Secret": clientSecret};
+    const request = async (key, method) => {
+        // A rejected token redirects to the login, which counts as a failure
+        const response = await fetch(`${app.url}/${key.split("/").map(encodeURIComponent).join("/")}`, {method, headers, redirect: "manual"});
+        if (response.status !== 200) throw new Error(`${method} ${key} returned ${response.status}`);
+        return response;
+    };
+
+    // The page, with the title the Worker sets
+    const page = await (await request("", "GET")).text();
+    if (!page.includes(`<title>${appName.replace(/^./, (letter) => letter.toUpperCase())} - Gui Ruggiero</title>`)) {
+        throw new Error("The live page doesn't have the expected title");
+    }
+
+    // Every file in the release
+    for (const key of files) await request(key, "HEAD");
+    console.log(`${appName}: live check passed for ${files.length + 1} requests`);
+}
+
 async function main() {
     const appName = process.argv[2];
     const force = process.argv.includes("--force");
@@ -104,6 +133,7 @@ async function main() {
 
         if (previous?.version === version && !force) {
             console.log(`${appName}: up to date`);
+            await verifyLive(appName, app, previous.files);
             return;
         }
 
@@ -130,6 +160,7 @@ async function main() {
         }
 
         console.log(`${appName}: updated to ${version}`);
+        await verifyLive(appName, app, ordered);
 
     } finally {
         await rm(workDir, {recursive: true, force: true});

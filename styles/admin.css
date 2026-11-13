@@ -176,9 +176,17 @@ main {
         /* Apps page - live apps first, three to a row, the rest smaller below */
         #app-cards {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(12, 1fr); /* Live cards span 4 (three a row), the rest span 3 (four a row) */
             gap: 16px;
         }
+
+            #app-cards > * {
+                grid-column: span 4;
+            }
+
+            #app-cards > .app-card-soon {
+                grid-column: span 3;
+            }
 
             /* The whole card is the link, icon on top and centered */
             .service-card.app-card {
@@ -213,11 +221,8 @@ main {
 
             /* Not hosted yet - compact, greyed out and not clickable */
             .service-card.app-card-soon {
-                flex-direction: row;
-                justify-content: flex-start;
-                gap: 10px;
-                padding: 12px 14px;
-                text-align: left;
+                gap: 8px;
+                padding: 16px 10px;
                 opacity: 0.5;
                 cursor: default;
             }
@@ -655,10 +660,18 @@ main {
 /* Stack the toolbars instead of overflowing */
 @media (max-width: 600px) {
     /* One column, On Air sign card last */
-    #service-cards,
+    #service-cards {
+        grid-template-columns: 1fr;
+    }
+
     #app-cards {
         grid-template-columns: 1fr;
     }
+
+        #app-cards > *,
+        #app-cards > .app-card-soon {
+            grid-column: auto;
+        }
 
     /* Two rows: collection + presets, then the two dates side by side */
     .filters {

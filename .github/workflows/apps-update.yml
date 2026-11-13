@@ -35,6 +35,8 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_STORAGE }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CLOUDFLARE_SERVICE_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CLOUDFLARE_SERVICE_CLIENT_SECRET }}
           GH_TOKEN: ${{ github.token }}
         run: |
           for dir in apps/*/; do
