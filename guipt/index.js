@@ -37,7 +37,7 @@ const safetySettings = [
 
 // Model configuration
 const modelConfig = {
-  model: "gemini-flash-lite-latest",
+  model: "gemini-3.5-flash-lite",
   config: {
     maxOutputTokens: 400,
     safetySettings,
