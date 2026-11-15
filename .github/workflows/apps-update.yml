@@ -4,10 +4,17 @@ permissions:
   contents: read
 
 on:
-  # eslint-disable-next-line yml/no-empty-mapping-value
   workflow_dispatch:
+    inputs:
+      version:
+        description: Release tag to install, such as v0.20.0 to roll back (default is the latest)
+        type: string
+      force:
+        description: Upload the latest release again even if the bucket has it
+        type: boolean
+        default: false
   schedule:
-    - cron: "0 8 1 * *" # 1st of each month, 08:00 UTC
+    - cron: "0 8 * * 6" # Saturdays, 08:00 UTC (00:00 PT, like Dependabot)
 
 concurrency:
   group: ${{ github.workflow }}
@@ -35,10 +42,21 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_R2_STORAGE }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CLOUDFLARE_SERVICE_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CLOUDFLARE_SERVICE_CLIENT_SECRET }}
           GH_TOKEN: ${{ github.token }}
+          FORCE: ${{ inputs.force }}
+          VERSION: ${{ inputs.version }}
+          EVENT: ${{ github.event_name }}
         run: |
+          flags=""
+          if [ "$FORCE" = "true" ]; then flags="$flags --force"; fi
+          if [ -n "$VERSION" ]; then flags="$flags --version $VERSION"; fi
+
+          # Scheduled runs skip releases from the last 2 days, to let hotfixes land first
+          if [ "$EVENT" = "schedule" ]; then flags="$flags --min-age-days 2"; fi
+
+          # One failing app doesn't stop the others
+          failed=0
           for dir in apps/*/; do
-            node apps/update.js "$(basename "$dir")" || exit 1
+            node apps/update.js "$(basename "$dir")" $flags || failed=1
           done
+          exit $failed

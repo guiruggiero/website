@@ -1,10 +1,10 @@
 // Updates an app's R2 bucket from the latest GitHub release of its web build
-// Run with `npm run update-app [-- --force]` from the app's folder - needs gh, python3 and Cloudflare credentials
+// Run with `npm run update-app [-- --force] [--version <tag>] [--min-age-days <n>]` from the app's folder - needs gh, python3, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
 
 // Imports
 import {promisify} from "node:util";
 import {execFile} from "node:child_process";
-import {readdir, readFile, mkdtemp, writeFile, rm} from "node:fs/promises";
+import {readdir, readFile, mkdtemp, writeFile, rm, stat} from "node:fs/promises";
 import path from "node:path";
 import {tmpdir} from "node:os";
 
@@ -15,7 +15,6 @@ const apps = {
     pdfcraft: {
         repo: "storytold/pdfcraft",
         bucket: "pdfcraft",
-        url: "https://pdfcraft.guiruggiero.com",
         assetPattern: "pdfcraft-web-*.zip",
     },
 };
@@ -34,17 +33,53 @@ const contentTypes = {
     json: "application/json",
 };
 
-// Lists what each version holds, so the next run can remove what the new one drops
 const manifestKey = "manifest.json";
+
+const context = {};
+
+class StepError extends Error {
+    constructor(step, cause, hint) {
+        super(`${step}: ${cause.message}`, {cause});
+        this.step = step;
+        this.hint = hint;
+    }
+}
+
+async function step(name, hint, action) {
+    context.step = name;
+    try {
+        return await action();
+
+    } catch (error) {
+        throw error instanceof StepError ? error : new StepError(name, error, hint);
+    }
+}
 
 async function run(command, args, options = {}) {
     const {stdout} = await execFileAsync(command, args, {maxBuffer: 64 * 1024 * 1024, ...options});
     return stdout;
 }
 
-// Runs against the real bucket, from the app's folder
 function wrangler(appDir, args) {
     return run("npx", ["wrangler", ...args, "--remote"], {cwd: appDir});
+}
+
+function option(name) {
+    const index = process.argv.indexOf(`--${name}`);
+    return index === -1 ? undefined : process.argv[index + 1];
+}
+
+// An explicit version wins, then the newest release old enough, else the latest
+async function chooseVersion(app, pinned, minAgeDays) {
+    if (pinned) return pinned;
+    if (!minAgeDays) return JSON.parse(await run("gh", ["release", "view", "--repo", app.repo, "--json", "tagName"])).tagName;
+
+    const releases = JSON.parse(await run("gh", ["release", "list", "--repo", app.repo, "--exclude-drafts", "--exclude-pre-releases", "--limit", "30", "--json", "tagName,publishedAt"]));
+    const cutoff = Date.now() - minAgeDays * 24 * 60 * 60 * 1000;
+    const index = releases.findIndex((release) => Date.parse(release.publishedAt) <= cutoff);
+    if (index === -1) throw new Error(`No release is ${minAgeDays} days old yet`);
+    context.skippedNewer = releases.slice(0, index).map((release) => release.tagName);
+    return releases[index].tagName;
 }
 
 async function listFiles(folder) {
@@ -56,63 +91,82 @@ async function listFiles(folder) {
 
 async function readManifest(appDir, bucket, workDir) {
     const target = path.join(workDir, "previous-manifest.json");
-
-    try {
-        await wrangler(appDir, ["r2", "object", "get", `${bucket}/${manifestKey}`, "--file", target]);
-        return JSON.parse(await readFile(target, "utf8"));
-
-    } catch {
-        // No manifest yet, or the object doesn't exist
-        return null;
-    }
+    await wrangler(appDir, ["r2", "object", "get", `${bucket}/${manifestKey}`, "--file", target]);
+    return JSON.parse(await readFile(target, "utf8"));
 }
 
 // Files without an extension are licences and notices
-async function putObject(appDir, bucket, key, file) {
+function contentTypeFor(key) {
     const extension = key.includes(".") ? key.split(".").pop() : "";
-    const contentType = contentTypes[extension] || (extension ? "application/octet-stream" : "text/plain; charset=utf-8");
-    await wrangler(appDir, ["r2", "object", "put", `${bucket}/${key}`, "--file", file, "--content-type", contentType]);
+    return contentTypes[extension] || (extension ? "application/octet-stream" : "text/plain; charset=utf-8");
+}
+
+async function putObject(appDir, bucket, key, file) {
+    await wrangler(appDir, ["r2", "object", "put", `${bucket}/${key}`, "--file", file, "--content-type", contentTypeFor(key)]);
 }
 
 async function downloadRelease(app, version, workDir) {
     const downloadDir = path.join(workDir, "download");
     const extractDir = path.join(workDir, "extract");
-    await run("gh", ["release", "download", version, "--repo", app.repo, "--pattern", app.assetPattern, "--dir", downloadDir]);
+
+    try {
+        await run("gh", ["release", "download", version, "--repo", app.repo, "--pattern", app.assetPattern, "--dir", downloadDir]);
+
+    } catch (error) {
+        const release = JSON.parse(await run("gh", ["release", "view", version, "--repo", app.repo, "--json", "assets"]));
+        context.releaseAssets = release.assets.map((asset) => `${asset.name} (${asset.size} bytes)`);
+        throw error;
+    }
 
     const [zipName] = await readdir(downloadDir);
     await run("python3", ["-I", "-c", "import zipfile, sys; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])", path.join(downloadDir, zipName), extractDir]);
 
-    // The build sits in one folder inside the zip
     const topLevel = await readdir(extractDir);
     return topLevel.length === 1 ? path.join(extractDir, topLevel[0]) : extractDir;
 }
 
-// Checks the live app through Zero Trust with a service token
-async function verifyLive(appName, app, files) {
-    const clientId = process.env.CF_ACCESS_CLIENT_ID;
-    const clientSecret = process.env.CF_ACCESS_CLIENT_SECRET;
-    if (!clientId || !clientSecret) {
-        console.log(`${appName}: skipped live check, no CF_ACCESS_CLIENT_ID/CF_ACCESS_CLIENT_SECRET`);
-        return;
+async function listBucket(app) {
+    const {CLOUDFLARE_API_TOKEN: token, CLOUDFLARE_ACCOUNT_ID: accountId} = process.env;
+    if (!token || !accountId) throw new Error("CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID must be set");
+
+    const found = new Map();
+    let cursor = "";
+    do {
+        const query = new URLSearchParams({per_page: "500", ...(cursor && {cursor})});
+        const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${app.bucket}/objects?${query}`, {headers: {Authorization: `Bearer ${token}`}});
+        const body = await response.json();
+        if (!response.ok || !body.success) throw new Error(`Cloudflare API answered ${response.status}: ${JSON.stringify(body.errors)}`);
+        for (const object of body.result) found.set(object.key, object);
+        cursor = body.result_info?.is_truncated ? body.result_info.cursor : "";
+    } while (cursor);
+
+    return found;
+}
+
+async function removeExtras(appName, appDir, app, found, keep) {
+    const extras = [...found.keys()].filter((key) => key !== manifestKey && !keep.has(key));
+    for (const key of extras) {
+        await wrangler(appDir, ["r2", "object", "delete", `${app.bucket}/${key}`]);
+        console.log(`${appName}: deleted ${key}`);
+    }
+}
+
+// Sizes are only compared when the release files are local
+async function verifyBucket(appName, app, expected) {
+    const found = await listBucket(app);
+    const problems = [];
+    for (const [key, {size}] of expected) {
+        const object = found.get(key);
+        if (!object) problems.push(`missing ${key}`);
+        else if (size !== undefined && object.size !== size) problems.push(`${key} is ${object.size} bytes, expected ${size}`);
+        else if (object.http_metadata?.contentType !== contentTypeFor(key)) problems.push(`${key} has content type ${object.http_metadata?.contentType}, expected ${contentTypeFor(key)}`);
+    }
+    for (const key of found.keys()) {
+        if (key !== manifestKey && !expected.has(key)) problems.push(`unexpected ${key}`);
     }
 
-    const headers = {"CF-Access-Client-Id": clientId, "CF-Access-Client-Secret": clientSecret};
-    const request = async (key, method) => {
-        // A rejected token redirects to the login, which counts as a failure
-        const response = await fetch(`${app.url}/${key.split("/").map(encodeURIComponent).join("/")}`, {method, headers, redirect: "manual"});
-        if (response.status !== 200) throw new Error(`${method} ${key} returned ${response.status}`);
-        return response;
-    };
-
-    // The page, with the title the Worker sets
-    const page = await (await request("", "GET")).text();
-    if (!page.includes(`<title>${appName.replace(/^./, (letter) => letter.toUpperCase())} - Gui Ruggiero</title>`)) {
-        throw new Error("The live page doesn't have the expected title");
-    }
-
-    // Every file in the release
-    for (const key of files) await request(key, "HEAD");
-    console.log(`${appName}: live check passed for ${files.length + 1} requests`);
+    if (problems.length) throw new Error(`${problems.length} problem(s): ${problems.join("; ")}`);
+    console.log(`${appName}: bucket check passed for ${expected.size} files`);
 }
 
 async function main() {
@@ -120,57 +174,87 @@ async function main() {
     const force = process.argv.includes("--force");
     const app = apps[appName];
     if (!app) throw new Error(`Unknown app "${appName}", expected one of: ${Object.keys(apps).join(", ")}`);
+    Object.assign(context, {app: appName, repo: app.repo, bucket: app.bucket, assetPattern: app.assetPattern, force, pinned: option("version"), minAgeDays: option("min-age-days"), run: process.env.GITHUB_RUN_ID || "local"});
 
     const appDir = path.resolve(import.meta.dirname, appName);
     const workDir = await mkdtemp(path.join(tmpdir(), `${appName}-update-`));
 
     try {
-        // Latest release and what the bucket already has
-        const release = JSON.parse(await run("gh", ["release", "view", "--repo", app.repo, "--json", "tagName"]));
-        const version = release.tagName;
-        const previous = await readManifest(appDir, app.bucket, workDir);
-        console.log(`${appName}: latest ${version}, bucket has ${previous?.version || "nothing"}`);
+        const version = await step("choose the release", "gh couldn't read the repo's releases: check the repo name, GH_TOKEN and rate limits. If no release is old enough yet, the next run picks one up", () => chooseVersion(app, option("version"), Number(option("min-age-days"))));
+        context.target = version;
+
+        const found = await step("list the bucket", "Check that the R2 token can list the bucket, that CLOUDFLARE_ACCOUNT_ID is right and that the bucket name matches", () => listBucket(app));
+        context.bucketFiles = found.size;
+        const previous = found.has(manifestKey)
+            ? await step("read the manifest", "The manifest exists but couldn't be read: re-run, and if it persists check it in the bucket", () => readManifest(appDir, app.bucket, workDir))
+            : null;
+        context.bucketVersion = previous?.version || "nothing";
+        console.log(`${appName}: target ${version}, bucket has ${context.bucketVersion}`);
 
         if (previous?.version === version && !force) {
             console.log(`${appName}: up to date`);
-            await verifyLive(appName, app, previous.files);
+            await step("remove leftover files", "Delete the extra files from the bucket by hand, or re-run", () => removeExtras(appName, appDir, app, found, new Set(previous.files)));
+            await step("verify the bucket", "The bucket doesn't match the manifest: re-run with force to upload the release again", () => verifyBucket(appName, app, new Map(previous.files.map((key) => [key, {}]))));
             return;
         }
 
-        const siteDir = await downloadRelease(app, version, workDir);
+        const siteDir = await step("download the release", "Compare assetPattern with releaseAssets below: the web build may have been renamed", () => downloadRelease(app, version, workDir));
         const files = (await listFiles(siteDir)).filter((key) => !skippedFiles.has(key));
-        if (!files.includes("index.html")) throw new Error("No index.html in the release, refusing to upload");
+        context.releaseFiles = files.length;
+        if (!files.includes("index.html")) throw new StepError("check the release", new Error("No index.html in the release, refusing to upload"), "The release layout changed: look at the zip's contents");
+
+        // A new file type would be served as a generic download, so stop before touching the bucket
+        const unknown = files.filter((key) => key.includes(".") && !contentTypes[key.split(".").pop()]);
+        if (unknown.length) throw new StepError("check the release", new Error(`Files without a content type: ${unknown.join(", ")}`), "Add the extension to contentTypes in apps/update.js and to the Worker's fallback map in src/index.js, deploy the Worker, then re-run");
 
         // Hashed assets first and the page last, so visitors never get a page pointing at missing files
         const ordered = [...files.filter((key) => key !== "index.html"), "index.html"];
-        for (const key of ordered) {
-            await putObject(appDir, app.bucket, key, path.join(siteDir, key));
-            console.log(`${appName}: uploaded ${key}`);
-        }
+        await step("upload the release", "The bucket still serves the previous version, because index.html goes last: re-run", async () => {
+            for (const key of ordered) {
+                context.uploading = key;
+                await putObject(appDir, app.bucket, key, path.join(siteDir, key));
+                console.log(`${appName}: uploaded ${key}`);
+            }
+        });
 
-        const manifestFile = path.join(workDir, manifestKey);
-        await writeFile(manifestFile, JSON.stringify({version, files: ordered}, null, 4));
-        await putObject(appDir, app.bucket, manifestKey, manifestFile);
+        await step("write the manifest", "The release is uploaded but the manifest still names the previous version: re-run", async () => {
+            const manifestFile = path.join(workDir, manifestKey);
+            await writeFile(manifestFile, JSON.stringify({version, files: ordered}, null, 4));
+            await putObject(appDir, app.bucket, manifestKey, manifestFile);
+        });
 
-        // Only after everything uploaded, remove the previous version's files that this one doesn't have
-        const stale = (previous?.files || []).filter((key) => !ordered.includes(key));
-        for (const key of stale) {
-            await wrangler(appDir, ["r2", "object", "delete", `${app.bucket}/${key}`]);
-            console.log(`${appName}: deleted ${key}`);
-        }
+        await step("remove old files", "The app already runs the new version: re-run, which removes the leftovers", async () => removeExtras(appName, appDir, app, await listBucket(app), new Set(ordered)));
 
         console.log(`${appName}: updated to ${version}`);
-        await verifyLive(appName, app, ordered);
+        await step("verify the bucket", "Re-run with force to upload the release again", async () => {
+            const expected = new Map();
+            for (const key of ordered) expected.set(key, {size: (await stat(path.join(siteDir, key))).size});
+            await verifyBucket(appName, app, expected);
+        });
 
     } finally {
         await rm(workDir, {recursive: true, force: true});
     }
 }
 
+function report(error) {
+    const cause = error.cause || error;
+    console.error(`::error title=${context.app || "app"} update failed::${error.message.split("\n")[0]}`);
+    console.error([
+        `Update failed at step: ${error.step || context.step || "start"}`,
+        `Error: ${cause.message}`,
+        cause.cmd && `Command: ${cause.cmd}`,
+        cause.code !== undefined && `Exit code: ${cause.code}`,
+        cause.stderr && `stderr: ${String(cause.stderr).trim()}`,
+        `Context: ${JSON.stringify(context, null, 4)}`,
+        error.hint && `What to try: ${error.hint}`,
+    ].filter(Boolean).join("\n"));
+}
+
 try {
     await main();
 
 } catch (error) {
-    console.error("Update failed:", error.message, error.stderr || "");
+    report(error);
     process.exitCode = 1;
 }
