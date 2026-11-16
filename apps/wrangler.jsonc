@@ -1,0 +1,21 @@
+{
+    "$schema": "./node_modules/wrangler/config-schema.json",
+    "name": "craft-apps",
+    "main": "src/worker.js",
+    "compatibility_date": "2026-11-12",
+    "observability": {"enabled": true},
+    "workers_dev": false,
+    "preview_urls": false,
+    "routes": [
+        {"pattern": "pdfcraft.guiruggiero.com", "custom_domain": true},
+        {"pattern": "photocraft.guiruggiero.com", "custom_domain": true},
+        {"pattern": "soundcraft.guiruggiero.com", "custom_domain": true},
+        {"pattern": "filmcraft.guiruggiero.com", "custom_domain": true}
+    ],
+    "r2_buckets": [
+        {"binding": "BUCKET_PDFCRAFT", "bucket_name": "pdfcraft"},
+        {"binding": "BUCKET_PHOTOCRAFT", "bucket_name": "photocraft"},
+        {"binding": "BUCKET_SOUNDCRAFT", "bucket_name": "soundcraft"},
+        {"binding": "BUCKET_FILMCRAFT", "bucket_name": "filmcraft"}
+    ]
+}

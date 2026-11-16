@@ -9,7 +9,7 @@ import eslintPluginYml from "eslint-plugin-yml";
 
 export default defineConfig([
     // Global configuration
-    {ignores: ["guipt/**", "**/.venv*/**", "apps/*/release/**"]},
+    {ignores: ["guipt/**", "**/.venv*/**", "apps/release/**"]},
 
     // JavaScript configuration
     {
@@ -57,7 +57,7 @@ export default defineConfig([
         languageOptions: {globals: {...globals.node}},
     },
     {
-        files: ["apps/*/src/**/*.js"],
+        files: ["apps/src/**/*.js"],
         languageOptions: {globals: {...globals.serviceworker, HTMLRewriter: "readonly"}},
     },
 

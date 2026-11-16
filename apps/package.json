@@ -1,5 +1,5 @@
 {
-    "name": "pdfcraft-host",
+    "name": "craft-apps-host",
     "version": "1.0.0",
     "private": true,
     "type": "module",
@@ -9,7 +9,7 @@
     "scripts": {
         "dev": "wrangler dev",
         "whoami": "npx wrangler whoami",
-        "update-app": "node ../update.js pdfcraft",
+        "update-app": "node update.js",
         "deploy": "wrangler deploy"
     },
     "devDependencies": {

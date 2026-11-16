@@ -9,4 +9,4 @@ setup_config.json
 .DS_Store
 firestore.rules
 .wrangler/
-apps/*/release/
+apps/release/

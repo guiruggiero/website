@@ -1,5 +1,5 @@
 // Updates an app's R2 bucket from the latest GitHub release of its web build
-// Run with `npm run update-app [-- --force] [--version <tag>] [--min-age-days <n>]` from the app's folder - needs gh, python3, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+// Run with `npm run update-app -- [<app>...] [--force] [--version <tag>] [--min-age-days <n>]` from this folder - needs gh, python3, CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
 
 // Imports
 import {promisify} from "node:util";
@@ -17,6 +17,23 @@ const apps = {
         bucket: "pdfcraft",
         assetPattern: "pdfcraft-web-*.zip",
     },
+    photocraft: {
+        repo: "storytold/photocraft",
+        bucket: "photocraft",
+        assetPattern: "photocraft-web-*.zip",
+        // Upstream bug (storytold/photocraft#10017): the loader imports ./snippets/, shipped only at the root
+        copies: {"snippets/": "app/snippets/"},
+    },
+    soundcraft: {
+        repo: "storytold/soundcraft",
+        bucket: "soundcraft",
+        assetPattern: "soundcraft-web-*.zip",
+    },
+    filmcraft: {
+        repo: "storytold/filmcraft",
+        bucket: "filmcraft",
+        assetPattern: "filmcraft-web-*.zip",
+    },
 };
 
 // Host config files from the zip - the Worker applies those rules itself
@@ -31,9 +48,13 @@ const contentTypes = {
     txt: "text/plain; charset=utf-8",
     md: "text/markdown; charset=utf-8",
     json: "application/json",
+    png: "image/png",
 };
 
 const manifestKey = "manifest.json";
+
+// Gzipped pieces of an app's WASM, served as they are
+const partFile = /\.part-[a-z]+$/;
 
 const context = {};
 
@@ -71,7 +92,7 @@ function option(name) {
 
 // An explicit version wins, then the newest release old enough, else the latest
 async function chooseVersion(app, pinned, minAgeDays) {
-    if (pinned) return pinned;
+    if (pinned) return /^\d/.test(pinned) ? `v${pinned}` : pinned;
     if (!minAgeDays) return JSON.parse(await run("gh", ["release", "view", "--repo", app.repo, "--json", "tagName"])).tagName;
 
     const releases = JSON.parse(await run("gh", ["release", "list", "--repo", app.repo, "--exclude-drafts", "--exclude-pre-releases", "--limit", "30", "--json", "tagName,publishedAt"]));
@@ -169,14 +190,13 @@ async function verifyBucket(appName, app, expected) {
     console.log(`${appName}: bucket check passed for ${expected.size} files`);
 }
 
-async function main() {
-    const appName = process.argv[2];
+async function updateApp(appName) {
     const force = process.argv.includes("--force");
     const app = apps[appName];
     if (!app) throw new Error(`Unknown app "${appName}", expected one of: ${Object.keys(apps).join(", ")}`);
     Object.assign(context, {app: appName, repo: app.repo, bucket: app.bucket, assetPattern: app.assetPattern, force, pinned: option("version"), minAgeDays: option("min-age-days"), run: process.env.GITHUB_RUN_ID || "local"});
 
-    const appDir = path.resolve(import.meta.dirname, appName);
+    const appDir = import.meta.dirname;
     const workDir = await mkdtemp(path.join(tmpdir(), `${appName}-update-`));
 
     try {
@@ -199,20 +219,35 @@ async function main() {
         }
 
         const siteDir = await step("download the release", "Compare assetPattern with releaseAssets below: the web build may have been renamed", () => downloadRelease(app, version, workDir));
-        const files = (await listFiles(siteDir)).filter((key) => !skippedFiles.has(key));
+        const releaseFiles = (await listFiles(siteDir)).filter((key) => !skippedFiles.has(key));
+
+        // Bucket key -> file in the release, plus the app's copies
+        const sources = new Map(releaseFiles.map((key) => [key, key]));
+        for (const [from, to] of Object.entries(app.copies || {})) {
+            for (const key of releaseFiles.filter((file) => file.startsWith(from))) {
+                const target = to + key.slice(from.length);
+                if (!sources.has(target)) sources.set(target, key);
+            }
+
+            // No source and no existing destination: upstream changed the layout
+            if (![...sources.keys()].some((key) => key.startsWith(to))) {
+                throw new StepError("check the release", new Error(`Nothing to copy from ${from} to ${to}, and ${to} isn't in the release either`), "Upstream changed the zip layout: open the app, find where the missing files moved, and update or drop this app's copies setting");
+            }
+        }
+        const files = [...sources.keys()];
         context.releaseFiles = files.length;
         if (!files.includes("index.html")) throw new StepError("check the release", new Error("No index.html in the release, refusing to upload"), "The release layout changed: look at the zip's contents");
 
-        // A new file type would be served as a generic download, so stop before touching the bucket
-        const unknown = files.filter((key) => key.includes(".") && !contentTypes[key.split(".").pop()]);
-        if (unknown.length) throw new StepError("check the release", new Error(`Files without a content type: ${unknown.join(", ")}`), "Add the extension to contentTypes in apps/update.js and to the Worker's fallback map in src/index.js, deploy the Worker, then re-run");
+        // Stop before touching the bucket on a file type without a content type
+        const unknown = files.filter((key) => key.includes(".") && !contentTypes[key.split(".").pop()] && !partFile.test(key));
+        if (unknown.length) throw new StepError("check the release", new Error(`Files without a content type: ${unknown.join(", ")}`), "Add the extension to contentTypes in apps/update.js and to the Worker's fallback map in apps/shared/worker.js, deploy the Worker, then re-run");
 
         // Hashed assets first and the page last, so visitors never get a page pointing at missing files
         const ordered = [...files.filter((key) => key !== "index.html"), "index.html"];
         await step("upload the release", "The bucket still serves the previous version, because index.html goes last: re-run", async () => {
             for (const key of ordered) {
                 context.uploading = key;
-                await putObject(appDir, app.bucket, key, path.join(siteDir, key));
+                await putObject(appDir, app.bucket, key, path.join(siteDir, sources.get(key)));
                 console.log(`${appName}: uploaded ${key}`);
             }
         });
@@ -228,7 +263,7 @@ async function main() {
         console.log(`${appName}: updated to ${version}`);
         await step("verify the bucket", "Re-run with force to upload the release again", async () => {
             const expected = new Map();
-            for (const key of ordered) expected.set(key, {size: (await stat(path.join(siteDir, key))).size});
+            for (const key of ordered) expected.set(key, {size: (await stat(path.join(siteDir, sources.get(key)))).size});
             await verifyBucket(appName, app, expected);
         });
 
@@ -251,10 +286,24 @@ function report(error) {
     ].filter(Boolean).join("\n"));
 }
 
-try {
-    await main();
+// App names are the arguments that aren't flags or flag values
+const names = process.argv.slice(2).filter((argument, index, all) => !argument.startsWith("--") && !(all[index - 1] || "").match(/^--(version|min-age-days)$/));
 
-} catch (error) {
-    report(error);
+if (option("version") && names.length !== 1) {
+    console.error("--version needs exactly one app name");
     process.exitCode = 1;
+
+} else {
+    // One failing app doesn't stop the others
+    for (const appName of names.length ? names : Object.keys(apps)) {
+        for (const key of Object.keys(context)) delete context[key];
+
+        try {
+            await updateApp(appName);
+
+        } catch (error) {
+            report(error);
+            process.exitCode = 1;
+        }
+    }
 }
