@@ -8,7 +8,7 @@ Receives `{message, history}` — stateless, history is passed in from the clien
 
 1. Sanitizes and validates input
 2. Fetches the system prompt from Langfuse (3-minute cache)
-3. Calls Google Gemini (`gemini-flash-lite-latest`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`)
+3. Calls Google Gemini (`gemini-3.5-flash-lite`, temp 0.4, max 400 tokens) with safety filters (harassment/hate/explicit at `LOW_AND_ABOVE`, dangerous content at `MEDIUM_AND_ABOVE`)
 4. Returns a plain-text response
 
 **Access**: CORS restricted to `guiruggiero.com` and the ngrok dev URL, plus a server-side origin check that returns 403 for unknown origins.

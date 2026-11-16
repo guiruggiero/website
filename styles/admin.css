@@ -20,6 +20,30 @@
         white-space: nowrap;
     }
 
+    /* Last app update: colored icon linking to the run, plain text */
+    .update-icon {
+        display: inline-flex;
+        margin-left: -6px; /* Closer to its text than to the button */
+        font-size: 1.1em;
+        color: var(--secondary-text-color);
+    }
+
+        .update-icon iconify-icon {
+            color: inherit; /* Icons have their own color */
+        }
+
+        .update-icon:not([href]) {
+            pointer-events: none;
+        }
+
+        .update-icon[data-state="up"] {
+            color: var(--status-up-color);
+        }
+
+        .update-icon[data-state="down"] {
+            color: var(--status-down-color);
+        }
+
     .external-link {
         display: inline-flex;
         align-items: center;
@@ -171,6 +195,73 @@ main {
                     color: var(--primary-text-color);
                     font-weight: 600;
                     border-bottom-color: var(--accent-color);
+                }
+
+        /* Apps page - live apps first, four to a row, the rest smaller below */
+        #app-cards {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr); /* Live cards span 3, the rest 4 */
+            gap: 16px;
+        }
+
+            #app-cards > * {
+                grid-column: span 3;
+            }
+
+            #app-cards > .app-card-soon {
+                grid-column: span 4;
+            }
+
+            /* The whole card is the link, icon on top and centered */
+            .service-card.app-card {
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                padding: 28px 16px;
+                text-align: center;
+                text-decoration: none;
+                transition: border-color 0.3s ease;
+            }
+
+                .app-card:hover {
+                    border-color: var(--accent-color);
+                }
+
+                .app-card iconify-icon {
+                    font-size: 72px;
+                    flex-shrink: 0;
+                }
+
+                .app-card-text {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                    .app-card-text h2 {
+                        font-size: 1.05em;
+                        font-weight: 600;
+                    }
+
+            /* Not hosted yet - compact, greyed out and not clickable */
+            .service-card.app-card-soon {
+                gap: 8px;
+                padding: 16px 10px;
+                opacity: 0.5;
+                cursor: default;
+            }
+
+                .app-card-soon:hover {
+                    border-color: var(--media-border-color); /* No hover cue, it isn't a link */
+                }
+
+                .app-card-soon iconify-icon {
+                    font-size: 32px;
+                    filter: grayscale(1);
+                }
+
+                .app-card-soon h2 {
+                    font-size: 0.9em;
                 }
 
         /* Live services left, mock card right */
@@ -591,6 +682,36 @@ main {
     #service-cards {
         grid-template-columns: 1fr;
     }
+
+    /* Live apps two a row, the rest three, with smaller cards */
+    #app-cards {
+        gap: 10px;
+    }
+
+        #app-cards > * {
+            grid-column: span 6;
+        }
+
+        #app-cards > .app-card-soon {
+            grid-column: span 4;
+        }
+
+        .service-card.app-card {
+            gap: 8px;
+            padding: 16px 8px;
+        }
+
+            .app-card iconify-icon {
+                font-size: 48px;
+            }
+
+        .service-card.app-card-soon {
+            padding: 12px 4px;
+        }
+
+            .app-card-soon iconify-icon {
+                font-size: 28px;
+            }
 
     /* Two rows: collection + presets, then the two dates side by side */
     .filters {
