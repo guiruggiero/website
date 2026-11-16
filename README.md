@@ -16,6 +16,8 @@ The rest of the site is my professional highlight reel (a.k.a. résumé) and a c
 ## 📝 TODOs
 
 - `resume.html` ("Search engine tags" block in `<head>`, ~line 42): revisit the search engine meta tags
+- `apps/update.js`: drop PhotoCraft's `copies` setting once [photocraft#10248](https://github.com/storytold/photocraft/pull/10248) (the zip missing `app/snippets/`) is released
+- FilmCraft's H.264 export fails in the web build until [filmcraft#4636](https://github.com/storytold/filmcraft/pull/4636) is released, and the weekly update installs the fix on its own
 
 ## ✨ Features
 
