@@ -139,6 +139,8 @@ Pushing to the `prod` branch triggers the minification workflow:
 7. Minified output force-pushed to `prod-min` branch
 8. GitHub Pages serves from `prod-min`; Cloudflare cache is then purged
 
+Cloudflare's SSL mode is Full (strict), so GitHub Pages' own certificate for `guiruggiero.com` must stay valid; if it lapses, the site returns 526 (the Sentry uptime monitor alerts). The fix: set the apex and `www` DNS records to DNS only, remove and re-add the custom domain in GitHub Pages, tick Enforce HTTPS once the certificate issues, then proxy the records again.
+
 The `main` branch is for development; `prod` is the pre-minification source; `prod-min` is what's actually served at guiruggiero.com. To tell whether a fix is live in production, don't use commit dates on `main` — check `git merge-base --is-ancestor <sha> origin/prod` (or `origin/prod-min`) and the `createdAt` of the latest `gh run list --branch prod` minification run, which is when browser caches really start counting.
 
 ### Syncing `main` into `prod`
