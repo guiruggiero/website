@@ -3,9 +3,6 @@
     "version": "1.0.0",
     "private": true,
     "type": "module",
-    "overrides": {
-        "minimatch": ">=11.0.1"
-    },
     "scripts": {
         "dev": "wrangler dev",
         "whoami": "npx wrangler whoami",

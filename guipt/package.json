@@ -26,8 +26,6 @@
   },
   "overrides": {
     "uuid": ">=11.1.1",
-    "qs": ">=6.16.0",
-    "proxy-addr": ">=2.0.8",
     "@sentry/bundler-plugins": {
       "glob": ">=14.0.2",
       "minimatch": ">=11.0.1"

@@ -73,7 +73,9 @@ export default {
             // Hashed assets are immutable, the page and unhashed files revalidate
             const extension = key.split(".").pop();
             if (!headers.has("content-type")) headers.set("content-type", contentTypes[extension] || "application/octet-stream");
-            headers.set("Cache-Control", key === "index.html" || app.revalidate.includes(key) ? "no-cache" : (extension === "wasm" || extension === "js" || extension.startsWith("part-")) ? "public, max-age=31536000, immutable" : "public, max-age=86400");
+            const isImmutable = extension === "wasm" || extension === "js" || extension.startsWith("part-");
+            const longCache = isImmutable ? "public, max-age=31536000, immutable" : "public, max-age=86400";
+            headers.set("Cache-Control", key === "index.html" || app.revalidate.includes(key) ? "no-cache" : longCache);
             headers.set("Accept-Ranges", "bytes");
 
             // Conditional request matched, no body
