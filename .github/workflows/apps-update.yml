@@ -17,7 +17,7 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: "0 8 * * 6" # Saturdays, 08:00 UTC (00:00 PT, like Dependabot)
+    - cron: "24 8 * * 6" # Saturdays, 08:24 UTC (off the hour, when GitHub's queue is busiest)
 
 concurrency:
   group: ${{ github.workflow }}
